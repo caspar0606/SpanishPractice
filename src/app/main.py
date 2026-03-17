@@ -1,9 +1,10 @@
 from datetime import datetime
 
 from src.app.score import calculate_score
+from src.core.config import weak_areas
 from src.domain.classes import ComputeStats, CurrentSession, Exercise, Progress, User
 from src.core.storage import create_new_user_file, load_user_state, save_user_state
-from src.domain.enums import Grammar, Tenses, Topics, ExerciseTypes, DifficultyLevels
+from src.domain.enums import Grammar, Tenses, Topics, ExerciseTypes, DifficultyLevels, DIFFICULTY_CONFIG
 
 
 def create_user(name: str) -> User:
@@ -61,13 +62,14 @@ weak_or_preferences = input("Do you want to focus on weak areas or your preferen
 
 if weak_or_preferences == "weak":
     print("Focusing on weak areas...")
-
+    weak_areas_tenses, weak_areas_grammar, weak_areas_topics = weak_areas(current_session)
     # Logic to determine weak areas and set focus_tenses, focus_grammar, focus_topics accordingly
 elif weak_or_preferences == "preferences":
     print("Focusing on your preferences...")
     # Logic to ask user for preferences and set focus_tenses, focus_grammar, focus_topics accordingly
 
 difficulty_level = input("Choose a difficulty level (beginner/novice/intermediate): ").strip().lower()
+
 if difficulty_level == "beginner":
     current_session.current_exercise.difficulty_level = DifficultyLevels.BEGINNER
 elif difficulty_level == "novice":
@@ -77,15 +79,5 @@ elif difficulty_level == "intermediate":
 else:
     print("Invalid difficulty level. Defaulting to beginner.")
     current_session.current_exercise.difficulty_level = DifficultyLevels.BEGINNER
-
-def weak_areas(current_session: CurrentSession):
-    difficulty_level = current_session.current_exercise.difficulty_level
-    
-    weak_tenses = [tense for tense, stats in user.progress.tenses.items() if calculate_score(stats) < 50]
-    weak_grammar = [grammar for grammar, stats in user.progress.grammar.items() if calculate_score(stats) < 50]
-    weak_topics = [topic for topic, stats in user.progress.topics.items() if calculate_score(stats) < 50]
-    return weak_tenses, weak_grammar, weak_topics
-
-
 
 
