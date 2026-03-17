@@ -14,12 +14,6 @@ class Progress(BaseModel):
     grammar: dict[str, ComputeStats]
     topics: dict[str, ComputeStats]
 
-class User(BaseModel):
-    name: str
-    progress: Progress
-    first_time: bool
-
-
 
 class Exercise(BaseModel):
     exercise_type: Optional[ExerciseTypes] = None
@@ -29,6 +23,13 @@ class Exercise(BaseModel):
     focus_topics: Optional[list[Topics]] = None
     start_time: datetime
     end_time: Optional[datetime] = None
+
+class User(BaseModel):
+    name: str
+    progress: Progress
+    first_time: bool
+    history: Optional[list[Exercise]] = None
+    progress_history: Optional[list[Progress]] = None
 
 class CurrentSession(BaseModel):
     user: User
