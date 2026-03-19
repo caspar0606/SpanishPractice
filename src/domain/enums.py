@@ -36,34 +36,7 @@ class DifficultyLevels(str, Enum):
 
 class ExerciseTypes(str, Enum):
         WRITING = "writing"
-        SPEAKING = "speaking"
+        READING = "reading"
 
 
 
-class DifficultyConfig(BaseModel):
-    word_count: int
-    num_topics: int
-    num_tenses: int
-    num_grammar: int
-
-
-DIFFICULTY_CONFIG: dict[DifficultyLevels, DifficultyConfig] = {
-    DifficultyLevels.BEGINNER: DifficultyConfig(
-        word_count=60,
-        num_topics=1,
-        num_tenses=1,
-        num_grammar=2,
-    ),
-    DifficultyLevels.NOVICE: DifficultyConfig(
-        word_count=120,
-        num_topics=1,
-        num_tenses=2,
-        num_grammar=3,
-    ),
-    DifficultyLevels.INTERMEDIATE: DifficultyConfig(
-        word_count=200,
-        num_topics=2,
-        num_tenses=3,
-        num_grammar=4,
-    ),
-}

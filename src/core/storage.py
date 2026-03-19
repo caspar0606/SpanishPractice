@@ -14,14 +14,16 @@ def create_new_user_file(username: str):
     user_file.parent.mkdir(exist_ok=True)
 
     if user_file.exists():
-        raise FileExistsError(f"User '{username}' already exists.")
+        print(f"User '{username}' already exists.")
+        return None
 
     user_file.touch()
 
-def load_user_state(username: str) -> User:
+def load_user_state(username: str):
     user_file = Path(f"userdata/{username}.json")
     if not user_file.exists():
-        raise FileNotFoundError(f"No data found for user '{username}'")
+        print(f"User '{username}' not found. Please create a new user.")
+        return None
     
     with user_file.open("r") as f:
         user_data = json.load(f)

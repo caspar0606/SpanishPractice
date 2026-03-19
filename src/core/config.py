@@ -22,3 +22,8 @@ def weak_areas(current_session: CurrentSession):
 
     return sorted_tenses[:config.num_tenses], sorted_grammar[:config.num_grammar], sorted_topics[:config.num_topics]
 
+def print_big_lines():
+    print("\n" + "-"*50 + "\n")
+
+def print_small_lines():
+    print("\n" + "-"*20 + "\n")
