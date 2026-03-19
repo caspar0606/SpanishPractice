@@ -60,12 +60,14 @@ TOPIC_PREFERENCES_CONFIG: dict[str, str] = {
 
 
 def tense_preferences(pref: str):
+    # Checks that input only contains relevant numbers
     if re.fullmatch(r"[1-5]+", pref) is None:
         print("Invalid number selected, please select from 1-5.")
         return None
 
+    # Builds list of Tenses based on user input and config mapping
     preferences = [
-        tense
+        Tenses(tense)
         for tense, digit in TENSE_PREFERENCES_CONFIG.items()
         if digit in pref
     ]
@@ -79,7 +81,7 @@ def grammar_preferences(pref: str):
         return None
 
     preferences = [
-        grammar
+        Grammar(grammar)
         for grammar, digit in GRAMMAR_PREFERENCES_CONFIG.items()
         if digit in pref
     ]
@@ -93,7 +95,7 @@ def topic_preferences(pref: str):
         return None
 
     preferences = [
-        topic
+        Topics(topic)
         for topic, digit in TOPIC_PREFERENCES_CONFIG.items()
         if digit in pref
     ]
