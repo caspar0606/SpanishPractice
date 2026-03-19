@@ -1,9 +1,10 @@
 from src.app.score import calculate_score
 from src.domain.classes import CurrentSession
+from src.domain.preferences import DIFFICULTY_CONFIG
 
 
 def weak_areas(current_session: CurrentSession):
-    config = DIFFICULTY_CONFIG[current_session.current_exercise.difficulty_level] # type: ignore
+    config = DIFFICULTY_CONFIG[current_session.current_exercise.difficulty_level] 
 
     sorted_tenses = sorted(
     current_session.user.progress.tenses.items(),

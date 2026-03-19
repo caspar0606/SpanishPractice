@@ -5,7 +5,7 @@ from src.core.config import weak_areas, print_big_lines, print_small_lines
 from src.domain.classes import ComputeStats, CurrentSession, Exercise, Progress, User
 from src.core.storage import create_new_user_file, load_user_state, save_user_state
 from src.domain.enums import Grammar, Tenses, Topics, ExerciseTypes, DifficultyLevels
-from src.domain.preferences import grammar_preferences, tense_preferences, topic_preferences, PREFERENCES_CONFIG
+from src.domain.preferences import grammar_preferences, tense_preferences, topic_preferences, TENSE_PREFERENCES_CONFIG, GRAMMAR_PREFERENCES_CONFIG, TOPIC_PREFERENCES_CONFIG
 from src.app.score import print_scores
 
 
@@ -25,7 +25,7 @@ while True:
 
     if response == "yes":
         user = create_user(input("Enter your new username: ").strip().lower())
-        if create_new_user_file(user.name) == None:
+        if create_new_user_file(user.name) == 1:
             continue
         save_user_state(user)
         break
@@ -81,8 +81,7 @@ while True:
 
     if weak_or_preferences == "weak":
         print("Focusing on weak areas...")
-        weak_areas_tenses, weak_areas_grammar, weak_areas_topics = weak_areas(current_session)
-        
+
         while True:
             print_big_lines()
             difficulty_level = input("Choose a difficulty level (beginner/novice/intermediate): ").strip().lower()
@@ -100,16 +99,42 @@ while True:
             else:
                 print("Invalid difficulty level. choose either 'beginner', 'novice', or 'intermediate'.")
 
+        weak_areas_tenses, weak_areas_grammar, weak_areas_topics = weak_areas(current_session)
+        break
+    
     elif weak_or_preferences == "preferences":
         print_small_lines()
         # Logic to ask user for preferences and set focus_tenses, focus_grammar, focus_topics accordingly
-        focus_tenses = tense_preferences(input(f"Enter tense preferences: \n{PREFERENCES_CONFIG[Tenses.PRESENTE_DE_INDICATIVO]} for presente de indicativo \n{PREFERENCES_CONFIG[Tenses.PRETERITO_IMPERFECTO]} for preterito imperfecto \n{PREFERENCES_CONFIG[Tenses.PRETERITO_PERFECTO_SIMPLE]} for preterito perfecto simple \n{PREFERENCES_CONFIG[Tenses.FUTURO_SIMPLE]} for futuro simple \n{PREFERENCES_CONFIG[Tenses.CONDICIONAL_SIMPLE]} for condicional simple)\n: ").strip())
+        if (focus_tenses := tense_preferences(input(f"Enter tense preferences: "
+                                                   f"\n{TENSE_PREFERENCES_CONFIG[Tenses.PRESENTE_DE_INDICATIVO]} for presente de indicativo"
+                                                   f"\n{TENSE_PREFERENCES_CONFIG[Tenses.PRETERITO_IMPERFECTO]} for preterito imperfecto " 
+                                                   f"\n{TENSE_PREFERENCES_CONFIG[Tenses.PRETERITO_PERFECTO_SIMPLE]} for preterito perfecto simple" 
+                                                   f"\n{TENSE_PREFERENCES_CONFIG[Tenses.FUTURO_SIMPLE]} for futuro simple " 
+                                                   f"\n{TENSE_PREFERENCES_CONFIG[Tenses.CONDICIONAL_SIMPLE]} for condicional simple"
+                                                   "\n: ").strip())) is None:
+            continue
         print_small_lines()
-        focus_grammar = grammar_preferences(input(f"Enter grammar preferences: \n{PREFERENCES_CONFIG[Grammar.GENDER_AGREEMENT]} for gender agreement \n{PREFERENCES_CONFIG[Grammar.PLURALITY_AGREEMENT]} for plurality agreement \n{PREFERENCES_CONFIG[Grammar.POR_PARA_USAGE]} for por/para usage \n{PREFERENCES_CONFIG[Grammar.INDIRECT_DIRECT_PRONOUN_USAGE]} for indirect/direct pronoun usage \n{PREFERENCES_CONFIG[Grammar.VERB_SUBJECT_CONJUGATION]} for verb-subject conjugation\n: ").strip())
+        if (focus_grammar := grammar_preferences(input(f"Enter grammar preferences: "
+                                                      f"\n{GRAMMAR_PREFERENCES_CONFIG[Grammar.GENDER_AGREEMENT]} for gender agreement"
+                                                       f"\n{GRAMMAR_PREFERENCES_CONFIG[Grammar.PLURALITY_AGREEMENT]} for plurality agreement"
+                                                       f"\n{GRAMMAR_PREFERENCES_CONFIG[Grammar.POR_PARA_USAGE]} for por/para usage"
+                                                       f"\n{GRAMMAR_PREFERENCES_CONFIG[Grammar.INDIRECT_DIRECT_PRONOUN_USAGE]} for indirect/direct pronoun usage"
+                                                       f"\n{GRAMMAR_PREFERENCES_CONFIG[Grammar.VERB_SUBJECT_CONJUGATION]} for verb-subject conjugation"
+                                                       "\n: ").strip())) is None:
+            continue
         print_small_lines()
-        focus_topics = topic_preferences(input(f"Enter topic preferences: \n{PREFERENCES_CONFIG[Topics.TRAVEL]} for travel \n{PREFERENCES_CONFIG[Topics.SCHOOL]} for school \n{PREFERENCES_CONFIG[Topics.WORK]} for work \n{PREFERENCES_CONFIG[Topics.CULTURE]} for culture \n{PREFERENCES_CONFIG[Topics.CURRENT_EVENTS]} for current events \n{PREFERENCES_CONFIG[Topics.EMOTIONS]} for emotions \n{PREFERENCES_CONFIG[Topics.RELATIONSHIPS]} for relationships\n: ").strip())
+        if (focus_topics := topic_preferences(input(f"Enter topic preferences: " 
+                                                   f"\n{TOPIC_PREFERENCES_CONFIG[Topics.TRAVEL]} for travel "
+                                                   f"\n{TOPIC_PREFERENCES_CONFIG[Topics.SCHOOL]} for school "
+                                                   f"\n{TOPIC_PREFERENCES_CONFIG[Topics.WORK]} for work "
+                                                   f"\n{TOPIC_PREFERENCES_CONFIG[Topics.CULTURE]} for culture "
+                                                   f"\n{TOPIC_PREFERENCES_CONFIG[Topics.CURRENT_EVENTS]} for current events "
+                                                   f"\n{TOPIC_PREFERENCES_CONFIG[Topics.EMOTIONS]} for emotions "
+                                                   f"\n{TOPIC_PREFERENCES_CONFIG[Topics.RELATIONSHIPS]} for relationships"
+                                                   "\n: ").strip())) is None:
+            continue
         break
     else:
         print("Invalid choice. Please enter 'weak' or 'preferences'.")
 
-
+print(focus_grammar, "\n", focus_tenses, "\n", focus_topics)

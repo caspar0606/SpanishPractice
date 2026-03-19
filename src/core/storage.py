@@ -15,7 +15,7 @@ def create_new_user_file(username: str):
 
     if user_file.exists():
         print(f"User '{username}' already exists.")
-        return None
+        return 1
 
     user_file.touch()
 

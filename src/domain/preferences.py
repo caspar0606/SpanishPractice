@@ -1,5 +1,8 @@
+import re
+
 from pydantic import BaseModel
 from src.domain.enums import DifficultyLevels, Tenses, Grammar, Topics
+import re
 
 class DifficultyConfig(BaseModel):
     word_count: int
@@ -29,19 +32,22 @@ DIFFICULTY_CONFIG: dict[DifficultyLevels, DifficultyConfig] = {
     ),
 }
 
-PREFERENCES_CONFIG: dict[str, str] = {
+TENSE_PREFERENCES_CONFIG: dict[str, str] = {
     Tenses.PRESENTE_DE_INDICATIVO: "1",
     Tenses.PRETERITO_IMPERFECTO: "2",
     Tenses.PRETERITO_PERFECTO_SIMPLE: "3",
     Tenses.FUTURO_SIMPLE: "4",
     Tenses.CONDICIONAL_SIMPLE: "5",
-
+}
+GRAMMAR_PREFERENCES_CONFIG: dict[str, str] = {
     Grammar.GENDER_AGREEMENT: "1",
     Grammar.PLURALITY_AGREEMENT: "2",
     Grammar.POR_PARA_USAGE: "3",
     Grammar.INDIRECT_DIRECT_PRONOUN_USAGE: "4",
     Grammar.VERB_SUBJECT_CONJUGATION: "5",
+}
 
+TOPIC_PREFERENCES_CONFIG: dict[str, str] = {
     Topics.TRAVEL: "1",
     Topics.SCHOOL: "2",
     Topics.WORK: "3",
@@ -53,59 +59,44 @@ PREFERENCES_CONFIG: dict[str, str] = {
     
 
 
-
 def tense_preferences(pref: str):
-    preferences = []
-    if PREFERENCES_CONFIG[Tenses.PRESENTE_DE_INDICATIVO] in pref:
-        preferences.append(Tenses.PRESENTE_DE_INDICATIVO)
-    elif PREFERENCES_CONFIG[Tenses.PRETERITO_IMPERFECTO] in pref:
-        preferences.append(Tenses.PRETERITO_IMPERFECTO)
-    elif PREFERENCES_CONFIG[Tenses.PRETERITO_PERFECTO_SIMPLE] in pref:
-        preferences.append(Tenses.PRETERITO_PERFECTO_SIMPLE)
-    elif PREFERENCES_CONFIG[Tenses.FUTURO_SIMPLE] in pref:
-        preferences.append(Tenses.FUTURO_SIMPLE)
-    elif PREFERENCES_CONFIG[Tenses.CONDICIONAL_SIMPLE] in pref:
-        preferences.append(Tenses.CONDICIONAL_SIMPLE)
-    else:
-        print("Invalid input, no tense preferences selected.")
+    if re.fullmatch(r"[1-5]+", pref) is None:
+        print("Invalid number selected, please select from 1-5.")
         return None
 
-    return preferences
-    
-def grammar_preferences(pref: str) -> list[Grammar]:
-    preferences = []
-    if PREFERENCES_CONFIG[Grammar.GENDER_AGREEMENT] in pref:
-        preferences.append(Grammar.GENDER_AGREEMENT)
-    elif PREFERENCES_CONFIG[Grammar.PLURALITY_AGREEMENT] in pref:
-        preferences.append(Grammar.PLURALITY_AGREEMENT)
-    elif PREFERENCES_CONFIG[Grammar.POR_PARA_USAGE] in pref:
-        preferences.append(Grammar.POR_PARA_USAGE)
-    elif PREFERENCES_CONFIG[Grammar.INDIRECT_DIRECT_PRONOUN_USAGE] in pref:
-        preferences.append(Grammar.INDIRECT_DIRECT_PRONOUN_USAGE)
-    elif PREFERENCES_CONFIG[Grammar.VERB_SUBJECT_CONJUGATION] in pref:
-        preferences.append(Grammar.VERB_SUBJECT_CONJUGATION)
-    else:
-        print("Invalid input, no grammar preferences selected.")
+    preferences = [
+        tense
+        for tense, digit in TENSE_PREFERENCES_CONFIG.items()
+        if digit in pref
+    ]
 
-    return preferences
-    
-def topic_preferences(pref: str) -> list[Topics]:
-    preferences = []
-    if PREFERENCES_CONFIG[Topics.TRAVEL] in pref:
-        preferences.append(Topics.TRAVEL)
-    elif PREFERENCES_CONFIG[Topics.SCHOOL] in pref:
-        preferences.append(Topics.SCHOOL)
-    elif PREFERENCES_CONFIG[Topics.WORK] in pref:
-        preferences.append(Topics.WORK)
-    elif PREFERENCES_CONFIG[Topics.CULTURE] in pref:
-        preferences.append(Topics.CULTURE)
-    elif PREFERENCES_CONFIG[Topics.CURRENT_EVENTS] in pref:
-        preferences.append(Topics.CURRENT_EVENTS)
-    elif PREFERENCES_CONFIG[Topics.EMOTIONS]     in pref:
-        preferences.append(Topics.EMOTIONS)
-    elif PREFERENCES_CONFIG[Topics.RELATIONSHIPS] in pref:
-        preferences.append(Topics.RELATIONSHIPS)
-    else:
-        print("Invalid input, no topic preferences selected.")
+    print("tense preferences:", preferences)
+    return preferences if preferences else None
 
-    return preferences
+def grammar_preferences(pref: str):
+    if re.fullmatch(r"[1-5]+", pref) is None:
+        print("Invalid number selected, please select from 1-5.")
+        return None
+
+    preferences = [
+        grammar
+        for grammar, digit in GRAMMAR_PREFERENCES_CONFIG.items()
+        if digit in pref
+    ]
+
+    print("grammar preferences:", preferences)
+    return preferences if preferences else None
+
+def topic_preferences(pref: str):
+    if re.fullmatch(r"[1-7]+", pref) is None:
+        print("Invalid number selected, please select from 1-7.")
+        return None
+
+    preferences = [
+        topic
+        for topic, digit in TOPIC_PREFERENCES_CONFIG.items()
+        if digit in pref
+    ]
+
+    print("topic preferences:", preferences)
+    return preferences if preferences else None
