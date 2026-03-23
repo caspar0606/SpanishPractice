@@ -1,7 +1,6 @@
 from datetime import datetime
 
-from src.core.config import weak_areas, print_big_lines, print_small_lines
-from src.core.user import create_user
+from src.core.user import create_user, weak_areas, print_big_lines, print_small_lines
 from src.domain.classes import CurrentSession, Exercise
 from src.core.storage import create_new_user_file, load_user_state, save_user_state
 from src.domain.enums import Grammar, Tenses, Topics, ExerciseTypes, DifficultyLevels
@@ -136,5 +135,3 @@ while True:
         break
     else:
         print("Invalid choice. Please enter 'weak' or 'preferences'.")
-
-print(current_session.current_exercise.focus_grammar, "\n", current_session.current_exercise.focus_tenses, "\n", current_session.current_exercise.focus_topics)
