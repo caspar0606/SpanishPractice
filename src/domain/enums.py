@@ -1,7 +1,5 @@
 from enum import Enum
 
-from pydantic import BaseModel
-
 class Tenses(str, Enum):
         PRESENTE_DE_INDICATIVO = "presente_de_indicativo"
         PRETERITO_PERFECTO_SIMPLE = "preterito_perfecto_simple"

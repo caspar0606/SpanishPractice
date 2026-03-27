@@ -1,8 +1,6 @@
 import re
-
 from pydantic import BaseModel
 from src.domain.enums import DifficultyLevels, Tenses, Grammar, Topics
-import re
 
 class DifficultyConfig(BaseModel):
     word_count: int

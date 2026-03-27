@@ -17,7 +17,7 @@ class Progress(BaseModel):
 
 class Exercise(BaseModel):
     exercise_type: Optional[ExerciseTypes] = None
-    difficulty_level: Optional[DifficultyLevels] = None
+    difficulty_level: DifficultyLevels
     focus_tenses: Optional[list[Tenses]] = None
     focus_grammar: Optional[list[Grammar]] = None
     focus_topics: Optional[list[Topics]] = None

@@ -1,12 +1,23 @@
 from datetime import datetime
 
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+api_key = os.getenv("OPENAI_API_KEY")
+print(api_key)
+
 from src.core.user import create_user, weak_areas, print_big_lines, print_small_lines
-from src.domain.classes import CurrentSession, Exercise
 from src.core.storage import create_new_user_file, load_user_state, save_user_state
+from src.llm.llm_classes import prompt_formatter
+from src.domain.classes import CurrentSession, Exercise
 from src.domain.enums import Grammar, Tenses, Topics, ExerciseTypes, DifficultyLevels
+from src.domain.classes import Exercise
 from src.domain.preferences import grammar_preferences, tense_preferences, topic_preferences, TENSE_PREFERENCES_CONFIG, GRAMMAR_PREFERENCES_CONFIG, TOPIC_PREFERENCES_CONFIG
 from src.app.score import print_scores
-from src.domain.classes import Exercise
+from src.llm.models import w_prompting_model
+from src.llm.prompts import w_prompting_system_prompt
 
 
 #### User Selection ####
@@ -48,23 +59,35 @@ while True:
 
 
 #### User Exercise Selection ####
-current_exercise = Exercise(
-    start_time=datetime.now())
-
-current_session.current_exercise = current_exercise 
+start_time = datetime.now()
 
 while True:
     print_big_lines()
     exercise_type = input("Choose an exercise type (writing/reading): ").strip().lower()
     if exercise_type == "writing":
-        current_session.current_exercise.exercise_type = ExerciseTypes.WRITING
+        exercise_type = ExerciseTypes.WRITING
         break
     elif exercise_type == "reading":
-        current_session.current_exercise.exercise_type = ExerciseTypes.READING
+        exercise_type = ExerciseTypes.READING
         break
     else:
         print("Invalid exercise type. please select either writing or reading.")
 
+
+while True:
+        print_big_lines()
+        user_difficulty_level = input("Choose a difficulty level (beginner/novice/intermediate): ").strip().lower()
+
+        # Sets exercise difficulty level based on user input using Enums
+        for difficulty in DifficultyLevels: 
+            if difficulty.value == user_difficulty_level:
+                difficulty_level = difficulty
+                break
+
+            else:
+                print("Invalid difficulty level. choose either 'beginner', 'novice', or 'intermediate'.")
+
+        break
 
 #### User Exercise Focus ####
 while True:
@@ -73,23 +96,11 @@ while True:
 
     if weak_or_preferences == "weak":
 
-        while True:
-            print_big_lines()
-            difficulty_level = input("Choose a difficulty level (beginner/novice/intermediate): ").strip().lower()
-
-            # Sets exercise difficulty level based on user input using Enums
-            for difficulty in DifficultyLevels: 
-                if difficulty.value == difficulty_level:
-                    current_session.current_exercise.difficulty_level = difficulty
-                    break
-            
-            else:
-                print("Invalid difficulty level. choose either 'beginner', 'novice', or 'intermediate'.")
-
+        
             # Assigns focus areas based on weakest areas determined by the weak_areas function 
-            current_session.current_exercise.focus_tenses, \
-            current_session.current_exercise.focus_grammar, \
-            current_session.current_exercise.focus_topics = weak_areas(current_session)
+            focus_tenses, \
+            focus_grammar, \
+            focus_topics = weak_areas(difficulty_level)
             break
         break
 
@@ -128,10 +139,26 @@ while True:
                                                     "\n: ").strip())) is None:
                 continue
 
-            current_session.current_exercise.focus_tenses = focus_tenses
-            current_session.current_exercise.focus_grammar = focus_grammar
-            current_session.current_exercise.focus_topics = focus_topics
+            focus_tenses = focus_tenses
+            focus_grammar = focus_grammar
+            focus_topics = focus_topics
             break
         break
     else:
         print("Invalid choice. Please enter 'weak' or 'preferences'.")
+current_exercise = Exercise(
+    difficulty_level=difficulty_level,
+    focus_grammar=focus_grammar,
+    focus_tenses=focus_tenses,
+    focus_topics=focus_topics,
+    start_time=start_time,
+)
+current_session.current_exercise = current_exercise
+
+llmprompt = prompt_formatter(current_session.current_exercise)
+
+if (current_exercise.exercise_type is ExerciseTypes.WRITING):
+    writing_prompt = w_prompting_model.invoke([
+        f"SystemMessage: {w_prompting_system_prompt}"
+        f"HumanMessage: {llmprompt}"])
+    print(writing_prompt)
