@@ -1,164 +1,46 @@
 from datetime import datetime
-
 from dotenv import load_dotenv
 import os
 
 load_dotenv()
-
 api_key = os.getenv("OPENAI_API_KEY")
-print(api_key)
 
-from src.core.user import create_user, weak_areas, print_big_lines, print_small_lines
-from src.core.storage import create_new_user_file, load_user_state, save_user_state
-from src.llm.llm_classes import prompt_formatter
-from src.domain.classes import CurrentSession, Exercise
-from src.domain.enums import Grammar, Tenses, Topics, ExerciseTypes, DifficultyLevels
-from src.domain.classes import Exercise
-from src.domain.preferences import grammar_preferences, tense_preferences, topic_preferences, TENSE_PREFERENCES_CONFIG, GRAMMAR_PREFERENCES_CONFIG, TOPIC_PREFERENCES_CONFIG
-from src.app.score import print_scores
+from src.core.user import user_selection
+from src.domain.classes import CurrentSession
+from src.domain.enums import ExerciseTypes
+from src.app.score import show_user_progress
+from src.app.exercise_selection import exercise_selection
 from src.llm.models import w_prompting_model
 from src.llm.prompts import w_prompting_system_prompt
+from src.llm.llm_classes import prompt_formatter
 
 
-#### User Selection ####
-while True:
-    response = input("Are you a new user (yes/no)?: ").strip().lower()
 
-    if response == "yes": # Creates a new user and saves it as a json file in the userdata directory
-        user = create_user(input("Enter your new username: ").strip().lower())
-        if create_new_user_file(user.name) == 1: # Checks if User already exists
-            continue
-        save_user_state(user)
-        break
-    
-    elif response == "no": # Loads user data
-        user = load_user_state(input("Welcome back! Please enter your username: ").strip().lower())
-        if user == None: # Checks if User exists
-            continue
-        break
-    else:
-        print("Invalid input. Please enter 'yes' or 'no'.")
+#User Selection
+user = user_selection()
 
+#Session Initialisation
 current_session = CurrentSession(
     user=user)
 
 
 #### User Progress ####
-while True:
-    print_big_lines()
-    print_user_progress = input("Would you like to see your progress (yes/no)?:\n").strip().lower()
-
-    if print_user_progress == "yes":
-        print_scores(user.progress)
-        break
-
-    elif print_user_progress == "no":
-        break
-    else:
-        print("Invalid input. Please enter 'yes' or 'no'.")
-
+show_user_progress(user)
 
 #### User Exercise Selection ####
-start_time = datetime.now()
+exercise = exercise_selection(current_session)
 
-while True:
-    print_big_lines()
-    exercise_type = input("Choose an exercise type (writing/reading): ").strip().lower()
-    if exercise_type == "writing":
-        exercise_type = ExerciseTypes.WRITING
-        break
-    elif exercise_type == "reading":
-        exercise_type = ExerciseTypes.READING
-        break
-    else:
-        print("Invalid exercise type. please select either writing or reading.")
-
-
-while True:
-        print_big_lines()
-        user_difficulty_level = input("Choose a difficulty level (beginner/novice/intermediate): ").strip().lower()
-
-        # Sets exercise difficulty level based on user input using Enums
-        for difficulty in DifficultyLevels: 
-            if difficulty.value == user_difficulty_level:
-                difficulty_level = difficulty
-                break
-
-            else:
-                print("Invalid difficulty level. choose either 'beginner', 'novice', or 'intermediate'.")
-
-        break
+current_session.current_exercise = exercise
 
 #### User Exercise Focus ####
-while True:
-    print_big_lines()
-    weak_or_preferences = input("Do you want to focus on weak areas or your preferences (weak/preferences)?: ").strip().lower()
-
-    if weak_or_preferences == "weak":
-
-        
-            # Assigns focus areas based on weakest areas determined by the weak_areas function 
-            focus_tenses, \
-            focus_grammar, \
-            focus_topics = weak_areas(difficulty_level)
-            break
-        break
-
-    elif weak_or_preferences == "preferences":
-
-        # Gets user preferences and assigns them to focus areas
-        while True:
-            print_small_lines()
-            if (focus_tenses := tense_preferences(input(f"Enter tense preferences: "
-                                                    f"\n{TENSE_PREFERENCES_CONFIG[Tenses.PRESENTE_DE_INDICATIVO]} for presente de indicativo"
-                                                    f"\n{TENSE_PREFERENCES_CONFIG[Tenses.PRETERITO_IMPERFECTO]} for preterito imperfecto " 
-                                                    f"\n{TENSE_PREFERENCES_CONFIG[Tenses.PRETERITO_PERFECTO_SIMPLE]} for preterito perfecto simple" 
-                                                    f"\n{TENSE_PREFERENCES_CONFIG[Tenses.FUTURO_SIMPLE]} for futuro simple " 
-                                                    f"\n{TENSE_PREFERENCES_CONFIG[Tenses.CONDICIONAL_SIMPLE]} for condicional simple"
-                                                    "\n: ").strip())) is None:
-                continue
-            print_small_lines()
-            if (focus_grammar := grammar_preferences(input(f"Enter grammar preferences: "
-                                                        f"\n{GRAMMAR_PREFERENCES_CONFIG[Grammar.GENDER_AGREEMENT]} for gender agreement"
-                                                        f"\n{GRAMMAR_PREFERENCES_CONFIG[Grammar.PLURALITY_AGREEMENT]} for plurality agreement"
-                                                        f"\n{GRAMMAR_PREFERENCES_CONFIG[Grammar.POR_PARA_USAGE]} for por/para usage"
-                                                        f"\n{GRAMMAR_PREFERENCES_CONFIG[Grammar.INDIRECT_DIRECT_PRONOUN_USAGE]} for indirect/direct pronoun usage"
-                                                        f"\n{GRAMMAR_PREFERENCES_CONFIG[Grammar.VERB_SUBJECT_CONJUGATION]} for verb-subject conjugation"
-                                                        "\n: ").strip())) is None:
-                continue    
-                    
-            print_small_lines()
-            if (focus_topics := topic_preferences(input(f"Enter topic preferences: " 
-                                                    f"\n{TOPIC_PREFERENCES_CONFIG[Topics.TRAVEL]} for travel "
-                                                    f"\n{TOPIC_PREFERENCES_CONFIG[Topics.SCHOOL]} for school "
-                                                    f"\n{TOPIC_PREFERENCES_CONFIG[Topics.WORK]} for work "
-                                                    f"\n{TOPIC_PREFERENCES_CONFIG[Topics.CULTURE]} for culture "
-                                                    f"\n{TOPIC_PREFERENCES_CONFIG[Topics.CURRENT_EVENTS]} for current events "
-                                                    f"\n{TOPIC_PREFERENCES_CONFIG[Topics.EMOTIONS]} for emotions "
-                                                    f"\n{TOPIC_PREFERENCES_CONFIG[Topics.RELATIONSHIPS]} for relationships"
-                                                    "\n: ").strip())) is None:
-                continue
-
-            focus_tenses = focus_tenses
-            focus_grammar = focus_grammar
-            focus_topics = focus_topics
-            break
-        break
-    else:
-        print("Invalid choice. Please enter 'weak' or 'preferences'.")
-current_exercise = Exercise(
-    difficulty_level=difficulty_level,
-    focus_grammar=focus_grammar,
-    focus_tenses=focus_tenses,
-    focus_topics=focus_topics,
-    start_time=start_time,
-)
-current_session.current_exercise = current_exercise
 
 llmprompt = prompt_formatter(current_session.current_exercise)
 
-if (current_exercise.exercise_type is ExerciseTypes.WRITING):
+if (exercise.exercise_type is ExerciseTypes.WRITING):
     writing_prompt = w_prompting_model.invoke([
         f"SystemMessage: {w_prompting_system_prompt}"
         f"HumanMessage: {llmprompt}"])
     print(writing_prompt)
+
+    
+

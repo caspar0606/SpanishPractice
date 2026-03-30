@@ -1,4 +1,5 @@
 from src.domain.classes import ComputeStats, Progress, User
+from src.core.user import print_big_lines
 
 
 # Calculates user score as a percentage of correct attempts over total attempts
@@ -29,3 +30,17 @@ def print_scores(user_progress: Progress):
     for topic, stats in user_progress.topics.items():
         score = calculate_score(stats)
         print(f"  {topic}: {score:.2f}%")
+
+def show_user_progress(user: User):
+    while True:
+        print_big_lines()
+        print_user_progress = input("Would you like to see your progress (yes/no)?:\n").strip().lower()
+
+        if print_user_progress == "yes":
+            print_scores(user.progress)
+            break
+
+        elif print_user_progress == "no":
+            break
+        else:
+            print("Invalid input. Please enter 'yes' or 'no'.")
