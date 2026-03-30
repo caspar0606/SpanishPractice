@@ -4,15 +4,14 @@ from pydantic import BaseModel
 from src.domain.enums import Tenses, Grammar, Topics, DifficultyLevels, ExerciseTypes
 
 
-
 class ComputeStats(BaseModel):
-    total_attempts: int
-    correct_attempts: int
+    total_attempts: int = 0
+    correct_attempts: int = 0
 
 class Progress(BaseModel):
-    tenses: dict[str, ComputeStats]
-    grammar: dict[str, ComputeStats]
-    topics: dict[str, ComputeStats]
+    tenses: dict[Tenses, ComputeStats]
+    grammar: dict[Grammar, ComputeStats]
+    topics: dict[Topics, ComputeStats]
 
 
 class Exercise(BaseModel):

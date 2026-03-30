@@ -7,4 +7,4 @@ class AgentNames(str, Enum):
     WRITING_SUMMARY = "writing_summary"
     READING_GENERATOR = "reading_generator"
     READING_MARKING = "reading_marking"
-    
+

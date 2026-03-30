@@ -20,8 +20,15 @@ def agent_run(agent_inputs: AgentInputs):
         name=agent_inputs.name
     )
 
-    response = agent.invoke({"messages": [HumanMessage(f"{agent_inputs.lesson_topics}, if None, Ignore."), 
-                                          HumanMessage(f"{agent_inputs.input_text}, if None, Ingore")]})
+    messages = []
+
+    if agent_inputs.lesson_topics is not None:
+        messages.append(HumanMessage(content=f"Lesson context:\n{agent_inputs.lesson_topics}"))
+
+    if agent_inputs.input_text is not None:
+        messages.append(HumanMessage(content=f"Input text:\n{agent_inputs.input_text}"))
+
+    response = agent.invoke({"messages": messages})
     
     return response
 

@@ -9,11 +9,19 @@ def calculate_score(compute_stats: ComputeStats) -> float:
     return (compute_stats.correct_attempts / compute_stats.total_attempts) * 100
 
 # Adds two ComputeStats objects together to combine their total and correct attempts
-def add_scores(compute_stats1: ComputeStats, compute_stats2: ComputeStats) -> ComputeStats:
-    total_attempts = compute_stats1.total_attempts + compute_stats2.total_attempts
-    correct_attempts = compute_stats1.correct_attempts + compute_stats2.correct_attempts
-    return ComputeStats(total_attempts=total_attempts, correct_attempts=correct_attempts)
+def add_scores(compute_stats1: ComputeStats, compute_stats2: ComputeStats) -> None:
+    compute_stats1.total_attempts += compute_stats2.total_attempts
+    compute_stats1.correct_attempts += compute_stats2.correct_attempts
 
+def combine_scores(progress: Progress, exercise: Progress):
+    for category in ["tenses", "grammar", "topics"]:
+        prog_dict = getattr(progress, category)
+        ex_dict = getattr(exercise, category)
+
+        for key in prog_dict:
+            add_scores(prog_dict[key], ex_dict[key])
+
+ 
 # Prints user scores for tenses, grammar, and topics in a readable format
 def print_scores(user_progress: Progress):
     print("Tenses:")

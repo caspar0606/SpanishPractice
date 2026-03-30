@@ -16,7 +16,7 @@ class AgentInputs(BaseModel):
     lesson_topics: Optional[str] = None
     system_prompt: str
     input_text: Optional[str] = None
-    output_schema: Optional[dict] = None
+    output_schema: type[BaseModel] | None = None
 
 
 def lesson_topics(exercise: Exercise | None):
