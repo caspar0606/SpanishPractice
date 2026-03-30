@@ -13,3 +13,12 @@ class WritingCorrection(BaseModel):
     topic_errors: dict[Topics, list[Edit]]
     typos: list[Edit]
     other_mistakes: list[Edit]
+
+class WritingSummary(BaseModel):
+    tense_edits: str
+    grammar_edits: str
+    topic_edits: str
+    general_feedback: str
+    
+
+    

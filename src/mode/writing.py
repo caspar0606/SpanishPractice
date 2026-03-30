@@ -3,8 +3,8 @@ from src.domain.classes import CurrentSession, Progress
 from src.llm.harness import agent_run
 from src.llm.input import lesson_topics, AgentInputs
 from src.llm.enums import AgentNames
-from src.llm.prompts import w_instruction_system_prompt, w_tagging_system_prompt, w_correcting_system_prompt
-from src.llm.output import WritingCorrection
+from src.llm.prompts import w_instruction_system_prompt, w_tagging_system_prompt, w_correcting_system_prompt, w_summary_system_prompt
+from src.llm.output import WritingCorrection, WritingSummary
 
 def writing_mode_run(current_session: CurrentSession):
     lesson_topic = lesson_topics(current_session.current_exercise)
@@ -17,12 +17,19 @@ def writing_mode_run(current_session: CurrentSession):
 
     user_response = input("\nPaste/write your response here: ")
 
-    print(f"\nAnalysing your response...")
+    print(f"\nTagging the response...")
     exercise_counts = progress_tagging(user_response, lesson_topic)
-    print(exercise_counts)
 
-    corrected_version = text_correction(user_response, lesson_topic, writing_instruction)
-    print(corrected_version)
+    print_big_lines()
+    print(f"Correcting the text...\n")
+    corrected_text = text_correction(user_response, lesson_topic, writing_instruction)
+    print(corrected_text.corrected_version)
+
+    print_big_lines()
+    print(f"Summarising corrections...\n")
+    summaries = correction_summary(corrected_text, lesson_topic, exercise_counts)
+    print(summaries.general_feedback)
+    
 
 def instruction_generation(lesson_topic: str | None):    
 
@@ -47,8 +54,10 @@ def progress_tagging(user_response: str, lesson_topic: str | None):
     )
 
     response = agent_run(agent_input)
-
-    return response["messages"][-1].content
+    ai_message = response["messages"][-1].content
+    tags = Progress.model_validate_json(ai_message)
+    
+    return tags 
 
 def text_correction(user_response: str, lesson_topic: str | None, writing_instruction: str):
 
@@ -62,4 +71,24 @@ def text_correction(user_response: str, lesson_topic: str | None, writing_instru
 
     response = agent_run(agent_input)
 
-    return response["messages"][-1].content
+    ai_message = response["messages"][-1].content
+    correction = WritingCorrection.model_validate_json(ai_message)
+    
+    return correction 
+
+def correction_summary(edits: WritingCorrection, lesson_topic: str | None, exercise_counts: Progress):
+
+    agent_input = AgentInputs(
+        name=AgentNames.WRITING_SUMMARY,
+        system_prompt=w_summary_system_prompt,
+        lesson_topics=lesson_topic,
+        output_schema=WritingSummary,
+        input_text=[str(edits.model_dump_json), str(exercise_counts.model_dump_json)]
+    )
+
+    response = agent_run(agent_input)
+
+    ai_message = response["messages"][-1].content
+    summary = WritingSummary.model_validate_json(ai_message)
+    
+    return summary 
