@@ -15,7 +15,7 @@ class AgentInputs(BaseModel):
     name: AgentNames
     lesson_topics: Optional[str] = None
     system_prompt: str
-    input_text: Optional[str] = None
+    input_text: Optional[list[str]] = None
     output_schema: type[BaseModel] | None = None
 
 
