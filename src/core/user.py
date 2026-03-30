@@ -2,6 +2,11 @@ from src.domain.classes import ComputeStats, Progress, User
 from src.domain.enums import Grammar, Tenses, Topics
 from src.domain.enums import Tenses
 from src.core.storage import create_new_user_file, save_user_state, load_user_state
+from src.app.score import calculate_score
+from src.domain.classes import User, DifficultyLevels
+from src.domain.enums import Grammar, Topics, Topics
+from src.domain.enums import Tenses
+from src.domain.preferences import DIFFICULTY_CONFIG
 
 # Creates a new user with initialised progress and name
 def create_user(name: str) -> User:
@@ -12,11 +17,6 @@ def create_user(name: str) -> User:
     )
     return User(name=name, progress=progress, first_time=True)
 
-from src.app.score import calculate_score
-from src.domain.classes import User, DifficultyLevels
-from src.domain.enums import Grammar, Topics, Topics
-from src.domain.enums import Tenses
-from src.domain.preferences import DIFFICULTY_CONFIG
 
 
 # Determines user's weakest area based on their progress and selected difficulty level
@@ -53,7 +53,7 @@ def user_selection():
             user = create_user(input("Enter your new username: ").strip().lower())
             if create_new_user_file(user.name) == 1: # Checks if User already exists
                 continue
-            
+
             save_user_state(user)
             return user
         
@@ -67,9 +67,3 @@ def user_selection():
         else:
             print("Invalid input. Please enter 'yes' or 'no'.")
 
-
-def print_big_lines():
-    print("\n" + "-"*50 + "\n")
-
-def print_small_lines():
-    print("\n" + "-"*20 + "\n")

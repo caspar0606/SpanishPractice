@@ -1,4 +1,4 @@
-w_prompting_system_prompt = """
+w_instruction_system_prompt = """
 You are a Spanish writing prompt generator. Your task is to generate a writing prompt in Spanish using the given:
 - topics
 - grammar concepts

@@ -1,4 +1,5 @@
-from src.core.user import print_big_lines, print_small_lines, weak_areas
+from src.core.user import weak_areas
+from src.core.display import print_big_lines, print_small_lines
 from src.domain.preferences import tense_preferences, topic_preferences, grammar_preferences, \
                                     TENSE_PREFERENCES_CONFIG, TOPIC_PREFERENCES_CONFIG, GRAMMAR_PREFERENCES_CONFIG, DifficultyLevels
 from src.domain.enums import Tenses, Grammar, Topics, ExerciseTypes
