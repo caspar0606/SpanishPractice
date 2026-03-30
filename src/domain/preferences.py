@@ -3,7 +3,8 @@ from pydantic import BaseModel
 from src.domain.enums import DifficultyLevels, Tenses, Grammar, Topics
 
 class DifficultyConfig(BaseModel):
-    word_count: int
+    w_word_count: int
+    r_word_count: int
     num_topics: int
     num_tenses: int
     num_grammar: int
@@ -11,19 +12,22 @@ class DifficultyConfig(BaseModel):
 
 DIFFICULTY_CONFIG: dict[DifficultyLevels, DifficultyConfig] = {
     DifficultyLevels.BEGINNER: DifficultyConfig(
-        word_count=60,
+        w_word_count=60,
+        r_word_count=100,
         num_topics=1,
         num_tenses=1,
         num_grammar=2,
     ),
     DifficultyLevels.NOVICE: DifficultyConfig(
-        word_count=120,
+        w_word_count=120,
+        r_word_count=250,
         num_topics=1,
         num_tenses=2,
         num_grammar=3,
     ),
     DifficultyLevels.INTERMEDIATE: DifficultyConfig(
-        word_count=200,
+        w_word_count=200,
+        r_word_count=400,
         num_topics=2,
         num_tenses=3,
         num_grammar=4,

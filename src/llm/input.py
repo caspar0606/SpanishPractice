@@ -1,7 +1,7 @@
 from typing import Optional
 from pydantic import BaseModel
 from src.domain.classes import Exercise
-from src.domain.preferences import DIFFICULTY_CONFIG
+from src.domain.preferences import DIFFICULTY_CONFIG, DifficultyLevels
 from src.domain.enums import Tenses, Grammar, Topics
 from src.llm.enums import AgentNames
 
@@ -9,7 +9,13 @@ class LessonTopics(BaseModel):
     topics: Optional[list[Topics]] = None
     grammar: Optional[list[Grammar]] = None
     tenses: Optional[list[Tenses]] = None
+    difficulty: Optional[DifficultyLevels] = None
     word_count: int
+
+class ModelInputs(BaseModel):
+    model_name: str
+    temperature: float
+    max_tokens: Optional[int]
 
 class AgentInputs(BaseModel):
     name: AgentNames
@@ -20,12 +26,16 @@ class AgentInputs(BaseModel):
 
 
 def lesson_topics(exercise: Exercise | None):
+
     if exercise:
         lesson_topics = LessonTopics(
             topics=exercise.focus_topics,
             grammar=exercise.focus_grammar,
             tenses=exercise.focus_tenses,
-            word_count= DIFFICULTY_CONFIG[exercise.difficulty_level].word_count) 
+            word_count=(DIFFICULTY_CONFIG[exercise.difficulty_level].w_word_count if exercise.exercise_type == "writing" 
+                        else DIFFICULTY_CONFIG[exercise.difficulty_level].r_word_count),
+        difficulty=exercise.difficulty_level
+        )
             
         return lesson_topics.model_dump_json()
     

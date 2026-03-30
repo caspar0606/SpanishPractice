@@ -1,6 +1,6 @@
 from src.core.display import print_big_lines
 from src.domain.classes import CurrentSession, Progress
-from src.llm.harness import agent_run
+from src.llm.harness import agent_run, response_format
 from src.llm.input import lesson_topics, AgentInputs
 from src.llm.enums import AgentNames
 from src.llm.prompts import w_instruction_system_prompt, w_tagging_system_prompt, w_correcting_system_prompt, w_summary_system_prompt
@@ -40,7 +40,6 @@ def instruction_generation(lesson_topic: str | None):
     )
 
     response = agent_run(agent_input)
-    
     return response["messages"][-1].content
 
 def progress_tagging(user_response: str, lesson_topic: str | None):
@@ -53,11 +52,7 @@ def progress_tagging(user_response: str, lesson_topic: str | None):
         output_schema=Progress
     )
 
-    response = agent_run(agent_input)
-    ai_message = response["messages"][-1].content
-    tags = Progress.model_validate_json(ai_message)
-    
-    return tags 
+    return response_format(agent_input, Progress)
 
 def text_correction(user_response: str, lesson_topic: str | None, writing_instruction: str):
 
@@ -69,12 +64,7 @@ def text_correction(user_response: str, lesson_topic: str | None, writing_instru
         input_text=[user_response, writing_instruction]
     )
 
-    response = agent_run(agent_input)
-
-    ai_message = response["messages"][-1].content
-    correction = WritingCorrection.model_validate_json(ai_message)
-    
-    return correction 
+    return response_format(agent_input, WritingCorrection)
 
 def correction_summary(edits: WritingCorrection, lesson_topic: str | None, exercise_counts: Progress):
 
@@ -83,12 +73,7 @@ def correction_summary(edits: WritingCorrection, lesson_topic: str | None, exerc
         system_prompt=w_summary_system_prompt,
         lesson_topics=lesson_topic,
         output_schema=WritingSummary,
-        input_text=[str(edits.model_dump_json), str(exercise_counts.model_dump_json)]
+        input_text=[edits.model_dump_json(), exercise_counts.model_dump_json()]
     )
 
-    response = agent_run(agent_input)
-
-    ai_message = response["messages"][-1].content
-    summary = WritingSummary.model_validate_json(ai_message)
-    
-    return summary 
+    return response_format(agent_input, WritingSummary)

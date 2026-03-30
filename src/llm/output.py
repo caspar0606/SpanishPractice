@@ -19,6 +19,9 @@ class WritingSummary(BaseModel):
     grammar_edits: str
     topic_edits: str
     general_feedback: str
-    
 
-    
+
+class ReadingGeneration(BaseModel):
+    passage: str
+    questions: list[str]
+
