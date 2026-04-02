@@ -20,8 +20,11 @@ class WritingSummary(BaseModel):
     topic_edits: str
     general_feedback: str
 
-
 class ReadingGeneration(BaseModel):
     passage: str
     questions: list[str]
 
+class QuestionMarking(BaseModel):
+    topic_score: float
+    individual_questions: list[str]
+    general_feedback: str
