@@ -1,7 +1,6 @@
 from datetime import datetime
 from src.core.display import print_big_lines, print_small_lines
 from src.core.logging import generate_id
-from src.domain.user import weak_areas
 from src.domain.enums import Tenses, Grammar, Topics, ExerciseTypes
 from src.domain.classes import AreasOfFocus, Exercise, Session, User
 from src.domain.preferences import tense_preferences, topic_preferences, grammar_preferences, \
@@ -71,7 +70,7 @@ def difficulty_selection() -> DifficultyLevels:
         except ValueError:
             print("Invalid difficulty level. Choose either 'beginner', 'novice', or 'intermediate'.")
         
-
+from src.domain.user import weak_areas
 
 def focus_selection(current_session: Session, difficulty_level: DifficultyLevels):
     while True:

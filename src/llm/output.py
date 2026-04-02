@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from src.domain.classes import Tenses, Grammar, Topics, ComputeStats
+from src.domain.classes import Tenses, Grammar, Topics
 
 class Edit(BaseModel):
     original_text: str

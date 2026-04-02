@@ -4,13 +4,15 @@ import os
 load_dotenv()
 api_key = os.getenv("OPENAI_API_KEY")
 
-from src.core.session_storage import store_session, update_progress
-from src.domain.user import user_selection
+from src.core.storage import save_user_state
 from src.domain.enums import ExerciseTypes
-from src.app.score import combine_scores, show_user_progress
-from src.app.exercise_selection import exercise_selection, initialise_session
 from src.mode.writing import writing_mode_run
 from src.mode.reading import reading_mode_run
+from src.core.session_storage import store_session, update_progress
+from src.domain.user import user_selection
+from src.app.score import show_user_progress
+from src.app.exercise_selection import exercise_selection, initialise_session
+
 
 
 #User Selection
@@ -42,6 +44,9 @@ while True:
     if user_continue := input("Would you like to do another exercise? (yes/no): ") == "no":
         user.history.append(store_session(current_session, user))
         user.progress_history.extend(current_session.progress_history)
+        user.first_time = False
+        save_user_state(user)
+        break
 
     elif user_continue == "yes":
         continue

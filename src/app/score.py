@@ -1,6 +1,5 @@
 from src.domain.classes import ComputeStats, Progress, User
 from src.core.display import print_big_lines
-from src.domain.user import initialise_progress
 
 
 # Calculates user score as a percentage of correct attempts over total attempts

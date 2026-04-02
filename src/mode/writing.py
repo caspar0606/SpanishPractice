@@ -1,11 +1,12 @@
 from src.core.display import print_big_lines
-from src.core.session_storage import store_exercise
-from src.domain.classes import Session, Progress
-from src.llm.harness import agent_inputs, agent_run, response_format
 from src.llm.input import lesson_topics, AgentInputs, LessonTopics
 from src.llm.enums import AgentNames
 from src.llm.prompts import w_instruction_system_prompt, w_tagging_system_prompt, w_correcting_system_prompt, w_summary_system_prompt
 from src.llm.output import WritingCorrection, WritingSummary
+
+from src.core.session_storage import store_exercise
+
+from src.domain.classes import Session, Progress
 
 def writing_mode_run(current_session: Session):
     lesson_topic = lesson_topics(current_session.current_exercise)
@@ -35,6 +36,7 @@ def writing_mode_run(current_session: Session):
 
     return exercise_storage
     
+from src.llm.harness import agent_inputs, agent_run, response_format
 
 def instruction_generation(lesson_topic: LessonTopics):    
 

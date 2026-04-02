@@ -1,35 +1,8 @@
 from datetime import datetime
 from pydantic import BaseModel
 from typing import Any, Optional
-
-from src.app.score import combine_scores
-from src.domain.classes import AreasOfFocus, Exercise, ExerciseTypes, Progress, Session, User
+from src.domain.classes import AreasOfFocus, Exercise, ExerciseStorage, ExerciseTypes, Progress, ProgressUpdates, Session, SessionStorage, User
 from src.core.logging import generate_id
-
-class ExerciseStorage(BaseModel):
-    id: str
-    start_time: datetime
-    end_time: datetime
-    type: ExerciseTypes
-    areas_of_focus: AreasOfFocus
-    prompt: Any
-    user_response: Any
-    feedback: Any
-    score: Progress
-
-class ProgressUpdates(BaseModel):
-    id: str
-    exercise_id: str
-    time: datetime
-    score: Progress
-    new_progress: Progress
-
-class SessionStorage(BaseModel):
-    id: str
-    start_time: datetime
-    end_time: datetime
-    exercises: Optional[list[ExerciseStorage]]
-    progress_updates: Optional[list[ProgressUpdates]]
 
 
 def store_exercise(exercise: Exercise, progress: Progress, prompt: Any, user_response: Any, feedback: Any):
@@ -45,6 +18,8 @@ def store_exercise(exercise: Exercise, progress: Progress, prompt: Any, user_res
         feedback=feedback,
         score=progress
     )
+
+from src.app.score import combine_scores
 
 def update_progress(user: User, exercise: ExerciseStorage):
 
