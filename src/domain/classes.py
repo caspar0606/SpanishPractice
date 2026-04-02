@@ -27,7 +27,7 @@ class User(BaseModel):
     name: str
     progress: Progress
     first_time: bool
-    history: Optional[list[Exercise]] = None
+    history: Optional[list["CurrentSession"]] = None
     progress_history: Optional[list[Progress]] = None
 
 class CurrentSession(BaseModel):
