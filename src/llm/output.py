@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from src.domain.classes import Tenses, Grammar, Topics
+from src.domain.classes import Tenses, Grammar, Topics, ComputeStats
 
 class Edit(BaseModel):
     original_text: str
@@ -25,6 +25,6 @@ class ReadingGeneration(BaseModel):
     questions: list[str]
 
 class QuestionMarking(BaseModel):
-    topic_score: float
+    topic_score: ComputeStats
     individual_questions: list[str]
     general_feedback: str

@@ -1,9 +1,13 @@
-from typing import Optional
+from typing import Optional, Union
 from pydantic import BaseModel
 from src.domain.classes import Exercise
 from src.domain.preferences import DIFFICULTY_CONFIG, DifficultyLevels
 from src.domain.enums import Tenses, Grammar, Topics
 from src.llm.enums import AgentNames
+from src.llm.output import ReadingGeneration
+
+LLMStimulus = Union[ReadingGeneration,list[str], str]
+LLMInput = Union[str, list[str], ]
 
 class LessonTopics(BaseModel):
     topics: Optional[list[Topics]] = None
@@ -19,25 +23,22 @@ class ModelInputs(BaseModel):
 
 class AgentInputs(BaseModel):
     name: AgentNames
-    lesson_topics: Optional[str] = None
+    lesson_topics: Optional[LessonTopics] = None
     system_prompt: str
-    input_text: Optional[list[str]] = None
+    stimulus: Optional[LLMStimulus] = None
+    input_text: Optional[LLMInput] = None
     output_schema: type[BaseModel] | None = None
 
 
-def lesson_topics(exercise: Exercise | None):
+def lesson_topics(exercise: Exercise):
 
-    if exercise:
-        lesson_topics = LessonTopics(
-            topics=exercise.focus_topics,
-            grammar=exercise.focus_grammar,
-            tenses=exercise.focus_tenses,
-            word_count=(DIFFICULTY_CONFIG[exercise.difficulty_level].w_word_count if exercise.exercise_type == "writing" 
-                        else DIFFICULTY_CONFIG[exercise.difficulty_level].r_word_count),
-        difficulty=exercise.difficulty_level
-        )
-            
-        return lesson_topics.model_dump_json()
-    
-    else: 
-        return 
+    lesson_topics = LessonTopics(
+        topics=exercise.focus_topics,
+        grammar=exercise.focus_grammar,
+        tenses=exercise.focus_tenses,
+        word_count=(DIFFICULTY_CONFIG[exercise.difficulty_level].w_word_count if exercise.exercise_type == "writing" 
+                    else DIFFICULTY_CONFIG[exercise.difficulty_level].r_word_count),
+    difficulty=exercise.difficulty_level
+    )
+        
+    return lesson_topics

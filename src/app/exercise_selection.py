@@ -3,7 +3,7 @@ from src.core.display import print_big_lines, print_small_lines
 from src.domain.preferences import tense_preferences, topic_preferences, grammar_preferences, \
                                     TENSE_PREFERENCES_CONFIG, TOPIC_PREFERENCES_CONFIG, GRAMMAR_PREFERENCES_CONFIG, DifficultyLevels
 from src.domain.enums import Tenses, Grammar, Topics, ExerciseTypes
-from src.domain.classes import Exercise, CurrentSession
+from src.domain.classes import Exercise, CurrentSession, User
 from datetime import datetime
 
 def exercise_selection(current_session: CurrentSession):
@@ -23,6 +23,14 @@ def exercise_selection(current_session: CurrentSession):
         start_time=datetime.now(),
         )
 
+def initialise_session(user: User):
+    return CurrentSession(
+        user=user,
+        current_exercise=Exercise(
+            difficulty_level=DifficultyLevels.BEGINNER,
+            start_time=datetime.now()
+        )
+    )
 
 def exercise_type_selection(current_session: CurrentSession):
    while True:
@@ -39,7 +47,7 @@ def exercise_type_selection(current_session: CurrentSession):
         else:
             print("Invalid exercise type. please select either writing or reading.")
 
-    
+
 
 def difficulty_selection(current_session: CurrentSession):
 

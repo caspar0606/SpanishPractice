@@ -20,7 +20,6 @@ def combine_scores(progress: Progress, exercise: Progress):
 
         for key in prog_dict:
             add_scores(prog_dict[key], ex_dict[key])
-
  
 # Prints user scores for tenses, grammar, and topics in a readable format
 def print_scores(user_progress: Progress):

@@ -5,8 +5,8 @@ from src.domain.enums import Tenses, Grammar, Topics, DifficultyLevels, Exercise
 
 
 class ComputeStats(BaseModel):
-    total_attempts: int = 0
-    correct_attempts: int = 0
+    total_attempts: float = 0
+    correct_attempts: float = 0
 
 class Progress(BaseModel):
     tenses: dict[Tenses, ComputeStats]
@@ -32,7 +32,7 @@ class User(BaseModel):
 
 class CurrentSession(BaseModel):
     user: User
-    current_exercise: Optional[Exercise] = None
+    current_exercise: Exercise
     history: list[Exercise] = []
 
 
