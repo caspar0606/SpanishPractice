@@ -1,6 +1,7 @@
 from src.core.display import print_big_lines
+from src.core.session_storage import store_exercise
 from src.domain.classes import Session, Progress
-from src.llm.harness import agent_run, response_format
+from src.llm.harness import agent_inputs, agent_run, response_format
 from src.llm.input import lesson_topics, AgentInputs, LessonTopics
 from src.llm.enums import AgentNames
 from src.llm.prompts import w_instruction_system_prompt, w_tagging_system_prompt, w_correcting_system_prompt, w_summary_system_prompt
@@ -30,7 +31,9 @@ def writing_mode_run(current_session: Session):
     summaries = correction_summary(corrected_text, lesson_topic, exercise_counts)
     print(summaries.general_feedback)
 
-    return exercise_counts
+    exercise_storage = store_exercise(current_session.current_exercise, exercise_counts, writing_instruction, user_response, summaries)
+
+    return exercise_storage
     
 
 def instruction_generation(lesson_topic: LessonTopics):    
@@ -46,37 +49,21 @@ def instruction_generation(lesson_topic: LessonTopics):
 
 def progress_tagging(user_response: str, lesson_topic: LessonTopics):
 
-    agent_input = AgentInputs(
-        name=AgentNames.WRITING_TAGGING,
-        system_prompt=w_tagging_system_prompt,
-        lesson_topics=lesson_topic,
-        input_text=user_response,
-        output_schema=Progress
-    )
+    agent_input = agent_inputs(name=AgentNames.WRITING_TAGGING, system_prompt=w_tagging_system_prompt, 
+                               lesson_topic=lesson_topic, input=user_response, schema=Progress)
 
     return response_format(agent_input, Progress)
 
 def text_correction(user_response: str, lesson_topic: LessonTopics, writing_instruction: str):
 
-    agent_input = AgentInputs(
-        name=AgentNames.WRITING_CORRECTOR,
-        system_prompt=w_correcting_system_prompt,
-        lesson_topics=lesson_topic,
-        output_schema=WritingCorrection,
-        stimulus=writing_instruction,
-        input_text=user_response
-    )
+    agent_input = agent_inputs(AgentNames.WRITING_CORRECTOR, system_prompt=w_correcting_system_prompt, 
+                               lesson_topic=lesson_topic, schema=WritingCorrection, stimulus=writing_instruction,input=user_response)
 
     return response_format(agent_input, WritingCorrection)
 
 def correction_summary(edits: WritingCorrection, lesson_topic: LessonTopics, exercise_counts: Progress):
 
-    agent_input = AgentInputs(
-        name=AgentNames.WRITING_SUMMARY,
-        system_prompt=w_summary_system_prompt,
-        lesson_topics=lesson_topic,
-        output_schema=WritingSummary,
-        stimulus=[edits.model_dump_json(), exercise_counts.model_dump_json()]
-    )
+    agent_input = agent_inputs(name=AgentNames.WRITING_SUMMARY, system_prompt=w_summary_system_prompt,lesson_topic=lesson_topic,
+        schema=WritingSummary, stimulus=[edits.model_dump_json(), exercise_counts.model_dump_json()])
 
     return response_format(agent_input, WritingSummary)

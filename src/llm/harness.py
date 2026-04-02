@@ -1,16 +1,18 @@
 from dotenv import load_dotenv
 import os
 
+from src.llm.enums import AgentNames
+
 load_dotenv()
 api_key = os.getenv("OPENAI_API_KEY")
 
 from pydantic import BaseModel
-from typing import TypeVar
+from typing import Any, TypeVar
 import json
 
 from langchain.chat_models import init_chat_model
 from langchain.agents import create_agent
-from src.llm.input import AgentInputs
+from src.llm.input import AgentInputs, LessonTopics
 from langchain.messages import HumanMessage
 
 
@@ -66,12 +68,19 @@ def serialise_for_prompt(value) -> str:
 
     return str(value)
 
-#def agent_inputs(name: AgentNames, system_prompt: str, lesson_topic: LessonTopics, schema: type[BaseModel], input: list[str]):
-  #  return AgentInputs(
-  #      name=name,
-  #      system_prompt=system_prompt,
-  #      lesson_topics=lesson_topic,
-   #     output_schema=schema,
-  #      stimulus=None
-   #     input_text=input
-   # )
+def agent_inputs(
+    name: AgentNames,
+    system_prompt: str,
+    lesson_topic: LessonTopics | None = None,
+    schema: Any | None = None,
+    input: Any | None = None,
+    stimulus: Any | None = None
+):
+    return AgentInputs(
+        name=name,
+        system_prompt=system_prompt,
+        lesson_topics=lesson_topic,
+        output_schema=schema,
+        stimulus=stimulus,
+        input_text=input
+    )

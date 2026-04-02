@@ -25,6 +25,5 @@ class ReadingGeneration(BaseModel):
     questions: list[str]
 
 class QuestionMarking(BaseModel):
-    topic_score: ComputeStats
     individual_questions: list[str]
     general_feedback: str
