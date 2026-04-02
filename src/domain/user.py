@@ -11,7 +11,8 @@ from src.domain.preferences import DIFFICULTY_CONFIG
 # Creates a new user with initialised progress and name
 def create_user(name: str) -> User:
     progress = initialise_progress()
-    return User(name=name, progress=progress, first_time=True)
+    return User(name=name, progress=progress, first_time=True,
+                history=[], progress_history=[])
 
 
 

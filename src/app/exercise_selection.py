@@ -29,14 +29,17 @@ def exercise_selection(current_session: Session) -> Exercise:
 def initialise_session(user: User) -> Session:
     return Session(
         id=generate_id(),
+        start_time=datetime.now(),
         user=user,
         current_exercise=Exercise(
             id="0",
             exercise_type=ExerciseTypes.WRITING,
             difficulty_level=DifficultyLevels.BEGINNER,
             start_time=datetime.now(),
-            areas_of_focus=AreasOfFocus()
-        )
+            areas_of_focus=AreasOfFocus(),
+        ),
+        exercise_history=[],
+        progress_history=[]
     )
 
 

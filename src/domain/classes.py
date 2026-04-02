@@ -31,14 +31,16 @@ class User(BaseModel):
     name: str
     progress: Progress
     first_time: bool
-    history: Optional[list[SessionStorage]] = None
-    progress_history: Optional[list[ProgressUpdates]] = None
+    history: list[SessionStorage] 
+    progress_history: list[ProgressUpdates]
 
 class Session(BaseModel):
     id: str
     user: User
+    start_time: datetime
     current_exercise: Exercise
-    history: list[ExerciseStorage] = []
+    exercise_history: list[ExerciseStorage]
+    progress_history: list[ProgressUpdates]
 
 
 
