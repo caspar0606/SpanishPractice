@@ -4,9 +4,7 @@ import os
 load_dotenv()
 api_key = os.getenv("OPENAI_API_KEY")
 
-
-from src.core.user import user_selection
-from src.domain.classes import CurrentSession
+from src.domain.user import user_selection
 from src.domain.enums import ExerciseTypes
 from src.app.score import show_user_progress
 from src.app.exercise_selection import exercise_selection, initialise_session
@@ -33,4 +31,5 @@ if (current_session.current_exercise.exercise_type is ExerciseTypes.WRITING):
 
 elif(current_session.current_exercise.exercise_type is ExerciseTypes.READING):
     reading_mode_run(current_session)
+
 

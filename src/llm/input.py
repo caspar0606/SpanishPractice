@@ -33,9 +33,9 @@ class AgentInputs(BaseModel):
 def lesson_topics(exercise: Exercise):
 
     lesson_topics = LessonTopics(
-        topics=exercise.focus_topics,
-        grammar=exercise.focus_grammar,
-        tenses=exercise.focus_tenses,
+        topics=exercise.areas_of_focus.focus_topics,
+        grammar=exercise.areas_of_focus.focus_grammar,
+        tenses=exercise.areas_of_focus.focus_tenses,
         word_count=(DIFFICULTY_CONFIG[exercise.difficulty_level].w_word_count if exercise.exercise_type == "writing" 
                     else DIFFICULTY_CONFIG[exercise.difficulty_level].r_word_count),
     difficulty=exercise.difficulty_level

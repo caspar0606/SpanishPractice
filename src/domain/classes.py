@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import Optional
 from pydantic import BaseModel
+from src.core.session_storage import ProgressUpdates, SessionStorage, ExerciseStorage
 from src.domain.enums import Tenses, Grammar, Topics, DifficultyLevels, ExerciseTypes
 
 
@@ -10,16 +11,19 @@ class ComputeStats(BaseModel):
 
 class Progress(BaseModel):
     tenses: dict[Tenses, ComputeStats]
-    grammar: dict[Grammar, ComputeStats]
+    grammar: dict[Grammar, ComputeStats] 
     topics: dict[Topics, ComputeStats]
 
-
-class Exercise(BaseModel):
-    exercise_type: Optional[ExerciseTypes] = None
-    difficulty_level: DifficultyLevels
+class AreasOfFocus(BaseModel):
     focus_tenses: Optional[list[Tenses]] = None
     focus_grammar: Optional[list[Grammar]] = None
     focus_topics: Optional[list[Topics]] = None
+
+class Exercise(BaseModel):
+    id: str
+    exercise_type: ExerciseTypes
+    difficulty_level: DifficultyLevels
+    areas_of_focus: AreasOfFocus
     start_time: datetime
     end_time: Optional[datetime] = None
 
@@ -27,13 +31,14 @@ class User(BaseModel):
     name: str
     progress: Progress
     first_time: bool
-    history: Optional[list["CurrentSession"]] = None
-    progress_history: Optional[list[Progress]] = None
+    history: Optional[list[SessionStorage]] = None
+    progress_history: Optional[list[ProgressUpdates]] = None
 
-class CurrentSession(BaseModel):
+class Session(BaseModel):
+    id: str
     user: User
     current_exercise: Exercise
-    history: list[Exercise] = []
+    history: list[ExerciseStorage] = []
 
 
 

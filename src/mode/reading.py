@@ -1,5 +1,6 @@
-from src.domain.classes import CurrentSession
-from src.domain.classes import CurrentSession
+from src.core.session_storage import store_exercise
+from src.domain.classes import Session
+from src.domain.user import initialise_progress
 from src.core.display import print_big_lines, print_small_lines
 from src.llm.harness import response_format
 from src.llm.input import lesson_topics, AgentInputs, LessonTopics
@@ -9,7 +10,7 @@ from src.llm.output import ReadingGeneration, QuestionMarking
 
 
 
-def reading_mode_run(current_session: CurrentSession):
+def reading_mode_run(current_session: Session):
     lesson_topic = lesson_topics(current_session.current_exercise)
 
     print_big_lines()
@@ -29,6 +30,10 @@ def reading_mode_run(current_session: CurrentSession):
         print(f"A. {response}")
     print(response_feedback.general_feedback)
 
+    
+
+    exercise_storage = store_exercise(current_session, )
+                                      
     return response_feedback.topic_score
 
 def text_generation(lesson_topic: LessonTopics):

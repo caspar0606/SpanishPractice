@@ -10,11 +10,7 @@ from src.domain.preferences import DIFFICULTY_CONFIG
 
 # Creates a new user with initialised progress and name
 def create_user(name: str) -> User:
-    progress = Progress(
-        tenses={tense: ComputeStats(total_attempts=0, correct_attempts=0) for tense in Tenses},
-        grammar={grammar: ComputeStats(total_attempts=0, correct_attempts=0) for grammar in Grammar},
-        topics={topic: ComputeStats(total_attempts=0, correct_attempts=0) for topic in Topics}
-    )
+    progress = initialise_progress()
     return User(name=name, progress=progress, first_time=True)
 
 
@@ -67,3 +63,10 @@ def user_selection():
         else:
             print("Invalid input. Please enter 'yes' or 'no'.")
 
+
+def initialise_progress():
+    return Progress(
+        tenses={tense: ComputeStats(total_attempts=0, correct_attempts=0) for tense in Tenses},
+        grammar={grammar: ComputeStats(total_attempts=0, correct_attempts=0) for grammar in Grammar},
+        topics={topic: ComputeStats(total_attempts=0, correct_attempts=0) for topic in Topics}
+    )

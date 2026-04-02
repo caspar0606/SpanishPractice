@@ -1,12 +1,13 @@
-from src.core.user import weak_areas
+from datetime import datetime
 from src.core.display import print_big_lines, print_small_lines
+from src.core.logging import generate_id
+from src.domain.user import weak_areas
+from src.domain.enums import Tenses, Grammar, Topics, ExerciseTypes
+from src.domain.classes import AreasOfFocus, Exercise, Session, User
 from src.domain.preferences import tense_preferences, topic_preferences, grammar_preferences, \
                                     TENSE_PREFERENCES_CONFIG, TOPIC_PREFERENCES_CONFIG, GRAMMAR_PREFERENCES_CONFIG, DifficultyLevels
-from src.domain.enums import Tenses, Grammar, Topics, ExerciseTypes
-from src.domain.classes import Exercise, CurrentSession, User
-from datetime import datetime
 
-def exercise_selection(current_session: CurrentSession) -> Exercise:
+def exercise_selection(current_session: Session) -> Exercise:
 
     exercise_type = exercise_type_selection()
 
@@ -15,20 +16,26 @@ def exercise_selection(current_session: CurrentSession) -> Exercise:
     focus_grammar, focus_tenses, focus_topics = focus_selection(current_session, difficulty_level)
 
     return Exercise(
+        id=generate_id(),
         exercise_type=exercise_type,
         difficulty_level=difficulty_level,
-        focus_grammar=focus_grammar,
-        focus_tenses=focus_tenses,
-        focus_topics=focus_topics,
+        areas_of_focus=AreasOfFocus(
+            focus_grammar=focus_grammar,
+            focus_tenses=focus_tenses,
+            focus_topics=focus_topics),
         start_time=datetime.now(),
         )
 
-def initialise_session(user: User) -> CurrentSession:
-    return CurrentSession(
+def initialise_session(user: User) -> Session:
+    return Session(
+        id=generate_id(),
         user=user,
         current_exercise=Exercise(
+            id="0",
+            exercise_type=ExerciseTypes.WRITING,
             difficulty_level=DifficultyLevels.BEGINNER,
-            start_time=datetime.now()
+            start_time=datetime.now(),
+            areas_of_focus=AreasOfFocus()
         )
     )
 
@@ -63,7 +70,7 @@ def difficulty_selection() -> DifficultyLevels:
         
 
 
-def focus_selection(current_session: CurrentSession, difficulty_level: DifficultyLevels):
+def focus_selection(current_session: Session, difficulty_level: DifficultyLevels):
     while True:
         print_big_lines()
         if current_session.user.first_time: 
