@@ -35,7 +35,7 @@ def agent_run(agent_inputs: AgentInputs):
         messages.append(HumanMessage(content=f"User stimulus:\n{serialise_for_prompt(agent_inputs.stimulus)}"))
     
     if agent_inputs.input_text is not None:
-        messages.append(HumanMessage(content=f"Input text:\n{serialise_for_prompt(agent_inputs.input_text)}"))
+        messages.append(HumanMessage(content=f"User response:\n{serialise_for_prompt(agent_inputs.input_text)}"))
 
 
     response = agent.invoke({"messages": messages})

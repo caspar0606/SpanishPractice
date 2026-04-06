@@ -1,6 +1,11 @@
-from pydantic import BaseModel
-from src.domain.classes import Tenses, Grammar, Topics
+from typing import Optional
 
+from pydantic import BaseModel
+from src.domain.classes import ComputeStats, Tenses, Grammar, Topics
+from src.llm.enums import DrillTypes
+
+
+##WRITING
 class Edit(BaseModel):
     original_text: str
     corrected_text: str
@@ -20,6 +25,8 @@ class WritingSummary(BaseModel):
     topic_edits: str
     general_feedback: str
 
+
+##READING
 class ReadingGeneration(BaseModel):
     passage: str
     questions: list[str]
@@ -27,3 +34,39 @@ class ReadingGeneration(BaseModel):
 class QuestionMarking(BaseModel):
     individual_questions: list[str]
     general_feedback: str
+
+
+##DRILLS
+class DrillItem(BaseModel):
+    prompt: str
+    answer: str
+    options: list[str] | None = None
+
+class DrillSet(BaseModel):
+    drill_type: DrillTypes
+    drills: list[DrillItem]
+
+class Drills(BaseModel):
+    drill_sets: dict[DrillTypes, DrillSet]
+
+class DrillMarking(BaseModel):
+    prompt: str
+    answer: str
+    user_response: str
+    comment: Optional[str] 
+    is_correct: bool
+
+class DrillMarkingSet(BaseModel):
+    drill_type: DrillTypes
+    marked_drills: list[DrillMarking]
+    stats: ComputeStats = ComputeStats() 
+
+class MarkedDrills(BaseModel):
+    marked_drill_sets: list[DrillMarkingSet]
+    stats: ComputeStats
+
+class UserDrillResponses(BaseModel):
+    responses: dict[DrillTypes, list[str]]
+
+
+

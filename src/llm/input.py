@@ -12,7 +12,7 @@ class LessonTopics(BaseModel):
     topics: Optional[list[Topics]] = None
     grammar: Optional[list[Grammar]] = None
     tenses: Optional[list[Tenses]] = None
-    difficulty: Optional[DifficultyLevels] = None
+    difficulty: DifficultyLevels 
     word_count: int
 
 class ModelInputs(BaseModel):
@@ -27,6 +27,7 @@ class AgentInputs(BaseModel):
     stimulus: Optional[LLMStimulus] = None
     input_text: Optional[LLMInput] = None
     output_schema: type[BaseModel] | None = None
+
 
 from src.domain.classes import Exercise
 

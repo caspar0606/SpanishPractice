@@ -102,7 +102,10 @@ def preferences_selection(exercise_type: ExerciseTypes):
 
     if (exercise_type is ExerciseTypes.DRILLS):
         drill_type = drill_selection()
-
+        focus_info, loc = DRILL_CONFIG[drill_type]
+        list = [None, None, None]
+        list[loc] = focus_info
+        return list
 
     while True:
         print_small_lines()
@@ -149,7 +152,7 @@ def topics_selection():
 
 
 DRILL_CONFIG = {
-    AoFs.GRAMMAR: ((grammar_selection, None, None), 0),
-    AoFs.TENSES: ((None, tenses_selection, None), 1),
-    AoFs.TOPICS: ((None, None, topics_selection), 2)
+    AoFs.GRAMMAR: [grammar_selection, 0],
+    AoFs.TENSES: [tenses_selection, 1],
+    AoFs.TOPICS: [topics_selection, 2]
 }
