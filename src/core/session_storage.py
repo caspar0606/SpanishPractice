@@ -1,7 +1,6 @@
 from datetime import datetime
-from pydantic import BaseModel
-from typing import Any, Optional
-from src.domain.classes import AreasOfFocus, Exercise, ExerciseStorage, ExerciseTypes, Progress, ProgressUpdates, Session, SessionStorage, User
+from typing import Any
+from src.domain.classes import Exercise, ExerciseStorage, Progress, ProgressUpdates, Session, SessionStorage, User
 from src.core.logging import generate_id
 
 

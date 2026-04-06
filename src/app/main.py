@@ -32,16 +32,13 @@ while True:
     if (current_session.current_exercise.exercise_type is ExerciseTypes.WRITING):
         finished_exercise = writing_mode_run(current_session)
        
-
-
-
     else: #(current_session.current_exercise.exercise_type is ExerciseTypes.READING):
         finished_exercise = reading_mode_run(current_session)
 
     current_session.exercise_history.append(finished_exercise)
     current_session.progress_history.append(update_progress(user, finished_exercise))
 
-    if user_continue := input("Would you like to do another exercise? (yes/no): ") == "no":
+    if (user_continue := input("Would you like to do another exercise? (yes/no): ")) == "no":
         user.history.append(store_session(current_session, user))
         user.progress_history.extend(current_session.progress_history)
         user.first_time = False

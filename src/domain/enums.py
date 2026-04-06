@@ -35,6 +35,10 @@ class DifficultyLevels(str, Enum):
 class ExerciseTypes(str, Enum):
         WRITING = "writing"
         READING = "reading"
+        DRILLS = "drills"
 
-
+class AoFs(str, Enum):
+        TOPICS = "topics"
+        TENSES = "tenses"
+        GRAMMAR = "grammar"
 

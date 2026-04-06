@@ -1,10 +1,11 @@
 from datetime import datetime
-from src.core.display import print_big_lines, print_small_lines
+from src.core.display import print_big_lines, print_small_lines, print_grammar_preferences, print_tense_preferences, print_topic_preferences
 from src.core.logging import generate_id
-from src.domain.enums import Tenses, Grammar, Topics, ExerciseTypes
+from src.domain.enums import AoFs, Tenses, Grammar, Topics, ExerciseTypes
 from src.domain.classes import AreasOfFocus, Exercise, Session, User
 from src.domain.preferences import tense_preferences, topic_preferences, grammar_preferences, \
-                                    TENSE_PREFERENCES_CONFIG, TOPIC_PREFERENCES_CONFIG, GRAMMAR_PREFERENCES_CONFIG, DifficultyLevels
+                                    TENSE_PREFERENCES_CONFIG, TOPIC_PREFERENCES_CONFIG, GRAMMAR_PREFERENCES_CONFIG, DifficultyLevels \
+
 
 def exercise_selection(current_session: Session) -> Exercise:
 
@@ -12,7 +13,7 @@ def exercise_selection(current_session: Session) -> Exercise:
 
     difficulty_level = difficulty_selection()
 
-    focus_grammar, focus_tenses, focus_topics = focus_selection(current_session, difficulty_level)
+    focus_grammar, focus_tenses, focus_topics = focus_selection(current_session, difficulty_level, exercise_type)
 
     return Exercise(
         id=generate_id(),
@@ -45,19 +46,11 @@ def initialise_session(user: User) -> Session:
 def exercise_type_selection() -> ExerciseTypes:
    while True:
         print_big_lines()
-        exercise_type = input("Choose an exercise type (writing/reading): ").strip().lower()
-        if exercise_type == "writing":
-            exercise_type = ExerciseTypes.WRITING
-            return exercise_type
+        try:
+            return ExerciseTypes(input("Choose an exercise type (writing/reading/drills): ").strip().lower())
 
-        elif exercise_type == "reading":
-            exercise_type = ExerciseTypes.READING
-            return exercise_type
-        
-        else:
-            print("Invalid exercise type. please select either writing or reading.")
-
-
+        except ValueError:
+            print("Invalid exercise type. please select either writing, reading, or drills.")
 
 def difficulty_selection() -> DifficultyLevels:
 
@@ -72,12 +65,12 @@ def difficulty_selection() -> DifficultyLevels:
         
 from src.domain.user import weak_areas
 
-def focus_selection(current_session: Session, difficulty_level: DifficultyLevels):
+def focus_selection(current_session: Session, difficulty_level: DifficultyLevels, exercise_type: ExerciseTypes):
     while True:
         print_big_lines()
         if current_session.user.first_time: 
             print("Welcome to your first Spanish Practice Session!")
-            focus_grammar, focus_tenses, focus_topics = preferences_selection()
+            focus_grammar, focus_tenses, focus_topics = preferences_selection(exercise_type)
             return focus_grammar, focus_tenses, focus_topics
 
         weak_or_preferences = input("Do you want to focus on weak areas or your preferences (weak/preferences)?: ").strip().lower()
@@ -87,7 +80,7 @@ def focus_selection(current_session: Session, difficulty_level: DifficultyLevels
             break
 
         elif weak_or_preferences == "preferences":
-            focus_grammar, focus_tenses, focus_topics = preferences_selection()
+            focus_grammar, focus_tenses, focus_topics = preferences_selection(exercise_type)
             break
     
         else:
@@ -95,39 +88,68 @@ def focus_selection(current_session: Session, difficulty_level: DifficultyLevels
 
     return focus_grammar, focus_tenses, focus_topics
 
+def drill_selection() -> AoFs:
+    while True:
+        print_big_lines()
+        try:
+            return AoFs(input("Which area of focus (and subtopic) would you like to practice?: (topics/tenses/grammar)"))
+        
+        except ValueError:
+            print("Invalid area of focus. Choose either 'topics', 'tenses', or 'grammar'.")
 
 
-def preferences_selection():
+def preferences_selection(exercise_type: ExerciseTypes):
+
+    if (exercise_type is ExerciseTypes.DRILLS):
+        drill_type = drill_selection()
+
+
     while True:
         print_small_lines()
-        if (focus_tenses := tense_preferences(input(f"Enter tense preferences: "
-                                                f"\n{TENSE_PREFERENCES_CONFIG[Tenses.PRESENTE_DE_INDICATIVO]} for presente de indicativo"
-                                                f"\n{TENSE_PREFERENCES_CONFIG[Tenses.PRETERITO_IMPERFECTO]} for preterito imperfecto " 
-                                                f"\n{TENSE_PREFERENCES_CONFIG[Tenses.PRETERITO_PERFECTO_SIMPLE]} for preterito perfecto simple" 
-                                                f"\n{TENSE_PREFERENCES_CONFIG[Tenses.FUTURO_SIMPLE]} for futuro simple " 
-                                                f"\n{TENSE_PREFERENCES_CONFIG[Tenses.CONDICIONAL_SIMPLE]} for condicional simple"
-                                                "\n: ").strip())) is None:
+        print_tense_preferences()
+        if (focus_tenses := tense_preferences(input().strip())) is None:
             continue
+
         print_small_lines()
-        if (focus_grammar := grammar_preferences(input(f"Enter grammar preferences: "
-                                                    f"\n{GRAMMAR_PREFERENCES_CONFIG[Grammar.GENDER_AGREEMENT]} for gender agreement"
-                                                    f"\n{GRAMMAR_PREFERENCES_CONFIG[Grammar.PLURALITY_AGREEMENT]} for plurality agreement"
-                                                    f"\n{GRAMMAR_PREFERENCES_CONFIG[Grammar.POR_PARA_USAGE]} for por/para usage"
-                                                    f"\n{GRAMMAR_PREFERENCES_CONFIG[Grammar.INDIRECT_DIRECT_PRONOUN_USAGE]} for indirect/direct pronoun usage"
-                                                    f"\n{GRAMMAR_PREFERENCES_CONFIG[Grammar.VERB_SUBJECT_CONJUGATION]} for verb-subject conjugation"
-                                                    "\n: ").strip())) is None:
+        print_grammar_preferences()
+        if (focus_grammar := grammar_preferences(input().strip())) is None:
             continue    
                 
         print_small_lines()
-        if (focus_topics := topic_preferences(input(f"Enter topic preferences: " 
-                                                f"\n{TOPIC_PREFERENCES_CONFIG[Topics.TRAVEL]} for travel "
-                                                f"\n{TOPIC_PREFERENCES_CONFIG[Topics.SCHOOL]} for school "
-                                                f"\n{TOPIC_PREFERENCES_CONFIG[Topics.WORK]} for work "
-                                                f"\n{TOPIC_PREFERENCES_CONFIG[Topics.CULTURE]} for culture "
-                                                f"\n{TOPIC_PREFERENCES_CONFIG[Topics.CURRENT_EVENTS]} for current events "
-                                                f"\n{TOPIC_PREFERENCES_CONFIG[Topics.EMOTIONS]} for emotions "
-                                                f"\n{TOPIC_PREFERENCES_CONFIG[Topics.RELATIONSHIPS]} for relationships"
-                                                "\n: ").strip())) is None:
+        print_topic_preferences()
+        if (focus_topics := topic_preferences(input().strip())) is None:
             continue
         break
     return focus_grammar, focus_tenses, focus_topics
+
+
+def grammar_selection():
+    print_small_lines()
+    print_grammar_preferences()
+
+    while not (focus_grammar := grammar_preferences(input().strip())): ...
+
+    return focus_grammar
+
+def tenses_selection():
+    print_small_lines()
+    print_tense_preferences()
+
+    while not (focus_tenses := tense_preferences(input().strip())): ...
+
+    return focus_tenses
+    
+def topics_selection():
+    print_small_lines()
+    print_topic_preferences()
+
+    while not (focus_topics := topic_preferences(input().strip())): ...
+
+    return focus_topics
+
+
+DRILL_CONFIG = {
+    AoFs.GRAMMAR: ((grammar_selection, None, None), 0),
+    AoFs.TENSES: ((None, tenses_selection, None), 1),
+    AoFs.TOPICS: ((None, None, topics_selection), 2)
+}

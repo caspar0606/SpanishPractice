@@ -2,6 +2,7 @@ import re
 from pydantic import BaseModel
 from src.domain.enums import DifficultyLevels, Tenses, Grammar, Topics
 
+
 class DifficultyConfig(BaseModel):
     w_word_count: int
     r_word_count: int
@@ -61,7 +62,7 @@ TOPIC_PREFERENCES_CONFIG: dict[str, str] = {
     
 
 
-def tense_preferences(pref: str):
+def tense_preferences(pref):
     # Checks that input only contains relevant numbers
     if re.fullmatch(r"[1-5]+", pref) is None:
         print("Invalid number selected, please select from 1-5.")
@@ -73,8 +74,6 @@ def tense_preferences(pref: str):
         for tense, digit in TENSE_PREFERENCES_CONFIG.items()
         if digit in pref
     ]
-
-    print("tense preferences:", preferences)
     return preferences if preferences else None
 
 def grammar_preferences(pref: str):
@@ -87,8 +86,6 @@ def grammar_preferences(pref: str):
         for grammar, digit in GRAMMAR_PREFERENCES_CONFIG.items()
         if digit in pref
     ]
-
-    print("grammar preferences:", preferences)
     return preferences if preferences else None
 
 def topic_preferences(pref: str):
@@ -101,6 +98,4 @@ def topic_preferences(pref: str):
         for topic, digit in TOPIC_PREFERENCES_CONFIG.items()
         if digit in pref
     ]
-
-    print("topic preferences:", preferences)
     return preferences if preferences else None
