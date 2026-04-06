@@ -1,7 +1,12 @@
+from datetime import datetime
+
 from src.application.exercise_selection import create_exercise_context
+from src.application.services.progress import build_drill_progress_update
 from src.domain.enums import DrillTypes
 from src.domain.models.exercise import Exercise, ExerciseContext
 from src.domain.rules.config import QUESTION_NUMBER_CONFIG
+from src.domain.rules.score import add_scores, combine_scores
+from src.domain.utils import initialise_progress
 from src.infrastructure.llm.contracts.drills import DrillMarkingSet, Drills, MarkedDrills, UserDrillResponses, DrillSet
 from src.infrastructure.llm.contracts.shared import AgentNames
 from src.infrastructure.llm.prompts.drills import DRILLS_PROMPT_CONFIG
@@ -9,6 +14,7 @@ from src.infrastructure.llm.harness import agent_inputs, response_format
 from src.domain.models.progress import ComputeStats
 from src.infrastructure.persistence.file_storage import save_user_state
 from src.infrastructure.persistence.file_storage import save_user_state
+from src.infrastructure.persistence.session_storage import update_progress
 from src.infrastructure.persistence.user_storage import user_from_name, storage_to_exercise, user_exercise_cache
 
 
@@ -48,11 +54,24 @@ def submit_drills(username: str, responses: UserDrillResponses) -> MarkedDrills:
     
     exercise_context = create_exercise_context(exercise)
 
-    user.current_exercise.user_response = responses
-
     feedback = mark_drill_sets(responses, user.current_exercise.prompt, exercise_context)
 
+
+    user.current_exercise.user_response = responses
+
+    drill_progress_update = build_drill_progress_update(exercise_context, feedback)
+    combine_scores(user.progress, drill_progress_update)
+
+
+    user.current_exercise.score = drill_progress_update
     user.current_exercise.feedback = feedback
+    user.current_exercise.end_time = datetime.now()
+    
+    finished_exercise = user.current_exercise
+
+    user.exercise_history.append(finished_exercise)
+    user.progress_history.append(update_progress(user, finished_exercise))
+
     save_user_state(user)
 
     return feedback

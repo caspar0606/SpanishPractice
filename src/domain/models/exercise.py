@@ -28,7 +28,6 @@ class ExerciseContext(BaseModel):
     areas_of_focus: AreasOfFocus
     exercise_config: ExerciseConfig 
 
-
 class ExerciseStorage(BaseModel):
     id: str
     start_time: datetime

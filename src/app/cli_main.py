@@ -2,17 +2,13 @@ from dotenv import load_dotenv
 import os
 
 from src.domain.rules.score import show_user_progress
-
-load_dotenv()
-api_key = os.getenv("OPENAI_API_KEY")
-
+from src.infrastructure.cli.exercise_selection import initialise_session, exercise_selection
 from src.application.services.reading import reading_mode_run
 from src.application.services.writing import writing_mode_run
 from src.infrastructure.persistence.file_storage import create_new_user_file, load_user_state, save_user_state
 from src.domain.enums import ExerciseTypes
-from src.infrastructure.persistence.session_storage import store_session, update_progress
+from src.infrastructure.persistence.session_storage import store_exercise, store_session, update_progress
 from src.application.user import create_user
-from src.application.exercise_selection import exercise_selection, initialise_session
 
 def user_selection():
     while True:
@@ -66,7 +62,7 @@ while True:
     current_session.progress_history.append(update_progress(user, finished_exercise))
 
     if (user_continue := input("Would you like to do another exercise? (yes/no): ")) == "no":
-        user.history.append(store_session(current_session, user))
+        #user.history.append(store_exercise(current_session.current_exercise, user))
         user.progress_history.extend(current_session.progress_history)
         user.first_time = False
         save_user_state(user)

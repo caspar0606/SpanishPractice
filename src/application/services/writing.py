@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from src.application.exercise_selection import create_exercise_context
 from src.domain.models.exercise import ExerciseContext
 from src.domain.models.progress import Progress
@@ -8,7 +10,7 @@ from src.infrastructure.llm.prompts.writing import w_tagging_system_prompt, w_co
 from src.infrastructure.llm.harness import agent_inputs, agent_run, response_format
 from src.domain.models.session import Session
 from src.infrastructure.persistence.file_storage import save_user_state
-from src.infrastructure.persistence.session_storage import store_exercise
+from src.infrastructure.persistence.session_storage import store_exercise, update_progress
 from src.infrastructure.persistence.user_storage import user_exercise_cache
 
 def writing_mode_run(current_session: Session):
@@ -55,14 +57,20 @@ def submit_response(response: str, username: str) -> tuple[WritingCorrection, Wr
         raise ValueError(f"User current storage not found")
 
     exercise_context = create_exercise_context(exercise)
-    user.current_exercise.user_response = response
 
     tags = progress_tagging(response, exercise_context)
     corrected = text_correction(response, exercise_context, user.current_exercise.prompt)
     summary = correction_summary(corrected, exercise_context, tags)
 
+    user.current_exercise.user_response = response
     user.current_exercise.feedback = corrected, summary
     user.current_exercise.score = tags
+    user.current_exercise.end_time = datetime.now()
+    
+    finished_exercise = user.current_exercise
+    
+    user.exercise_history.append(finished_exercise)
+    user.progress_history.append(update_progress(user, finished_exercise))
     save_user_state(user)
 
     return corrected, summary
