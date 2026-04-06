@@ -3,22 +3,31 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0f3d3a" />
     <title>Spanish Practice</title>
     <link rel="stylesheet" href="/static/styles.css" />
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap"
     />
   </head>
   <body>
-    <main>
-      <h1>Spanish Practice</h1>
-      <p class="subtitle">Log in, choose an exercise, then practice.</p>
+    <header class="site-header">
+      <div class="site-header-inner">
+        <span class="site-mark" aria-hidden="true">ES</span>
+        <div>
+          <p class="site-brand">Spanish Practice</p>
+          <p class="site-tagline">Write, read, and drill — at your pace</p>
+        </div>
+      </div>
+    </header>
 
-      <div id="status" class="info" role="status" aria-live="polite"></div>
+    <main class="site-main">
+      <div id="status" class="banner-status" role="status" aria-live="polite"></div>
 
-      <section id="panel-login" class="panel" aria-labelledby="login-heading">
-        <h2 id="login-heading">Log in</h2>
+      <section id="panel-login" class="panel card" aria-labelledby="login-heading">
+        <h2 id="login-heading" class="panel-title">Log in</h2>
+        <p class="panel-lead">Use the access code you were given.</p>
         <form id="form-login">
           <label for="login-username">Username</label>
           <input
@@ -39,18 +48,22 @@
           />
 
           <div class="row">
-            <label
+            <label class="choice-inline"
               ><input type="checkbox" id="login-new" name="new" /> New user
               (first time)</label
             >
           </div>
 
-          <button type="submit">Continue</button>
+          <div class="actions">
+            <button type="submit" class="btn btn-primary">
+              <span class="btn-label">Continue</span>
+            </button>
+          </div>
         </form>
       </section>
 
-      <section id="panel-exercise" class="panel hidden" aria-labelledby="exercise-heading">
-        <h2 id="exercise-heading">Choose exercise</h2>
+      <section id="panel-exercise" class="panel card hidden" aria-labelledby="exercise-heading">
+        <h2 id="exercise-heading" class="panel-title">Choose exercise</h2>
         <p class="user-pill" id="exercise-user-label" hidden></p>
         <form id="form-exercise">
           <label for="ex-type">Type</label>
@@ -67,52 +80,92 @@
             <option value="intermediate">Intermediate</option>
           </select>
 
-          <fieldset style="border: none; padding: 0; margin: 0.75rem 0 0">
+          <fieldset class="fieldset-plain">
             <legend class="sr-only">Focus style</legend>
-            <div class="row">
-              <label
+            <span class="fake-label">How should we pick focus areas?</span>
+            <div class="row row-tight">
+              <label class="choice-inline"
                 ><input type="radio" name="style" value="weaknesses" checked />
-                Focus on weaknesses</label
+                Use my progress (weak areas)</label
               >
-              <label
-                ><input type="radio" name="style" value="preferences" /> My
-                preferences</label
+              <label class="choice-inline"
+                ><input type="radio" name="style" value="preferences" /> I’ll
+                choose</label
               >
             </div>
           </fieldset>
 
-          <div id="preferences-box" class="hidden">
-            <p style="margin: 0.75rem 0 0.25rem; color: var(--muted); font-size: 0.9rem">
-              Pick at least one area when using preferences.
-            </p>
-            <label>Tenses</label>
-            <div id="pref-tenses" class="check-grid"></div>
-            <label>Grammar</label>
-            <div id="pref-grammar" class="check-grid"></div>
-            <label>Topics</label>
-            <div id="pref-topics" class="check-grid"></div>
+          <div id="preferences-box" class="preferences-shell hidden">
+            <div id="preferences-standard">
+              <p class="hint">
+                Choose any combination of tenses, grammar, and topics.
+              </p>
+              <label class="sub-label">Tenses</label>
+              <div id="pref-tenses" class="check-grid"></div>
+              <label class="sub-label">Grammar</label>
+              <div id="pref-grammar" class="check-grid"></div>
+              <label class="sub-label">Topics</label>
+              <div id="pref-topics" class="check-grid"></div>
+            </div>
+
+            <div id="preferences-drills-only" class="hidden">
+              <p class="hint">
+                Drills work best with <strong>one</strong> focus: either
+                <strong>tenses</strong> or <strong>grammar</strong> — pick one,
+                then choose the items below.
+              </p>
+              <span class="fake-label">Focus on</span>
+              <div class="row row-tight drill-axis-row">
+                <label class="choice-inline"
+                  ><input
+                    type="radio"
+                    name="drill-pref-axis"
+                    value="tenses"
+                    checked
+                  />
+                  Tenses</label
+                >
+                <label class="choice-inline"
+                  ><input type="radio" name="drill-pref-axis" value="grammar" />
+                  Grammar</label
+                >
+              </div>
+              <div id="drill-pref-grid-wrap" class="check-grid"></div>
+            </div>
           </div>
 
-          <button type="submit">Start exercise</button>
-          <button type="button" class="secondary" id="btn-logout">Log out</button>
-          <button type="button" class="secondary" id="btn-progress">My progress</button>
+          <div class="actions">
+            <button type="submit" class="btn btn-primary">
+              <span class="btn-label">Start exercise</span>
+            </button>
+            <button type="button" class="btn btn-ghost" id="btn-logout">
+              <span class="btn-label">Log out</span>
+            </button>
+            <button type="button" class="btn btn-secondary" id="btn-progress">
+              <span class="btn-label">My progress</span>
+            </button>
+          </div>
         </form>
       </section>
 
-      <section id="panel-practice" class="panel hidden" aria-labelledby="practice-heading">
-        <h2 id="practice-heading">Practice</h2>
+      <section id="panel-practice" class="panel card hidden" aria-labelledby="practice-heading">
+        <h2 id="practice-heading" class="panel-title">Practice</h2>
         <div id="practice-root"></div>
         <div class="toolbar">
-          <button type="button" class="secondary" id="btn-back-exercise">
-            New exercise setup
+          <button type="button" class="btn btn-secondary" id="btn-back-exercise">
+            <span class="btn-label">New exercise setup</span>
           </button>
         </div>
       </section>
 
-      <section id="panel-progress" class="panel hidden" aria-labelledby="progress-heading">
-        <h2 id="progress-heading">Progress</h2>
+      <section id="panel-progress" class="panel card hidden" aria-labelledby="progress-heading">
+        <h2 id="progress-heading" class="panel-title">Progress</h2>
         <div id="progress-root"></div>
-        <button type="button" class="secondary" id="btn-close-progress">Close</button>
+        <div class="actions">
+          <button type="button" class="btn btn-secondary" id="btn-close-progress">
+            <span class="btn-label">Close</span>
+          </button>
+        </div>
       </section>
     </main>
 

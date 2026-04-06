@@ -1,7 +1,6 @@
 
 from src.domain.models.progress import ComputeStats, Progress
 from src.domain.models.user import User
-from src.infrastructure.cli.display import print_big_lines, print_scores
 
 
 # Calculates user score as a percentage of correct attempts over total attempts
@@ -22,9 +21,11 @@ def combine_scores(progress: Progress, exercise: Progress):
 
         for key in prog_dict:
             add_scores(prog_dict[key], ex_dict[key])
- 
+
 
 def show_user_progress(user: User):
+    from src.infrastructure.cli.display import print_big_lines, print_scores
+
     while True:
         print_big_lines()
         print_user_progress = input("Would you like to see your progress (yes/no)?:\n").strip().lower()

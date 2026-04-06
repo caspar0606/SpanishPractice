@@ -52,13 +52,22 @@ def generate_passage(username: str) -> ReadingGeneration:
 def submit_response(responses: list[str], username: str) -> QuestionMarking:
     user, exercise = user_exercise_cache(username)
 
-    if (user.current_exercise is None) or not isinstance(user.current_exercise.prompt, ReadingGeneration):
+    if user.current_exercise is None or user.current_exercise.prompt is None:
         raise ValueError(f"User current storage not found")
-    
+
+    raw = user.current_exercise.prompt
+    if isinstance(raw, ReadingGeneration):
+        reading_prompt = raw
+    elif isinstance(raw, dict):
+        reading_prompt = ReadingGeneration.model_validate(raw)
+        user.current_exercise.prompt = reading_prompt
+    else:
+        raise ValueError(f"User current storage not found")
+
     exercise_context = create_exercise_context(exercise)
 
-    tags = response_tagging(responses, user.current_exercise.prompt, exercise_context)
-    feedback = question_marking(responses, user.current_exercise.prompt, exercise_context)
+    tags = response_tagging(responses, reading_prompt, exercise_context)
+    feedback = question_marking(responses, reading_prompt, exercise_context)
 
     user.current_exercise.user_response = responses
     user.current_exercise.feedback = feedback
