@@ -15,7 +15,7 @@ def generate_writing_instruction(request: WritingGenerationRequest):
 
 @router.post("/submit", response_model=WritingSummaryResponse)
 def submit_text(request: WritingUserRequest):
-    result = writing_file.submit_response(request.username, request.user_response)
+    result = writing_file.submit_response(request.user_response, request.username)
 
     return WritingSummaryResponse(
         detailed_correction=result[0],

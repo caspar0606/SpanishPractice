@@ -25,6 +25,7 @@ def select_user(username: str, key: str, new: bool) -> User | None:
         user = create_user(username)
         if create_new_user_file(username) == 1:
             raise ValueError("User Already Exists. Pick a different username.")
+        save_user_state(user)
         return user
     
     user = load_user_state(username)

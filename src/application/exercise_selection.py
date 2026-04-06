@@ -8,7 +8,7 @@ from src.domain.models.exercise import AreasOfFocus, Exercise, ExerciseConfig
 from src.domain.models.session import ExerciseStorage, Session, User
 from src.infrastructure.cli.preferences import tense_preferences, topic_preferences, grammar_preferences
 from src.infrastructure.llm.contracts.shared import ExerciseContext
-from src.infrastructure.persistence.file_storage import load_user_state 
+from src.infrastructure.persistence.file_storage import load_user_state, save_user_state
 
 def generate_exercise(username: str, type: ExerciseTypes, difficulty: 
                       DifficultyLevels, style: ExerciseStyle, preferences: AreasOfFocus | None) -> Exercise:
@@ -16,7 +16,7 @@ def generate_exercise(username: str, type: ExerciseTypes, difficulty:
     user = load_user_state(username)
 
     if user is None:
-        raise ValueError("{user.name} failed to fetch")
+        raise ValueError(f"User '{username}' not found")
     
     if (style is ExerciseStyle.PREFERENCES):
         if preferences is None:
@@ -44,8 +44,9 @@ def generate_exercise(username: str, type: ExerciseTypes, difficulty:
             ExerciseTypes.READING else DIFFICULTY_CONFIG[difficulty].w_word_count)),
         start_time=datetime.now())
 
+    save_user_state(user)
     return exercise
-    
+
 
 
 

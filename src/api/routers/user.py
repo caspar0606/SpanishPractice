@@ -1,18 +1,19 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 
 from src.application import user as user_file
 from src.api.schemas.user import UserRequest, UserResponse
-from src.domain.models.user import User
 
 router = APIRouter()
 
+
 @router.post("/login", response_model=UserResponse)
 def select_user(request: UserRequest):
-    result = user_file.select_user(request.username, request.key, request.new)
-    
-    if not isinstance(result, User):
-        raise ValueError("UserError")
+    try:
+        result = user_file.select_user(request.username, request.key, request.new)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e)) from e
 
-    return UserResponse(
-        user=result
-    )
+    if result is None:
+        raise HTTPException(status_code=401, detail="Invalid access code")
+
+    return UserResponse(user=result)
