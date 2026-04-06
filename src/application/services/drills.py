@@ -1,19 +1,14 @@
-from src.core.display import print_big_lines
-from src.domain.enums import DifficultyLevels
-from src.llm.harness import agent_inputs, response_format
-from src.llm.input import lesson_topics, AgentInputs, LessonTopics
-from src.llm.enums import AgentNames, DrillTypes
-from src.llm.prompts import d_translate_generator_system_prompt, d_sentence_complete_generator_system_prompt, \
-                            d_error_correct_generator_system_prompt, d_option_select_generator_system_prompt, \
-                            d_error_correct_marker_system_prompt, d_option_select_marker_system_prompt, \
-                            d_sentence_complete_marker_system_prompt, d_translate_marker_system_prompt
+from src.application.exercise_selection import lesson_topics
+from src.domain.enums import DrillTypes
+from src.domain.models.exercise import LessonTopics
+from src.domain.rules import QUESTION_NUMBER_CONFIG
+from src.infrastructure.llm.contracts.drills import DrillMarkingSet, Drills, MarkedDrills, UserDrillResponses, DrillSet
+from src.infrastructure.llm.contracts.shared import AgentNames
+from src.infrastructure.llm.prompts.drills import DRILLS_PROMPT_CONFIG
+from src.infrastructure.llm.harness import agent_inputs, response_format
+from src.domain.models.session import Session
+from src.domain.models.progress import ComputeStats
 
-from src.llm.output import DrillMarkingSet, Drills, MarkedDrills, UserDrillResponses, WritingCorrection, WritingSummary, DrillSet
-
-from src.core.session_storage import store_exercise
-
-from src.domain.classes import ComputeStats, ExerciseStorage, Session, Progress
-from src.mode.writing import correction_summary, instruction_generation, progress_tagging, text_correction
 
 def drills_mode_run(current_session: Session):
     lesson_topic = lesson_topics(current_session.current_exercise)
@@ -27,8 +22,6 @@ def drills_mode_run(current_session: Session):
     
     return marked_drills
 
-#def submit_drills(current_session: Session):
-
 
 def create_drills(lesson_topic: LessonTopics):
     question_set = QUESTION_NUMBER_CONFIG[lesson_topic.difficulty]
@@ -39,9 +32,6 @@ def create_drills(lesson_topic: LessonTopics):
                 for drill_type in DrillTypes
                 }
             )
-
-
-#def submit_drills(user_response, drills: Drills, lesson_topic: LessonTopics):
 
 
 def generate_drill_set(lesson_topic: LessonTopics, question_set: dict, drill_type: DrillTypes) -> DrillSet:
@@ -82,44 +72,3 @@ def mark_drill_set(user_response: list[str], drill_set: DrillSet, lesson_topic: 
                                stimulus=[drill_set.model_dump_json()])
     
     return response_format(agent_input, DrillMarkingSet)
-
-
-QUESTION_NUMBER_CONFIG = {
-    DifficultyLevels.BEGINNER: {
-        DrillTypes.SENTENCE_COMPLETION: 6,
-        DrillTypes.OPTION_SELECTION: 7,
-        DrillTypes.ERROR_CORRECTION: 4,
-        DrillTypes.TRANSLATION: 3
-    },
-    DifficultyLevels.NOVICE: {
-        DrillTypes.SENTENCE_COMPLETION: 5,
-        DrillTypes.OPTION_SELECTION: 6,
-        DrillTypes.ERROR_CORRECTION: 5,
-        DrillTypes.TRANSLATION: 4
-    },
-    DifficultyLevels.INTERMEDIATE: {
-        DrillTypes.SENTENCE_COMPLETION: 4,
-        DrillTypes.OPTION_SELECTION: 5,
-        DrillTypes.ERROR_CORRECTION: 6,
-        DrillTypes.TRANSLATION: 5
-    }
-}
-
-DRILLS_PROMPT_CONFIG = {
-    DrillTypes.SENTENCE_COMPLETION: {
-        "generate": d_sentence_complete_generator_system_prompt,
-        "mark": d_sentence_complete_marker_system_prompt
-    },
-    DrillTypes.OPTION_SELECTION: {
-        "generate": d_option_select_generator_system_prompt,
-        "mark": d_option_select_marker_system_prompt
-    },
-    DrillTypes.ERROR_CORRECTION: {
-        "generate": d_error_correct_generator_system_prompt,
-        "mark": d_error_correct_marker_system_prompt
-    },
-    DrillTypes.TRANSLATION: {
-        "generate": d_translate_generator_system_prompt,
-        "mark": d_translate_marker_system_prompt
-    }
-}

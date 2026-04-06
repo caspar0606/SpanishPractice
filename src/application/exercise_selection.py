@@ -1,10 +1,13 @@
 from datetime import datetime
-from src.core.display import print_big_lines, print_small_lines, print_grammar_preferences, print_tense_preferences, print_topic_preferences
-from src.core.logging import generate_id
-from src.domain.enums import AoFs, Tenses, Grammar, Topics, ExerciseTypes
-from src.domain.classes import AreasOfFocus, Exercise, Session, User
-from src.domain.preferences import tense_preferences, topic_preferences, grammar_preferences, \
-                                    TENSE_PREFERENCES_CONFIG, TOPIC_PREFERENCES_CONFIG, GRAMMAR_PREFERENCES_CONFIG, DifficultyLevels \
+from src.app.score import calculate_score
+from src.domain.rules import DIFFICULTY_CONFIG
+from src.infrastructure.cli.display import print_big_lines, print_small_lines, print_grammar_preferences, print_tense_preferences, print_topic_preferences
+from src.infrastructure.config.logging import generate_id
+from src.domain.enums import AoFs, DifficultyLevels, ExerciseTypes, Grammar, Tenses, Topics
+from src.domain.models.exercise import AreasOfFocus, Exercise
+from src.domain.models.session import Session, User
+from src.infrastructure.cli.preferences import tense_preferences, topic_preferences, grammar_preferences
+from src.infrastructure.llm.contracts.shared import LessonTopics 
 
 
 def exercise_selection(current_session: Session) -> Exercise:
@@ -63,7 +66,30 @@ def difficulty_selection() -> DifficultyLevels:
         except ValueError:
             print("Invalid difficulty level. Choose either 'beginner', 'novice', or 'intermediate'.")
         
-from src.domain.user import weak_areas
+# Determines user's weakest area based on their progress and selected difficulty level
+def weak_areas(difficulty_level: DifficultyLevels, user: User):
+    config = DIFFICULTY_CONFIG[difficulty_level]  # type: ignore
+
+    # Sorts tense, grammar, and topic progress by score and selects weakest k areas based on the difficulty config
+    sorted_tenses = sorted(
+        user.progress.tenses.items(),
+        key=lambda item: calculate_score(item[1])
+    )
+
+    sorted_grammar = sorted(
+        user.progress.grammar.items(),
+        key=lambda item: calculate_score(item[1])
+    )
+
+    sorted_topics = sorted(
+        user.progress.topics.items(),
+        key=lambda item: calculate_score(item[1])
+    )
+
+    # Returns as lists of Tenses, Grammar, and Topics
+    return  [Tenses(tense) for tense, _ in sorted_tenses[:config.num_tenses]], \
+            [Grammar(grammar) for grammar, _ in sorted_grammar[:config.num_grammar]], \
+            [Topics(topic) for topic, _ in sorted_topics[:config.num_topics]]
 
 def focus_selection(current_session: Session, difficulty_level: DifficultyLevels, exercise_type: ExerciseTypes):
     while True:
@@ -156,3 +182,19 @@ DRILL_CONFIG = {
     AoFs.TENSES: [tenses_selection, 1],
     AoFs.TOPICS: [topics_selection, 2]
 }
+
+def lesson_topics(exercise: Exercise) -> LessonTopics:
+    word_count = (
+        DIFFICULTY_CONFIG[exercise.difficulty_level].w_word_count
+        if exercise.exercise_type == ExerciseTypes.WRITING
+        else DIFFICULTY_CONFIG[exercise.difficulty_level].r_word_count
+    )
+
+    return LessonTopics(
+        areas_of_focus=AreasOfFocus(
+            focus_tenses=exercise.areas_of_focus.focus_tenses,
+        focus_grammar=exercise.areas_of_focus.focus_grammar,
+        focus_topics=exercise.areas_of_focus.focus_topics),
+        word_count=word_count,
+        difficulty=exercise.difficulty_level,
+    )

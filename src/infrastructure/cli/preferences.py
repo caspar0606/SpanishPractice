@@ -1,39 +1,6 @@
 import re
-from pydantic import BaseModel
-from src.domain.enums import DifficultyLevels, Tenses, Grammar, Topics
+from src.domain.enums import Tenses, Grammar, Topics
 
-
-class DifficultyConfig(BaseModel):
-    w_word_count: int
-    r_word_count: int
-    num_topics: int
-    num_tenses: int
-    num_grammar: int
-
-
-DIFFICULTY_CONFIG: dict[DifficultyLevels, DifficultyConfig] = {
-    DifficultyLevels.BEGINNER: DifficultyConfig(
-        w_word_count=60,
-        r_word_count=100,
-        num_topics=1,
-        num_tenses=1,
-        num_grammar=2,
-    ),
-    DifficultyLevels.NOVICE: DifficultyConfig(
-        w_word_count=120,
-        r_word_count=250,
-        num_topics=1,
-        num_tenses=2,
-        num_grammar=3,
-    ),
-    DifficultyLevels.INTERMEDIATE: DifficultyConfig(
-        w_word_count=200,
-        r_word_count=400,
-        num_topics=2,
-        num_tenses=3,
-        num_grammar=4,
-    ),
-}
 
 TENSE_PREFERENCES_CONFIG: dict[str, str] = {
     Tenses.PRESENTE_DE_INDICATIVO: "1",

@@ -1,7 +1,9 @@
 from datetime import datetime
 from typing import Any
-from src.domain.classes import Exercise, ExerciseStorage, Progress, ProgressUpdates, Session, SessionStorage, User
-from src.core.logging import generate_id
+from src.domain.models.progress import Progress, ProgressUpdates
+from src.domain.models.exercise import Exercise
+from src.domain.models.session import ExerciseStorage, Session, SessionStorage, User
+from src.infrastructure.config.logging import generate_id
 
 
 def store_exercise(exercise: Exercise, progress: Progress, prompt: Any, user_response: Any, feedback: Any):

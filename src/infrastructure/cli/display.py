@@ -1,5 +1,5 @@
 from src.domain.enums import Grammar, Tenses, Topics
-from src.domain.preferences import GRAMMAR_PREFERENCES_CONFIG, TENSE_PREFERENCES_CONFIG, TOPIC_PREFERENCES_CONFIG
+from src.infrastructure.cli.preferences import GRAMMAR_PREFERENCES_CONFIG, TENSE_PREFERENCES_CONFIG, TOPIC_PREFERENCES_CONFIG
 
 
 def print_big_lines():

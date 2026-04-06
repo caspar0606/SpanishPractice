@@ -1,6 +1,6 @@
 from typing import Optional, Union
 from pydantic import BaseModel
-from src.domain.preferences import DIFFICULTY_CONFIG, DifficultyLevels
+from src.infrastructure.cli.preferences import DIFFICULTY_CONFIG, DifficultyLevels
 from src.domain.enums import Tenses, Grammar, Topics
 from src.llm.enums import AgentNames
 from src.llm.output import ReadingGeneration
@@ -29,7 +29,7 @@ class AgentInputs(BaseModel):
     output_schema: type[BaseModel] | None = None
 
 
-from src.domain.classes import Exercise
+from src.domain.models.classes import Exercise
 
 def lesson_topics(exercise: Exercise):
 

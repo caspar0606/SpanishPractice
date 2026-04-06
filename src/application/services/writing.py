@@ -1,34 +1,28 @@
-from src.core.display import print_big_lines
-from src.llm.input import lesson_topics, AgentInputs, LessonTopics
-from src.llm.enums import AgentNames
-from src.llm.prompts import w_instruction_system_prompt, w_tagging_system_prompt, w_correcting_system_prompt, w_summary_system_prompt
-from src.llm.output import WritingCorrection, WritingSummary
-
-from src.core.session_storage import store_exercise
-
-from src.domain.classes import Session, Progress
+from src.application.exercise_selection import lesson_topics
+from src.domain.models.exercise import LessonTopics
+from src.domain.models.progress import Progress
+from src.infrastructure.llm.contracts.writing import WritingCorrection, WritingSummary
+from src.infrastructure.llm.contracts.shared import AgentInputs, AgentNames
+from src.infrastructure.llm.prompts.writing import w_tagging_system_prompt, w_correcting_system_prompt, \
+                                                    w_instruction_system_prompt, w_summary_system_prompt
+from src.infrastructure.llm.harness import agent_inputs, agent_run, response_format
+from src.domain.models.session import Session
+from src.infrastructure.persistence.session_storage import store_exercise
 
 def writing_mode_run(current_session: Session):
     lesson_topic = lesson_topics(current_session.current_exercise)
 
-    print_big_lines()
-    print("\nGenerating your writing instructions...")
     writing_instruction = instruction_generation(lesson_topic)
 
     print(f"\nHere is your writing prompt, ¡Buena Suerte! \n\n {writing_instruction}")
 
     user_response = input("\nPaste/write your response here: ")
 
-    print(f"\nTagging the response...")
     exercise_counts = progress_tagging(user_response, lesson_topic)
 
-    print_big_lines()
-    print(f"Correcting the text...\n")
     corrected_text = text_correction(user_response, lesson_topic, writing_instruction)
     print(corrected_text.corrected_version)
 
-    print_big_lines()
-    print(f"Summarising corrections...\n")
     summaries = correction_summary(corrected_text, lesson_topic, exercise_counts)
     print(summaries.general_feedback)
 
@@ -36,8 +30,6 @@ def writing_mode_run(current_session: Session):
 
     return exercise_storage
     
-from src.llm.harness import agent_inputs, agent_run, response_format
-
 def instruction_generation(lesson_topic: LessonTopics):    
 
     agent_input = AgentInputs(

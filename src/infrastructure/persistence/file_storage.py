@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
-from src.domain.classes import User
+
+from src.domain.models.user import User
 
 def save_user_state(user: User):
     user_file = Path(f"userdata/{user.name}.json")

@@ -4,15 +4,14 @@ import os
 load_dotenv()
 api_key = os.getenv("OPENAI_API_KEY")
 
-from src.core.storage import save_user_state
+from src.application.services.reading import reading_mode_run
+from src.application.services.writing import writing_mode_run
+from src.infrastructure.persistence.file_storage import save_user_state
 from src.domain.enums import ExerciseTypes
-from src.mode.writing import writing_mode_run
-from src.mode.reading import reading_mode_run
-from src.mode.drills import drills_mode_run
-from src.core.session_storage import store_session, update_progress
-from src.domain.user import user_selection
+from src.infrastructure.persistence.session_storage import store_session, update_progress
+from src.infrastructure.cli.user import user_selection
 from src.app.score import show_user_progress
-from src.app.exercise_selection import exercise_selection, initialise_session
+from src.application.exercise_selection import exercise_selection, initialise_session
 
 
 
