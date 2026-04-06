@@ -4,7 +4,7 @@ from typing import Any, Optional
 from pydantic import BaseModel
 
 from src.domain.enums import ExerciseTypes
-from src.domain.models.exercise import AreasOfFocus, Exercise
+from src.domain.models.exercise import AreasOfFocus, Exercise, ExerciseStorage
 from src.domain.models.progress import ProgressUpdates, Progress
 from src.domain.models.user import User
 
@@ -14,20 +14,8 @@ class Session(BaseModel):
     user: User
     start_time: datetime
     current_exercise: Exercise
-    exercise_history: list["ExerciseStorage"]
+    exercise_history: list[ExerciseStorage]
     progress_history: list[ProgressUpdates]
-
-
-class ExerciseStorage(BaseModel):
-    id: str
-    start_time: datetime
-    end_time: datetime
-    type: ExerciseTypes
-    areas_of_focus: AreasOfFocus
-    prompt: Any
-    user_response: Any
-    feedback: Any
-    score: Progress
 
 class SessionStorage(BaseModel):
     id: str

@@ -1,7 +1,7 @@
 
 from src.domain.models.progress import ComputeStats, Progress
 from src.domain.models.user import User
-from src.infrastructure.cli.display import print_big_lines
+from src.infrastructure.cli.display import print_big_lines, print_scores
 
 
 # Calculates user score as a percentage of correct attempts over total attempts
@@ -23,22 +23,6 @@ def combine_scores(progress: Progress, exercise: Progress):
         for key in prog_dict:
             add_scores(prog_dict[key], ex_dict[key])
  
-# Prints user scores for tenses, grammar, and topics in a readable format
-def print_scores(user_progress: Progress):
-    print("Tenses:")
-    for tense, stats in user_progress.tenses.items():
-        score = calculate_score(stats)
-        print(f"  {tense}: {score:.2f}%")
-    
-    print("\nGrammar:")
-    for grammar, stats in user_progress.grammar.items():
-        score = calculate_score(stats)
-        print(f"  {grammar}: {score:.2f}%")
-    
-    print("\nTopics:")
-    for topic, stats in user_progress.topics.items():
-        score = calculate_score(stats)
-        print(f"  {topic}: {score:.2f}%")
 
 def show_user_progress(user: User):
     while True:

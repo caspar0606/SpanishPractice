@@ -47,3 +47,8 @@ class DrillTypes(str, Enum):
     TRANSLATION = "translate"
     ERROR_CORRECTION = "error_correction"
     OPTION_SELECTION = "option_selection"
+
+class ExerciseStyle(str, Enum):
+	WEAKNESSES = "weaknesses"
+	PREFERENCES = "preferences"
+    

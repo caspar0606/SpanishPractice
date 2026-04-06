@@ -5,7 +5,7 @@ from langchain.chat_models import init_chat_model
 from langchain.agents import create_agent
 from langchain.messages import HumanMessage
 
-from src.domain.models.exercise import LessonTopics
+from src.domain.models.exercise import ExerciseContext
 from src.infrastructure.llm.contracts.shared import AgentInputs, AgentNames
 from src.infrastructure.llm.utils import serialise_for_prompt
 
@@ -23,8 +23,11 @@ def agent_run(agent_inputs: AgentInputs):
 
     messages = []
 
-    if agent_inputs.lesson_topics is not None:
-        messages.append(HumanMessage(content=f"Lesson context:\n{serialise_for_prompt(agent_inputs.lesson_topics)}"))
+    if agent_inputs.exercise_context.areas_of_focus is not None:
+        messages.append(HumanMessage(content=f"Lesson context:\n{serialise_for_prompt(agent_inputs.exercise_context.areas_of_focus)}"))
+
+    if agent_inputs.exercise_context.exercise_config is not None:
+        messages.append(HumanMessage(content=f"Exercise config:\n{serialise_for_prompt(agent_inputs.exercise_context.exercise_config)}"))
 
     if agent_inputs.stimulus is not None:
         messages.append(HumanMessage(content=f"User stimulus:\n{serialise_for_prompt(agent_inputs.stimulus)}"))
@@ -49,7 +52,7 @@ def response_format(agent_input: AgentInputs, schema: type[T]) -> T:
 def agent_inputs(
     name: AgentNames,
     system_prompt: str,
-    lesson_topic: LessonTopics | None = None,
+    exercise_context: ExerciseContext,
     schema: Any | None = None,
     input: Any | None = None,
     stimulus: Any | None = None
@@ -57,7 +60,7 @@ def agent_inputs(
     return AgentInputs(
         name=name,
         system_prompt=system_prompt,
-        lesson_topics=lesson_topic,
+        exercise_context=exercise_context,
         output_schema=schema,
         stimulus=stimulus,
         input_text=input

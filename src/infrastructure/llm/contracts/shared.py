@@ -2,7 +2,7 @@ from enum import Enum
 from typing import Optional, Union
 from pydantic import BaseModel
 
-from src.domain.models.exercise import LessonTopics
+from src.domain.models.exercise import ExerciseContext
 from src.infrastructure.llm.contracts.reading import ReadingGeneration
 
 LLMStimulus = Union[ReadingGeneration,list[str], str]
@@ -15,7 +15,7 @@ class ModelInputs(BaseModel):
 
 class AgentInputs(BaseModel):
     name: "AgentNames"
-    lesson_topics: Optional[LessonTopics] = None
+    exercise_context: ExerciseContext 
     system_prompt: str
     stimulus: Optional[LLMStimulus] = None
     input_text: Optional[LLMInput] = None

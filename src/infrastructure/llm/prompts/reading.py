@@ -16,7 +16,7 @@ You MUST return your response as a JSON object that exactly matches this schema:
 Do not include any extra keys. Do not include any text outside the JSON.
 
 INPUT
-You will receive lesson_topics with the following possible fields:
+You will receive exercise_context with the following possible fields:
 - topics: Optional[list[Topics]]
 - grammar: Optional[list[Grammar]]
 - tenses: Optional[list[Tenses]]
@@ -69,7 +69,7 @@ Guidelines:
 - No trailing commas.
 - No additional commentary.
 
-If any field in lesson_topics is None, ignore it.
+If any field in exercise_context is None, ignore it.
 """
 
 r_answer_system_prompt = """

@@ -1,4 +1,6 @@
 from src.domain.enums import Grammar, Tenses, Topics
+from src.domain.models.progress import Progress
+from src.domain.rules.score import calculate_score
 from src.infrastructure.cli.preferences import GRAMMAR_PREFERENCES_CONFIG, TENSE_PREFERENCES_CONFIG, TOPIC_PREFERENCES_CONFIG
 
 
@@ -37,3 +39,19 @@ def print_grammar_preferences():
                                                     f"\n{GRAMMAR_PREFERENCES_CONFIG[Grammar.VERB_SUBJECT_CONJUGATION]} for verb-subject conjugation"
                                                     "\n: ")
 
+# Prints user scores for tenses, grammar, and topics in a readable format
+def print_scores(user_progress: Progress):
+    print("Tenses:")
+    for tense, stats in user_progress.tenses.items():
+        score = calculate_score(stats)
+        print(f"  {tense}: {score:.2f}%")
+    
+    print("\nGrammar:")
+    for grammar, stats in user_progress.grammar.items():
+        score = calculate_score(stats)
+        print(f"  {grammar}: {score:.2f}%")
+    
+    print("\nTopics:")
+    for topic, stats in user_progress.topics.items():
+        score = calculate_score(stats)
+        print(f"  {topic}: {score:.2f}%")

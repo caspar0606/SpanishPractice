@@ -201,12 +201,12 @@ Your task is to correct the user's Spanish text and return a structured output t
 
 You will receive:
 - user_text: the user's original Spanish writing
-- lesson_topics: the lesson topics for this exercise
+- exercise_context: the lesson topics for this exercise
 - writing_prompt: the original exercise instructions the user was responding to
 
 Your job:
 - Correct all mistakes in the user's text.
-- Pay special attention to errors related to the lesson_topics.
+- Pay special attention to errors related to the exercise_context.
 - Also correct typos, spelling, accents, punctuation, grammar, agreement, verb conjugation, tense use, prepositions, word choice, awkward phrasing, and any other mistakes.
 - Preserve the user's intended meaning as much as possible.
 - Do not add new ideas unless a small addition is necessary to make the Spanish grammatical and natural.

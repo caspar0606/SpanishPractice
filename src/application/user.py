@@ -2,9 +2,11 @@ from src.domain.models.progress import ComputeStats, Progress
 from src.domain.enums import Grammar, Tenses, Topics
 from src.domain.enums import Tenses
 from src.infrastructure.persistence.file_storage import create_new_user_file, save_user_state, load_user_state
-from src.domain.models.session import User
+from src.domain.models.session import Session, User
 from src.domain.enums import Grammar, Topics, Topics
 from src.domain.enums import Tenses
+from dotenv import load_dotenv
+import os
 
 # Creates a new user with initialised progress and name
 def create_user(name: str) -> User:
@@ -12,28 +14,27 @@ def create_user(name: str) -> User:
     return User(name=name, progress=progress, first_time=True)
 
 
+def select_user(username: str, key: str, new: bool) -> User | None:
 
-def user_selection():
-    while True:
-        response = input("Are you a new user (yes/no)?: ").strip().lower()
+    load_dotenv()
+    access_key = os.getenv("ACCESS_KEY")
+    if not (access_key == key):
+        return None
 
-        if response == "yes": # Creates a new user and saves it as a json file in the userdata directory
-            user = create_user(input("Enter your new username: ").strip().lower())
-            if create_new_user_file(user.name) == 1: # Checks if User already exists
-                continue
+    if new:
+        user = create_user(username)
+        if create_new_user_file(username) == 1:
+            raise ValueError("User Already Exists. Pick a different username.")
+        return user
+    
+    user = load_user_state(username)
 
-            save_user_state(user)
-            return user
-        
-        elif response == "no": # Loads user data
-            user = load_user_state(input("Welcome back! Please enter your username: ").strip().lower())
+    if user is None:
+        raise ValueError("User doesn't exist.")
 
-            if user == None: # Checks if User exists
-                continue
-            return user
-        
-        else:
-            print("Invalid input. Please enter 'yes' or 'no'.")
+    return user
+
+
 
 
 def initialise_progress():

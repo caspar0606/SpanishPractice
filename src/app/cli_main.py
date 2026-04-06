@@ -1,19 +1,40 @@
 from dotenv import load_dotenv
 import os
 
+from src.domain.rules.score import show_user_progress
+
 load_dotenv()
 api_key = os.getenv("OPENAI_API_KEY")
 
 from src.application.services.reading import reading_mode_run
 from src.application.services.writing import writing_mode_run
-from src.infrastructure.persistence.file_storage import save_user_state
+from src.infrastructure.persistence.file_storage import create_new_user_file, load_user_state, save_user_state
 from src.domain.enums import ExerciseTypes
 from src.infrastructure.persistence.session_storage import store_session, update_progress
-from src.infrastructure.cli.user import user_selection
-from src.app.score import show_user_progress
+from src.application.user import create_user
 from src.application.exercise_selection import exercise_selection, initialise_session
 
+def user_selection():
+    while True:
+        response = input("Are you a new user (yes/no)?: ").strip().lower()
 
+        if response == "yes": # Creates a new user and saves it as a json file in the userdata directory
+            user = create_user(input("Enter your new username: ").strip().lower())
+            if create_new_user_file(user.name) == 1: # Checks if User already exists
+                continue
+
+            save_user_state(user)
+            return user
+        
+        elif response == "no": # Loads user data
+            user = load_user_state(input("Welcome back! Please enter your username: ").strip().lower())
+
+            if user == None: # Checks if User exists
+                continue
+            return user
+        
+        else:
+            print("Invalid input. Please enter 'yes' or 'no'.")
 
 #User Selection
 user = user_selection()
@@ -53,6 +74,7 @@ while True:
 
     elif user_continue == "yes":
         continue
+
 
 
 

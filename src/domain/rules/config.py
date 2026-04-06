@@ -54,3 +54,5 @@ DIFFICULTY_CONFIG: dict[DifficultyLevels, DifficultyConfig] = {
         num_grammar=4,
     ),
 }
+
+

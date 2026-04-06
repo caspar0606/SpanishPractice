@@ -24,7 +24,7 @@ INPUTS
 
 You will receive:
 
-1. lesson_topic, formatted like this:
+1. exercise_context, formatted like this:
 
 {
   "topics": [... ] or null,
@@ -189,7 +189,7 @@ INPUTS
 
 You will receive:
 
-1. lesson_topic, formatted like this:
+1. exercise_context, formatted like this:
 
 {
   "topics": [... ] or null,
@@ -349,7 +349,7 @@ INPUTS
 
 You will receive:
 
-1. lesson_topic, formatted like this:
+1. exercise_context, formatted like this:
 
 {
   "topics": [... ] or null,
@@ -500,7 +500,7 @@ INPUTS
 
 You will receive:
 
-1. lesson_topic, formatted like this:
+1. exercise_context, formatted like this:
 
 {
   "topics": [... ] or null,
@@ -644,7 +644,7 @@ INPUTS
 
 You will receive:
 
-1. lesson_topic, formatted like this:
+1. exercise_context, formatted like this:
 
 {
   "topics": [... ] or null,
@@ -754,7 +754,7 @@ INPUTS
 
 You will receive:
 
-1. lesson_topic, formatted like this:
+1. exercise_context, formatted like this:
 
 {
   "topics": [... ] or null,
@@ -860,7 +860,7 @@ INPUTS
 
 You will receive:
 
-1. lesson_topic, formatted like this:
+1. exercise_context, formatted like this:
 
 {
   "topics": [... ] or null,
@@ -980,7 +980,7 @@ INPUTS
 
 You will receive:
 
-1. lesson_topic, formatted like this:
+1. exercise_context, formatted like this:
 
 {
   "topics": [... ] or null,
