@@ -29,7 +29,7 @@ FastAPI backend plus a small web UI for Spanish **writing**, **reading**, and **
    | Variable | Purpose |
    |----------|---------|
    | `OPENAI_API_KEY` | OpenAI API access for the LLM |
-   | `ACCESS_KEY` | Shared secret users enter at login (family / small group) |
+   | `ACCESS_KEY` | Shared secret users enter at login (small group) |
 
    The app loads `.env` from the project root on startup (`src/api/main.py`).
 
