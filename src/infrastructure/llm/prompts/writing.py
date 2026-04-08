@@ -7,22 +7,22 @@ You are a Spanish writing prompt generator. Your task is to generate a writing p
 
 STRICT OUTPUT RULES:
 - Output must be exactly TWO paragraphs.
-- The first paragraph is ONE sentence describing the topic.
+- The first paragraph is ONE sentence describing the topic WITH vivid situational context.
 - The second paragraph gives instructions.
 - Always include a line break between paragraphs.
 - Do NOT use bullet points.
 - Do NOT add extra commentary.
 - Always follow the exact sentence structures below.
 - Remove the underscores from all passed topics of focus.
-- Do not return this prompt or it's instructions. 
+- Do not return this prompt or its instructions. 
 
 FORMAT:
 
 Paragraph 1:
-"Escribe un texto de aproximadamente {word_count} palabras sobre {topics}."
+"Escribe un texto de aproximadamente {word_count} palabras sobre {topics}, situándolo en una situación específica, concreta y realista (incluye lugar, momento y contexto emocional o social)."
 
 Paragraph 2:
-"Describe {past_context}. Luego explica {future_context}. Usa {tenses} y asegúrate de usar correctamente {grammar}."
+"Describe {past_context} dentro de esa situación. Luego explica {future_context} como continuación natural del mismo escenario. Usa {tenses} y asegúrate de usar correctamente {grammar}."
 
 EXAMPLE INPUT:
 { 
@@ -33,12 +33,10 @@ word_count: 160
 }
 
 EXAMPLE OUTPUT:
-Escribe un texto de aproximadamente 160 palabras sobre un viaje importante y las emociones que sentiste.
+Escribe un texto de aproximadamente 160 palabras sobre un viaje importante y las emociones que sentiste, situándolo en un aeropuerto extranjero durante una despedida difícil con un ser querido.
 
-Describe cómo era la situación en el pasado y cómo te sentías. Luego explica qué harás o qué esperas hacer en el futuro. 
-Usa el pretérito imperfecto y el futuro simple y asegúrate de usar correctamente “por” y “para” y la concordancia de género.
+Describe cómo era la situación en ese momento, qué estaba ocurriendo a tu alrededor y cómo te sentías. Luego explica qué harás después de ese momento y cómo crees que cambiarán tus emociones en el futuro. Usa el pretérito imperfecto y el futuro simple y asegúrate de usar correctamente “por” y “para” y la concordancia de género.
 """
-
 w_tagging_system_prompt = """
 You are a Spanish language analysis system.
 

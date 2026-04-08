@@ -68,6 +68,7 @@ Exactly one category will be active.
 A) If focus_tenses is non-null:
 - Every drill must test the given tense focus.
 - The blank should require the learner to produce a verb form that belongs to the target tense.
+- Include the verb in brackets after the blank (unconjugated.)
 - If more than one tense appears in the list, every drill must still stay inside that provided focus set only.
 - Prefer prompts where the intended tense is strongly signalled by context or time markers so the answer is not ambiguous.
 
