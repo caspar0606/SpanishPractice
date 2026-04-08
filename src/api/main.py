@@ -47,17 +47,19 @@ def create_app() -> FastAPI:
         return {"status": "ok"}
 
     frontend_dir = Path(__file__).resolve().parent.parent.parent / "frontend"
+    static_dir = frontend_dir / "static"
     if frontend_dir.is_dir():
 
         @app.get("/")
         def serve_index() -> FileResponse:
             return FileResponse(frontend_dir / "index.html")
 
-        app.mount(
-            "/static",
-            StaticFiles(directory=str(frontend_dir)),
-            name="frontend-static",
-        )
+        if static_dir.is_dir():
+            app.mount(
+                "/static",
+                StaticFiles(directory=str(static_dir)),
+                name="frontend-static",
+            )
 
     return app
 

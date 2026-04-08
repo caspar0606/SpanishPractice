@@ -76,7 +76,7 @@ To host the UI on **Vercel** and keep the API on another host (Railway, Fly, you
 
 1. **Backend:** Run the FastAPI app with a public HTTPS URL. Set **`CORS_ORIGINS`** in the API’s environment to your Vercel site origin, e.g. `https://spanish-practice.vercel.app` (no trailing slash). Redeploy or restart the API after changing env vars.
 
-2. **Vercel project:** Point the project at this repo. In **Project → Settings → General**, set **Root Directory** to the repository root (leave it **empty** or `.` — **not** `src` or `frontend`). The included **`vercel.json`** runs `node scripts/write-api-config.mjs`, which writes `frontend/api-config.js` from **`BACKEND_URL`**.
+2. **Vercel project:** Point the project at this repo. In **Project → Settings → General**, set **Root Directory** to the repository root (leave it **empty** or `.` — **not** `src` or `frontend`). The included **`vercel.json`** runs `node scripts/write-api-config.mjs`, which writes `frontend/static/api-config.js` from **`BACKEND_URL`**.
 
 3. **Vercel environment variable:** Add **`BACKEND_URL`** = your API origin only, e.g. `https://api.example.com` (no trailing slash). The build step injects it into `api-config.js` so `fetch` calls go to that host.
 
@@ -92,7 +92,7 @@ src/
   application/   # Use cases (user, exercise selection, services)
   domain/        # Models, rules, enums
   infrastructure/# LLM harness, persistence (JSON), config
-frontend/        # Static UI (HTML, CSS, JS) served by FastAPI
+frontend/        # Static UI: index.html; assets in frontend/static/ (URL /static/…)
 userdata/        # Runtime user JSON files (gitignored by default)
 ```
 
