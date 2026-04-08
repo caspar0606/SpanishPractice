@@ -3,13 +3,16 @@ from pathlib import Path
 
 from src.domain.models.user import User
 
+USERDATA_DIR = Path(os.getenv("USERDATA_DIR", "userdata"))
+
 def save_user_state(user: User):
-    user_file = Path(f"userdata/{user.name}.json")
+    user_file = USERDATA_DIR / f"{user.name}.json"
+    user_file.parent.mkdir(parents=True, exist_ok=True)
     with user_file.open("w") as f:
         json.dump(user.model_dump(mode="json"), f, indent=4)
 
 def create_new_user_file(username: str):
-    user_file = Path(f"userdata/{username}.json")
+    user_file = USERDATA_DIR / f"{user.name}.json"
 
     user_file.parent.mkdir(exist_ok=True)
 
