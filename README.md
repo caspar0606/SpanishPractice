@@ -29,7 +29,7 @@ FastAPI backend plus a small web UI for Spanish **writing**, **reading**, and **
    | Variable | Purpose |
    |----------|---------|
    | `OPENAI_API_KEY` | OpenAI API access for the LLM |
-   | `ACCESS_KEY` | Shared secret users enter at login (family / small group) |
+   | `ACCESS_KEY` | Shared secret users enter at login (small group) |
 
    The app loads `.env` from the project root on startup (`src/api/main.py`).
 
@@ -85,7 +85,3 @@ CLI entrypoints under `src/app/` and related `infrastructure/cli/` are legacy / 
 
 - **Port in use:** If `8000` is busy, pick another port (e.g. `--port 8001`) and point `cloudflared` at that URL.
 - **Dependencies:** `langgraph` / `langchain` versions are pinned in `requirements.txt` for resolver compatibility; use `pip install -r requirements.txt` on a clean env if you see conflicts.
-
-## License
-
-Add a license file if you distribute the project.
