@@ -30,6 +30,7 @@ FastAPI backend plus a small web UI for Spanish **writing**, **reading**, and **
    |----------|---------|
    | `OPENAI_API_KEY` | OpenAI API access for the LLM |
    | `ACCESS_KEY` | Shared secret users enter at login (small group) |
+   | `CORS_ORIGINS` | Optional, comma-separated origins (e.g. `https://your-app.vercel.app`) when the UI is hosted separately |
 
    The app loads `.env` from the project root on startup (`src/api/main.py`).
 
@@ -66,6 +67,22 @@ cloudflared tunnel --url http://localhost:8000
 Use the printed `https://….trycloudflare.com` URL. Keep **both** `uvicorn` and `cloudflared` running. The hostname changes each time you restart the quick tunnel unless you configure a named tunnel and your own domain.
 
 **Security:** The public URL can be discovered; treat `ACCESS_KEY` as the gate and avoid committing secrets.
+
+## Deploy the frontend on Vercel (API elsewhere)
+
+The UI is static files under `frontend/`. By default `api-config.js` keeps an empty API base so requests stay **same-origin** when you use FastAPI to serve `/` and `/static/…`.
+
+To host the UI on **Vercel** and keep the API on another host (Railway, Fly, your VPS, Cloudflare Tunnel URL, etc.):
+
+1. **Backend:** Run the FastAPI app with a public HTTPS URL. Set **`CORS_ORIGINS`** in the API’s environment to your Vercel site origin, e.g. `https://spanish-practice.vercel.app` (no trailing slash). Redeploy or restart the API after changing env vars.
+
+2. **Vercel project:** Point the project at this repo. Use the included **`vercel.json`** (build writes `frontend/api-config.js` from **`BACKEND_URL`**).
+
+3. **Vercel environment variable:** Add **`BACKEND_URL`** = your API origin only, e.g. `https://api.example.com` (no trailing slash). The build step injects it into `api-config.js` so `fetch` calls go to that host.
+
+4. Deploy. Open the Vercel URL; login and API calls should hit your backend. If the browser blocks requests, confirm `CORS_ORIGINS` matches the exact Vercel origin (scheme + host, no path).
+
+Local development unchanged: run uvicorn as before; `api-config.js` stays empty unless you edit it for testing cross-origin.
 
 ## Project layout (high level)
 

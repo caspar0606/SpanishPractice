@@ -1,5 +1,6 @@
 /**
- * Spanish Practice — client for same-origin FastAPI backend.
+ * Spanish Practice — FastAPI client. When hosted separately (e.g. Vercel), set
+ * window.__API_BASE__ in api-config.js to the API origin (no trailing slash).
  */
 
 const STORAGE_USER = "sp_username";
@@ -108,6 +109,14 @@ async function withBusy(btn, busyLabel, fn) {
   }
 }
 
+function apiBase() {
+  const b =
+    typeof window !== "undefined" && window.__API_BASE__ != null
+      ? String(window.__API_BASE__).trim().replace(/\/+$/, "")
+      : "";
+  return b;
+}
+
 /**
  * @param {string} method
  * @param {string} path
@@ -120,7 +129,8 @@ async function api(method, path, body) {
     opts.headers = { "Content-Type": "application/json" };
     opts.body = JSON.stringify(body);
   }
-  const r = await fetch(path, opts);
+  const url = path.startsWith("http") ? path : `${apiBase()}${path}`;
+  const r = await fetch(url, opts);
   const text = await r.text();
   let data;
   try {
