@@ -33,7 +33,7 @@ def drills_mode_run(exercise: Exercise):
 def generate_drills(username: str) -> Drills:
     user, exercise = user_exercise_cache(username)
 
-    if (user.current_exercise is None) or not (isinstance(user.current_exercise.prompt, Drills)):
+    if user.current_exercise is None:
         raise ValueError(f"User current storage not found")
     
     exercise_context = create_exercise_context(exercise)
@@ -49,12 +49,21 @@ def generate_drills(username: str) -> Drills:
 def submit_drills(username: str, responses: UserDrillResponses) -> MarkedDrills:
     user, exercise = user_exercise_cache(username)
 
-    if (user.current_exercise is None) or not (isinstance(user.current_exercise.prompt, Drills)):
+    if user.current_exercise is None or user.current_exercise.prompt is None:
         raise ValueError(f"User current storage not found")
-    
+
+    raw = user.current_exercise.prompt
+    if isinstance(raw, Drills):
+        drills_prompt = raw
+    elif isinstance(raw, dict):
+        drills_prompt = Drills.model_validate(raw)
+        user.current_exercise.prompt = drills_prompt
+    else:
+        raise ValueError(f"User current storage not found")
+
     exercise_context = create_exercise_context(exercise)
 
-    feedback = mark_drill_sets(responses, user.current_exercise.prompt, exercise_context)
+    feedback = mark_drill_sets(responses, drills_prompt, exercise_context)
 
 
     user.current_exercise.user_response = responses

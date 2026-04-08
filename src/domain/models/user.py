@@ -3,7 +3,7 @@ from typing import Optional
 from pydantic import BaseModel, Field
 
 from src.domain.models.progress import ProgressUpdates, Progress
-from src.domain.models.session import ExerciseStorage
+from src.domain.models.exercise import ExerciseStorage
 
 
 class User(BaseModel):

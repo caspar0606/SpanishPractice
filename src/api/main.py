@@ -1,6 +1,11 @@
 from pathlib import Path
 
+from dotenv import load_dotenv
 from fastapi import FastAPI
+
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+load_dotenv(_PROJECT_ROOT / ".env")
+from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from src.api.routers.drills import router as drills_router
@@ -31,7 +36,16 @@ def create_app() -> FastAPI:
 
     frontend_dir = Path(__file__).resolve().parent.parent.parent / "frontend"
     if frontend_dir.is_dir():
-        app.mount("/", StaticFiles(directory=str(frontend_dir), html=True), name="frontend")
+
+        @app.get("/")
+        def serve_index() -> FileResponse:
+            return FileResponse(frontend_dir / "index.html")
+
+        app.mount(
+            "/static",
+            StaticFiles(directory=str(frontend_dir)),
+            name="frontend-static",
+        )
 
     return app
 
