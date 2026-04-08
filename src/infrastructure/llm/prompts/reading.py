@@ -10,7 +10,7 @@ You MUST return your response as a JSON object that exactly matches this schema:
 
 {
   "passage": string,
-  "questions": [string, string, string]
+  "questions": [string, string, string, string, string]
 }
 
 Do not include any extra keys. Do not include any text outside the JSON.
@@ -49,13 +49,12 @@ Guidelines:
 - Stay reasonably close (±10–15%).
 
 4. Comprehension questions
-- Generate exactly 3 questions in Spanish.
+- Generate exactly 5 questions in Spanish.
 - Questions must be answerable from the passage.
 - Difficulty must match the passage level.
-- Use this structure:
-  1. one direct detail question
-  2. one general understanding question
-  3. one simple inference or sequence question
+- Base questions on the passage content and provide a variety of question types.
+- Avoid questions that are too easy or too hard, or too vague.
+
 
 5. Style constraints
 - Do not include explanations.
