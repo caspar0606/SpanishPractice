@@ -14,8 +14,7 @@ def save_user_state(user: User):
 
 def create_new_user_file(username: str):
     user_file = USERDATA_DIR / f"{user.name}.json"
-
-    user_file.parent.mkdir(exist_ok=True)
+    user_file.parent.mkdir(parents=True, exist_ok=True)
 
     if user_file.exists():
         print(f"User '{username}' already exists.")
@@ -24,7 +23,7 @@ def create_new_user_file(username: str):
     user_file.touch()
 
 def load_user_state(username: str):
-    user_file = Path(f"userdata/{username}.json")
+    user_file = USERDATA_DIR / f"{username}.json"
     if not user_file.exists():
         print(f"User '{username}' not found. Please create a new user.")
         return None
