@@ -13,7 +13,7 @@ def save_user_state(user: User):
         json.dump(user.model_dump(mode="json"), f, indent=4)
 
 def create_new_user_file(username: str):
-    user_file = USERDATA_DIR / f"{user.name}.json"
+    user_file = USERDATA_DIR / f"{username}.json"
     user_file.parent.mkdir(parents=True, exist_ok=True)
 
     if user_file.exists():
