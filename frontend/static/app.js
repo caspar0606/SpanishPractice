@@ -612,13 +612,13 @@ async function onReadingSubmit(ev) {
       }),
     );
     setStatus("Feedback is ready below.", false);
-    showResultsReading(res);
+    showResultsReading(res, pr.questions, user_response);
   } catch (e) {
     setStatus(e.message, true);
   }
 }
 
-function showResultsReading(res) {
+function showResultsReading(res, questions = [], userResponses = []) {
   const root = document.getElementById("practice-root");
   root.innerHTML = "";
   const fb = document.createElement("div");
@@ -630,10 +630,18 @@ function showResultsReading(res) {
   (corr.individual_questions || []).forEach((t, i) => {
     const hq = document.createElement("h4");
     hq.textContent = `Question ${i + 1}`;
+    const question = document.createElement("p");
+    question.className = "passage";
+    question.textContent = `Question: ${questions[i] || ""}`;
+    const response = document.createElement("p");
+    response.className = "passage";
+    response.textContent = `Your response: ${userResponses[i] || ""}`;
     const p = document.createElement("p");
     p.className = "passage";
-    p.textContent = t;
+    p.textContent = `Feedback: ${t}`;
     fb.appendChild(hq);
+    fb.appendChild(question);
+    fb.appendChild(response);
     fb.appendChild(p);
   });
   const ho = document.createElement("h4");
