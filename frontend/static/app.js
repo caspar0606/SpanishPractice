@@ -359,6 +359,7 @@ async function onExerciseSubmit(ev) {
         state.writingPrompt = null;
         state.readingPrompt = null;
         state.drills = null;
+        updateFocusWidgetFromExercise(state.exercise);
         showPanel("practice");
         return runGenerateForCurrentExercise();
       }),
@@ -594,6 +595,108 @@ function elBlock(text) {
   p.className = "passage";
   p.textContent = text;
   return p;
+}
+
+let focusDrawerOpen = false;
+
+function ensureFocusWidget() {
+  if (document.getElementById("focus-tab")) return;
+  const tab = document.createElement("div");
+  tab.id = "focus-tab";
+  tab.className = "focus-tab hidden";
+
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = "focus-tab-btn";
+  btn.textContent = "Focus";
+  btn.addEventListener("click", () => {
+    focusDrawerOpen = !focusDrawerOpen;
+    const drawer = document.getElementById("focus-drawer");
+    if (drawer) drawer.classList.toggle("hidden", !focusDrawerOpen);
+  });
+  tab.appendChild(btn);
+
+  const drawer = document.createElement("aside");
+  drawer.id = "focus-drawer";
+  drawer.className = "focus-drawer hidden";
+  drawer.setAttribute("aria-label", "Exercise focus");
+
+  document.body.appendChild(tab);
+  document.body.appendChild(drawer);
+}
+
+function setFocusWidgetVisible(isVisible) {
+  ensureFocusWidget();
+  const tab = document.getElementById("focus-tab");
+  const drawer = document.getElementById("focus-drawer");
+  if (tab) tab.classList.toggle("hidden", !isVisible);
+  if (!isVisible) {
+    focusDrawerOpen = false;
+    if (drawer) drawer.classList.add("hidden");
+  }
+}
+
+function updateFocusWidgetFromExercise(ex) {
+  ensureFocusWidget();
+  const drawer = document.getElementById("focus-drawer");
+  if (!drawer) return;
+  if (!ex) {
+    drawer.innerHTML = "";
+    setFocusWidgetVisible(false);
+    return;
+  }
+
+  const aof = ex.areas_of_focus || {};
+  const difficulty = ex.exercise_config?.difficulty || ex.difficulty_level || "";
+  const type = ex.exercise_type || "";
+
+  const normList = (arr) =>
+    (Array.isArray(arr) ? arr : [])
+      .filter((x) => x != null && String(x).trim() !== "")
+      .map((x) => String(x));
+
+  const tenses = normList(aof.focus_tenses);
+  const grammar = normList(aof.focus_grammar);
+  const topics = normList(aof.focus_topics);
+
+  const section = (title, items) => {
+    const wrap = document.createElement("div");
+    wrap.className = "focus-group";
+    const h = document.createElement("p");
+    h.className = "focus-group-title";
+    h.textContent = title;
+    wrap.appendChild(h);
+    if (!items.length) {
+      const p = document.createElement("p");
+      p.className = "focus-meta";
+      p.style.margin = "0";
+      p.textContent = "—";
+      wrap.appendChild(p);
+      return wrap;
+    }
+    const ul = document.createElement("ul");
+    items.forEach((it) => {
+      const li = document.createElement("li");
+      li.textContent = humanizeKey(it);
+      ul.appendChild(li);
+    });
+    wrap.appendChild(ul);
+    return wrap;
+  };
+
+  drawer.innerHTML = "";
+  const h3 = document.createElement("h3");
+  h3.textContent = "Focus";
+  const meta = document.createElement("p");
+  meta.className = "focus-meta";
+  meta.textContent = `Type: ${humanizeKey(type)} • Difficulty: ${humanizeKey(difficulty)}`;
+  drawer.appendChild(h3);
+  drawer.appendChild(meta);
+  drawer.appendChild(section("Tenses", tenses));
+  drawer.appendChild(section("Grammar", grammar));
+  drawer.appendChild(section("Topics", topics));
+
+  setFocusWidgetVisible(true);
 }
 
 function renderReadingPractice() {
@@ -904,6 +1007,7 @@ function onBackExercise() {
   state.writingPrompt = null;
   state.readingPrompt = null;
   state.drills = null;
+  updateFocusWidgetFromExercise(null);
   document.getElementById("practice-root").innerHTML = "";
   setStatus("");
   showPanel("exercise");
@@ -915,6 +1019,7 @@ function onLogout() {
   state.writingPrompt = null;
   state.readingPrompt = null;
   state.drills = null;
+  updateFocusWidgetFromExercise(null);
   document.getElementById("practice-root").innerHTML = "";
   document.getElementById("progress-root").innerHTML = "";
   setStatus("Logged out.", false);
@@ -922,6 +1027,7 @@ function onLogout() {
 }
 
 function init() {
+  ensureFocusWidget();
   const prefTenses = document.getElementById("pref-tenses");
   const prefGrammar = document.getElementById("pref-grammar");
   const prefTopics = document.getElementById("pref-topics");
