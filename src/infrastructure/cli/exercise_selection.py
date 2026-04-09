@@ -88,16 +88,16 @@ def focus_selection(current_session: Session, difficulty_level: DifficultyLevels
 
         weak_or_preferences = input("Do you want to focus on weak areas or your preferences (weak/preferences)?: ").strip().lower()
     
-        if weak_or_preferences == "weak":
-            areas_of_focus = weak_areas(difficulty_level, current_session.user)
-            break
+       # if weak_or_preferences == "weak":
+           # areas_of_focus = weak_areas(difficulty_level, current_session.user)
+        #    break
 
-        elif weak_or_preferences == "preferences":
-            areas_of_focus = preferences_selection(exercise_type)
-            break
+        #weak_or_preferences == "preferences":
+        areas_of_focus = preferences_selection(exercise_type)
+        break
     
-        else:
-            print("Invalid choice. Please enter 'weak' or 'preferences'.")
+        #else:
+        #    print("Invalid choice. Please enter 'weak' or 'preferences'.")
 
     return areas_of_focus
 

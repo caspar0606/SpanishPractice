@@ -19,6 +19,7 @@ class Grammar(str, Enum):
 
 
 class Topics(str, Enum):
+        TOPICS = "topics"
         TRAVEL = "travel"
         SCHOOL = "school"
         WORK = "work"

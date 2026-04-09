@@ -1,3 +1,4 @@
+from src.domain.models.progress import Progress
 from src.domain.rules.score import add_scores
 from src.domain.utils import initialise_progress
 from src.infrastructure.persistence.file_storage import load_user_state
@@ -11,7 +12,7 @@ def return_progress(username: str):
     return user.progress
 
 
-def build_drill_progress_update(exercise_context, feedback):
+def build_drill_progress_update(exercise_context, feedback) -> Progress:
     prog = initialise_progress()
     stats = feedback.stats
     aofs = exercise_context.areas_of_focus
