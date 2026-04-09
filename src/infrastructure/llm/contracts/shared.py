@@ -14,7 +14,7 @@ class ModelInputs(BaseModel):
     max_tokens: Optional[int]
 
 class AgentInputs(BaseModel):
-    name: "AgentNames"
+    name: "AgentNames | None"
     exercise_context: ExerciseContext 
     system_prompt: str
     stimulus: Optional[LLMStimulus] = None

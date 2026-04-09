@@ -1,11 +1,8 @@
-from datetime import datetime
-
 from src.application.exercise_selection import create_exercise_context
-from src.application.services.progress import build_drill_progress_update
+from src.application.services.progress import build_drill_progress_update, save_user_progress
 from src.domain.enums import DrillTypes
-from src.domain.models.exercise import Exercise, ExerciseContext
+from src.domain.models.exercise import ExerciseContext
 from src.domain.rules.config import QUESTION_NUMBER_CONFIG
-from src.domain.rules.score import combine_scores
 from src.infrastructure.llm.contracts.drills import DrillMarkingSet, Drills, MarkedDrills, UserDrillResponses, DrillSet
 from src.infrastructure.llm.contracts.shared import AgentNames
 from src.infrastructure.llm.prompts.drills import DRILLS_PROMPT_CONFIG
@@ -13,21 +10,8 @@ from src.infrastructure.llm.harness import agent_inputs, response_format
 from src.domain.models.progress import ComputeStats
 from src.infrastructure.persistence.file_storage import save_user_state
 from src.infrastructure.persistence.file_storage import save_user_state
-from src.infrastructure.persistence.session_storage import update_progress
 from src.infrastructure.persistence.user_storage import user_exercise_cache
 
-
-def drills_mode_run(exercise: Exercise):
-    exercise_context = create_exercise_context(exercise)
-    exercise_context.exercise_config.word_count = 0
-
-    drills = create_drills(exercise_context)
-
-    user_responses = UserDrillResponses(responses={})
-
-    marked_drills = mark_drill_sets(user_responses, drills, exercise_context)
-    
-    return marked_drills
 
 def generate_drills(username: str) -> Drills:
     user, exercise = user_exercise_cache(username)
@@ -44,6 +28,8 @@ def generate_drills(username: str) -> Drills:
     save_user_state(user)
 
     return drills
+
+
 
 def submit_drills(username: str, responses: UserDrillResponses) -> MarkedDrills:
     user, exercise = user_exercise_cache(username)
@@ -63,26 +49,13 @@ def submit_drills(username: str, responses: UserDrillResponses) -> MarkedDrills:
     exercise_context = create_exercise_context(exercise)
 
     feedback = mark_drill_sets(responses, drills_prompt, exercise_context)
+    score = build_drill_progress_update(exercise_context, feedback)
 
-
-    user.current_exercise.user_response = responses
-
-    drill_progress_update = build_drill_progress_update(exercise_context, feedback)
-    combine_scores(user.progress, drill_progress_update)
-
-
-    user.current_exercise.score = drill_progress_update
-    user.current_exercise.feedback = feedback
-    user.current_exercise.end_time = datetime.now()
-    
-    finished_exercise = user.current_exercise
-
-    user.exercise_history.append(finished_exercise)
-    user.progress_history.append(update_progress(user, finished_exercise))
-
-    save_user_state(user)
+    save_user_progress(user, responses, feedback, score)
 
     return feedback
+
+
 
 def create_drills(exercise_context: ExerciseContext) -> Drills:
     question_set = QUESTION_NUMBER_CONFIG[exercise_context.exercise_config.difficulty]
@@ -92,6 +65,7 @@ def create_drills(exercise_context: ExerciseContext) -> Drills:
                 for drill_type in DrillTypes
                 }
             )
+
 
 def mark_drill_sets(user_responses: UserDrillResponses, drills: Drills, exercise_context: ExerciseContext) -> MarkedDrills:
 
@@ -122,9 +96,11 @@ def generate_drill_set(exercise_context: ExerciseContext, question_set: dict, dr
     
     return response_format(agent_input, DrillSet)
 
+            
 
 
-def mark_drill_set(user_response: list[str], drill_set: DrillSet, exercise_context: ExerciseContext, drill_type: DrillTypes):
+def mark_drill_set(user_response: list[str], drill_set: DrillSet, 
+                   exercise_context: ExerciseContext, drill_type: DrillTypes) ->DrillMarkingSet:
 
     agent_input = agent_inputs(name=AgentNames.SENTENCE_COMPLETION_GENERATOR, 
                                system_prompt=DRILLS_PROMPT_CONFIG[drill_type]["mark"],

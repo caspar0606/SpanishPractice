@@ -3,7 +3,7 @@ from typing import Any
 from src.domain.rules.score import calculate_score
 from src.domain.rules.config import DIFFICULTY_CONFIG, FOCUS_CONFIG
 from src.infrastructure.config.logging import generate_id
-from src.domain.enums import AoFs, DifficultyLevels, ExerciseStyle, ExerciseTypes, Grammar, Tenses, Topics
+from src.domain.enums import DifficultyLevels, ExerciseStyle, ExerciseTypes, Grammar, Tenses, Topics
 from src.domain.models.exercise import AreasOfFocus, Exercise, ExerciseConfig
 from src.domain.models.session import ExerciseStorage, User
 from src.infrastructure.llm.contracts.shared import ExerciseContext
