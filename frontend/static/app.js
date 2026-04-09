@@ -189,6 +189,15 @@ function getCheckedValues(namePrefix) {
   ).map((el) => el.value);
 }
 
+function rebuildDrillPrefGrid() {
+  const axis =
+    document.querySelector('input[name="drill-pref-axis"]:checked')?.value ||
+    "tenses";
+  const wrap = document.getElementById("drill-pref-grid-wrap");
+  const opts = axis === "grammar" ? GRAMMAR_OPTS : TENSE_OPTS;
+  buildCheckboxGrid(wrap, opts, "drill-pref-item");
+}
+
 function showPanel(id) {
   document.getElementById("panel-login").classList.toggle("hidden", id !== "login");
   document.getElementById("panel-exercise").classList.toggle("hidden", id !== "exercise");
@@ -213,6 +222,9 @@ function syncPreferencePanels() {
   const box = document.getElementById("preferences-box");
   const standard = document.getElementById("preferences-standard");
   const drillsOnly = document.getElementById("preferences-drills-only");
+  const drillsHintWeak = document.getElementById("drills-hint-weak");
+  const drillsHintPrefs = document.getElementById("drills-hint-prefs");
+  const drillGrid = document.getElementById("drill-pref-grid-wrap");
 
   const showPrefsShell =
     style === "preferences" || (style === "weaknesses" && type === "drills");
@@ -223,6 +235,17 @@ function syncPreferencePanels() {
   const showStandard = style === "preferences" && !isDrills;
   standard.classList.toggle("hidden", !showStandard);
   drillsOnly.classList.toggle("hidden", !isDrills);
+
+  // Drills:
+  // - weaknesses: choose axis only
+  // - preferences: choose axis + subtopics
+  if (isDrills) {
+    const wantsSubtopics = style === "preferences";
+    if (drillsHintWeak) drillsHintWeak.classList.toggle("hidden", wantsSubtopics);
+    if (drillsHintPrefs) drillsHintPrefs.classList.toggle("hidden", !wantsSubtopics);
+    if (drillGrid) drillGrid.classList.toggle("hidden", !wantsSubtopics);
+    if (wantsSubtopics) rebuildDrillPrefGrid();
+  }
 }
 
 function onStyleChange() {
@@ -264,19 +287,42 @@ function readExerciseFormBody() {
     const axis =
       document.querySelector('input[name="drill-pref-axis"]:checked')?.value ||
       "tenses";
-    // Axis only: enum values Tenses.TENSES ("tenses") / Grammar.GRAMMAR ("grammar").
-    preferences =
-      axis === "grammar"
-        ? {
-            focus_tenses: null,
-            focus_grammar: ["grammar"],
-            focus_topics: null,
-          }
-        : {
-            focus_tenses: ["tenses"],
-            focus_grammar: null,
-            focus_topics: null,
-          };
+    if (style === "preferences") {
+      const selected = getCheckedValues("drill-pref-item");
+      if (selected.length === 0) {
+        throw new Error(
+          axis === "grammar"
+            ? "Select at least one grammar focus for drills."
+            : "Select at least one tense for drills.",
+        );
+      }
+      preferences =
+        axis === "grammar"
+          ? {
+              focus_tenses: null,
+              focus_grammar: selected,
+              focus_topics: null,
+            }
+          : {
+              focus_tenses: selected,
+              focus_grammar: null,
+              focus_topics: null,
+            };
+    } else {
+      // Weak areas: axis only (no subtopics).
+      preferences =
+        axis === "grammar"
+          ? {
+              focus_tenses: null,
+              focus_grammar: ["grammar"],
+              focus_topics: null,
+            }
+          : {
+              focus_tenses: ["tenses"],
+              focus_grammar: null,
+              focus_topics: null,
+            };
+    }
   } else if (style === "preferences") {
     preferences = {
       focus_tenses: getCheckedValues("pref-tense"),
@@ -898,6 +944,13 @@ function init() {
 
   document.getElementById("ex-type").addEventListener("change", () => {
     syncPreferencePanels();
+  });
+
+  document.querySelectorAll('input[name="drill-pref-axis"]').forEach((r) => {
+    r.addEventListener("change", () => {
+      const style = document.querySelector('input[name="style"]:checked').value;
+      if (style === "preferences") rebuildDrillPrefGrid();
+    });
   });
 
   if (getUsername()) {
