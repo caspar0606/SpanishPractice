@@ -61,7 +61,7 @@ def create_drills(exercise_context: ExerciseContext) -> Drills:
     question_set = QUESTION_NUMBER_CONFIG[exercise_context.exercise_config.difficulty]
 
     return Drills(drill_sets={
-                drill_type: generate_drill_set(exercise_context, question_set, drill_type) 
+                drill_type: create_drill_set(exercise_context, question_set, drill_type) 
                 for drill_type in DrillTypes
                 }
             )
@@ -86,7 +86,7 @@ def mark_drill_sets(user_responses: UserDrillResponses, drills: Drills, exercise
 
 
 
-def generate_drill_set(exercise_context: ExerciseContext, question_set: dict, drill_type: DrillTypes) -> DrillSet:
+def create_drill_set(exercise_context: ExerciseContext, question_set: dict, drill_type: DrillTypes) -> DrillSet:
 
     agent_input = agent_inputs(name=AgentNames.SENTENCE_COMPLETION_GENERATOR, 
                                system_prompt=DRILLS_PROMPT_CONFIG[drill_type]["generate"],
