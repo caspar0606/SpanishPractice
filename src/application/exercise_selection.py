@@ -1,8 +1,9 @@
 from datetime import datetime
+from typing import Any
 from src.domain.rules.score import calculate_score
-from src.domain.rules.config import DIFFICULTY_CONFIG
+from src.domain.rules.config import DIFFICULTY_CONFIG, FOCUS_CONFIG
 from src.infrastructure.config.logging import generate_id
-from src.domain.enums import DifficultyLevels, ExerciseStyle, ExerciseTypes, Grammar, Tenses, Topics
+from src.domain.enums import AoFs, DifficultyLevels, ExerciseStyle, ExerciseTypes, Grammar, Tenses, Topics
 from src.domain.models.exercise import AreasOfFocus, Exercise, ExerciseConfig
 from src.domain.models.session import ExerciseStorage, User
 from src.infrastructure.llm.contracts.shared import ExerciseContext
@@ -21,8 +22,10 @@ def generate_exercise(username: str, type: ExerciseTypes, difficulty:
             raise ValueError("Preferences is incorrectly NULL")
         areas_of_focus = preferences
 
-    else: 
-        areas_of_focus = weak_areas(difficulty, type, user)
+    else:
+        if preferences is None:
+            raise ValueError("Preferences is incorrectly NULL")
+        areas_of_focus = weak_areas(difficulty, preferences, type, user)
         
     exercise = Exercise(
         id=generate_id(),
@@ -50,8 +53,26 @@ def generate_exercise(username: str, type: ExerciseTypes, difficulty:
 
 
 # Determines user's weakest area based on their progress and selected difficulty level
-def weak_areas(difficulty_level: DifficultyLevels, type: ExerciseTypes, user: User) -> AreasOfFocus:
+def weak_areas(difficulty_level: DifficultyLevels, preferences: AreasOfFocus, type: ExerciseTypes, user: User) -> AreasOfFocus:
     config = DIFFICULTY_CONFIG[difficulty_level] 
+
+    if type is ExerciseTypes.DRILLS:
+        focus, loc, num = next(
+            FOCUS_CONFIG[topic]
+            for topic in FOCUS_CONFIG
+            if getattr(preferences, topic) is not None
+        )
+
+        sorted_focus = sorted(
+        getattr(user.progress, focus.value).items(),
+        key=lambda item: calculate_score(item[1]))
+
+        focus_list = [subfocus for subfocus in sorted_focus[:getattr(config, num)]]
+
+        map_list: list[list[Any] | None] = [None, None, None]
+        map_list[loc] = focus_list
+        
+        return AreasOfFocus(focus_tenses=map_list[0], focus_grammar=map_list[1], focus_topics=map_list[2])
 
     # Sorts tense, grammar, and topic progress by score and selects weakest k areas based on the difficulty config
     sorted_tenses = sorted(

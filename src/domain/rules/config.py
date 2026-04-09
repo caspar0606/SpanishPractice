@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from src.domain.enums import DifficultyLevels, DrillTypes
+from src.domain.enums import AoFs, DifficultyLevels, DrillTypes
 
 
 QUESTION_NUMBER_CONFIG = {
@@ -44,15 +44,21 @@ DIFFICULTY_CONFIG: dict[DifficultyLevels, DifficultyConfig] = {
         r_word_count=250,
         num_topics=1,
         num_tenses=2,
-        num_grammar=3,
+        num_grammar=2,
     ),
     DifficultyLevels.INTERMEDIATE: DifficultyConfig(
         w_word_count=200,
         r_word_count=400,
         num_topics=2,
         num_tenses=3,
-        num_grammar=4,
+        num_grammar=3,
     ),
+}
+
+FOCUS_CONFIG = {
+    "focus_tenses": (AoFs.TENSES, 0, "num_tenses"),
+    "focus_grammar": (AoFs.GRAMMAR, 1, "num_grammar"),
+    "focus_topics": (AoFs.TOPICS, 2, "num_topics"),
 }
 
 

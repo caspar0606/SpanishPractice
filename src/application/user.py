@@ -1,6 +1,7 @@
 from src.domain.models.progress import ComputeStats, Progress
 from src.domain.enums import Grammar, Tenses, Topics
 from src.domain.enums import Tenses
+from src.domain.utils import initialise_progress
 from src.infrastructure.persistence.file_storage import create_new_user_file, save_user_state, load_user_state
 from src.domain.models.session import User
 from src.domain.enums import Grammar, Topics, Topics
@@ -34,13 +35,3 @@ def select_user(username: str, key: str, new: bool) -> User | None:
         raise ValueError("User doesn't exist.")
 
     return user
-
-
-
-
-def initialise_progress():
-    return Progress(
-        tenses={tense: ComputeStats(total_attempts=0, correct_attempts=0) for tense in Tenses},
-        grammar={grammar: ComputeStats(total_attempts=0, correct_attempts=0) for grammar in Grammar},
-        topics={topic: ComputeStats(total_attempts=0, correct_attempts=0) for topic in Topics}
-    )
