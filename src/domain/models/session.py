@@ -1,11 +1,10 @@
 from datetime import datetime
-from typing import Any, Optional
+from typing import Optional
 
 from pydantic import BaseModel
 
-from src.domain.enums import ExerciseTypes
-from src.domain.models.exercise import AreasOfFocus, Exercise, ExerciseStorage
-from src.domain.models.progress import ProgressUpdates, Progress
+from src.domain.models.exercise import Exercise, ExerciseStorage
+from src.domain.models.progress import ProgressUpdates
 from src.domain.models.user import User
 
 

@@ -2,7 +2,7 @@ from src.domain.models.progress import ComputeStats, Progress
 from src.domain.enums import Grammar, Tenses, Topics
 from src.domain.enums import Tenses
 from src.infrastructure.persistence.file_storage import create_new_user_file, save_user_state, load_user_state
-from src.domain.models.session import Session, User
+from src.domain.models.session import User
 from src.domain.enums import Grammar, Topics, Topics
 from src.domain.enums import Tenses
 from dotenv import load_dotenv

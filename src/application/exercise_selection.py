@@ -1,12 +1,10 @@
 from datetime import datetime
 from src.domain.rules.score import calculate_score
 from src.domain.rules.config import DIFFICULTY_CONFIG
-from src.infrastructure.cli.display import print_big_lines, print_small_lines, print_grammar_preferences, print_tense_preferences, print_topic_preferences
 from src.infrastructure.config.logging import generate_id
-from src.domain.enums import AoFs, DifficultyLevels, ExerciseStyle, ExerciseTypes, Grammar, Tenses, Topics
+from src.domain.enums import DifficultyLevels, ExerciseStyle, ExerciseTypes, Grammar, Tenses, Topics
 from src.domain.models.exercise import AreasOfFocus, Exercise, ExerciseConfig
-from src.domain.models.session import ExerciseStorage, Session, User
-from src.infrastructure.cli.preferences import tense_preferences, topic_preferences, grammar_preferences
+from src.domain.models.session import ExerciseStorage, User
 from src.infrastructure.llm.contracts.shared import ExerciseContext
 from src.infrastructure.persistence.file_storage import load_user_state, save_user_state
 
@@ -24,7 +22,7 @@ def generate_exercise(username: str, type: ExerciseTypes, difficulty:
         areas_of_focus = preferences
 
     else: 
-        areas_of_focus = weak_areas(difficulty, user)
+        areas_of_focus = weak_areas(difficulty, type, user)
         
     exercise = Exercise(
         id=generate_id(),
@@ -52,8 +50,8 @@ def generate_exercise(username: str, type: ExerciseTypes, difficulty:
 
 
 # Determines user's weakest area based on their progress and selected difficulty level
-def weak_areas(difficulty_level: DifficultyLevels, user: User) -> AreasOfFocus:
-    config = DIFFICULTY_CONFIG[difficulty_level]  # type: ignore
+def weak_areas(difficulty_level: DifficultyLevels, type: ExerciseTypes, user: User) -> AreasOfFocus:
+    config = DIFFICULTY_CONFIG[difficulty_level] 
 
     # Sorts tense, grammar, and topic progress by score and selects weakest k areas based on the difficulty config
     sorted_tenses = sorted(

@@ -34,6 +34,8 @@ def reading_mode_run(current_session: Session):
                                       
     return exercise_storage
 
+
+
 def generate_passage(username: str) -> ReadingGeneration:
     user, exercise = user_exercise_cache(username)
 

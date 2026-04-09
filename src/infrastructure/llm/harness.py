@@ -65,3 +65,5 @@ def agent_inputs(
         stimulus=stimulus,
         input_text=input
     )
+
+#def call_agent(agent_inputs):

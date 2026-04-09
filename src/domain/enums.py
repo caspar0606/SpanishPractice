@@ -1,6 +1,7 @@
 from enum import Enum
 
 class Tenses(str, Enum):
+        TENSES = "tenses"
         PRESENTE_DE_INDICATIVO = "presente_de_indicativo"
         PRETERITO_PERFECTO_SIMPLE = "preterito_perfecto_simple"
         PRETERITO_IMPERFECTO = "preterito_imperfecto"
@@ -9,6 +10,7 @@ class Tenses(str, Enum):
 
 
 class Grammar(str, Enum):
+        GRAMMAR = "grammar"
         GENDER_AGREEMENT = "gender_agreement"
         PLURALITY_AGREEMENT = "plurality_agreement"
         POR_PARA_USAGE = "por_para_usage"
@@ -49,6 +51,6 @@ class DrillTypes(str, Enum):
     OPTION_SELECTION = "option_selection"
 
 class ExerciseStyle(str, Enum):
-	WEAKNESSES = "weaknesses"
-	PREFERENCES = "preferences"
+    WEAKNESSES = "weaknesses"
+    PREFERENCES = "preferences"
     

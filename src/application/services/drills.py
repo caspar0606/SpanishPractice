@@ -5,8 +5,7 @@ from src.application.services.progress import build_drill_progress_update
 from src.domain.enums import DrillTypes
 from src.domain.models.exercise import Exercise, ExerciseContext
 from src.domain.rules.config import QUESTION_NUMBER_CONFIG
-from src.domain.rules.score import add_scores, combine_scores
-from src.domain.utils import initialise_progress
+from src.domain.rules.score import combine_scores
 from src.infrastructure.llm.contracts.drills import DrillMarkingSet, Drills, MarkedDrills, UserDrillResponses, DrillSet
 from src.infrastructure.llm.contracts.shared import AgentNames
 from src.infrastructure.llm.prompts.drills import DRILLS_PROMPT_CONFIG
@@ -15,7 +14,7 @@ from src.domain.models.progress import ComputeStats
 from src.infrastructure.persistence.file_storage import save_user_state
 from src.infrastructure.persistence.file_storage import save_user_state
 from src.infrastructure.persistence.session_storage import update_progress
-from src.infrastructure.persistence.user_storage import user_from_name, storage_to_exercise, user_exercise_cache
+from src.infrastructure.persistence.user_storage import user_exercise_cache
 
 
 def drills_mode_run(exercise: Exercise):
@@ -111,6 +110,8 @@ def mark_drill_sets(user_responses: UserDrillResponses, drills: Drills, exercise
     
     return marked_drills
 
+
+
 def generate_drill_set(exercise_context: ExerciseContext, question_set: dict, drill_type: DrillTypes) -> DrillSet:
 
     agent_input = agent_inputs(name=AgentNames.SENTENCE_COMPLETION_GENERATOR, 
@@ -121,7 +122,7 @@ def generate_drill_set(exercise_context: ExerciseContext, question_set: dict, dr
     
     return response_format(agent_input, DrillSet)
 
-            
+
 
 def mark_drill_set(user_response: list[str], drill_set: DrillSet, exercise_context: ExerciseContext, drill_type: DrillTypes):
 
