@@ -207,32 +207,26 @@ function updateExerciseUserLabel() {
   }
 }
 
-function rebuildDrillPrefGrid() {
-  const axis =
-    document.querySelector('input[name="drill-pref-axis"]:checked')?.value ||
-    "tenses";
-  const wrap = document.getElementById("drill-pref-grid-wrap");
-  const opts = axis === "grammar" ? GRAMMAR_OPTS : TENSE_OPTS;
-  buildCheckboxGrid(wrap, opts, "drill-pref-item");
-}
-
 function syncPreferencePanels() {
   const style = document.querySelector('input[name="style"]:checked').value;
+  const type = document.getElementById("ex-type").value;
   const box = document.getElementById("preferences-box");
   const standard = document.getElementById("preferences-standard");
   const drillsOnly = document.getElementById("preferences-drills-only");
-  if (style !== "preferences") return;
-  const type = document.getElementById("ex-type").value;
+
+  const showPrefsShell =
+    style === "preferences" || (style === "weaknesses" && type === "drills");
+  box.classList.toggle("hidden", !showPrefsShell);
+  if (!showPrefsShell) return;
+
   const isDrills = type === "drills";
-  standard.classList.toggle("hidden", isDrills);
+  const showStandard = style === "preferences" && !isDrills;
+  standard.classList.toggle("hidden", !showStandard);
   drillsOnly.classList.toggle("hidden", !isDrills);
-  if (isDrills) rebuildDrillPrefGrid();
 }
 
 function onStyleChange() {
-  const style = document.querySelector('input[name="style"]:checked').value;
-  document.getElementById("preferences-box").classList.toggle("hidden", style !== "preferences");
-  if (style === "preferences") syncPreferencePanels();
+  syncPreferencePanels();
 }
 
 async function onLogin(ev) {
@@ -265,46 +259,39 @@ function readExerciseFormBody() {
   const difficulty = document.getElementById("ex-difficulty").value;
   const style = document.querySelector('input[name="style"]:checked').value;
   let preferences = null;
-  if (style === "preferences") {
-    if (type === "drills") {
-      const axis =
-        document.querySelector('input[name="drill-pref-axis"]:checked')?.value ||
-        "tenses";
-      const selected = getCheckedValues("drill-pref-item");
-      if (selected.length === 0) {
-        throw new Error(
-          axis === "grammar"
-            ? "Select at least one grammar focus for drills."
-            : "Select at least one tense for drills.",
-        );
-      }
-      preferences =
-        axis === "grammar"
-          ? {
-              focus_tenses: null,
-              focus_grammar: selected,
-              focus_topics: null,
-            }
-          : {
-              focus_tenses: selected,
-              focus_grammar: null,
-              focus_topics: null,
-            };
-    } else {
-      preferences = {
-        focus_tenses: getCheckedValues("pref-tense"),
-        focus_grammar: getCheckedValues("pref-grammar"),
-        focus_topics: getCheckedValues("pref-topic"),
-      };
-      const n =
-        preferences.focus_tenses.length +
-        preferences.focus_grammar.length +
-        preferences.focus_topics.length;
-      if (n === 0) {
-        throw new Error("Select at least one tense, grammar area, or topic.");
-      }
+
+  if (type === "drills") {
+    const axis =
+      document.querySelector('input[name="drill-pref-axis"]:checked')?.value ||
+      "tenses";
+    // Axis only: enum values Tenses.TENSES ("tenses") / Grammar.GRAMMAR ("grammar").
+    preferences =
+      axis === "grammar"
+        ? {
+            focus_tenses: null,
+            focus_grammar: ["grammar"],
+            focus_topics: null,
+          }
+        : {
+            focus_tenses: ["tenses"],
+            focus_grammar: null,
+            focus_topics: null,
+          };
+  } else if (style === "preferences") {
+    preferences = {
+      focus_tenses: getCheckedValues("pref-tense"),
+      focus_grammar: getCheckedValues("pref-grammar"),
+      focus_topics: getCheckedValues("pref-topic"),
+    };
+    const n =
+      preferences.focus_tenses.length +
+      preferences.focus_grammar.length +
+      preferences.focus_topics.length;
+    if (n === 0) {
+      throw new Error("Select at least one tense, grammar area, or topic.");
     }
   }
+
   return { username, type, difficulty, style, preferences };
 }
 
@@ -913,16 +900,14 @@ function init() {
     syncPreferencePanels();
   });
 
-  document.querySelectorAll('input[name="drill-pref-axis"]').forEach((r) => {
-    r.addEventListener("change", rebuildDrillPrefGrid);
-  });
-
   if (getUsername()) {
     updateExerciseUserLabel();
     showPanel("exercise");
   } else {
     showPanel("login");
   }
+
+  syncPreferencePanels();
 }
 
 document.addEventListener("DOMContentLoaded", init);
