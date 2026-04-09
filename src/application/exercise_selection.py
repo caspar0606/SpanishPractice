@@ -67,7 +67,7 @@ def weak_areas(difficulty_level: DifficultyLevels, preferences: AreasOfFocus, ty
         getattr(user.progress, focus.value).items(),
         key=lambda item: calculate_score(item[1]))
 
-        focus_list = [subfocus for subfocus in sorted_focus[:getattr(config, num)]]
+        focus_list = [subfocus for subfocus, _ in sorted_focus[:getattr(config, num)]]
 
         map_list: list[list[Any] | None] = [None, None, None]
         map_list[loc] = focus_list
