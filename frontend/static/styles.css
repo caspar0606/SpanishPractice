@@ -64,6 +64,12 @@ body {
   gap: 1rem;
 }
 
+.header-actions {
+  margin-left: auto;
+  display: flex;
+  gap: 0.5rem;
+}
+
 .site-mark {
   display: grid;
   place-items: center;
@@ -653,6 +659,129 @@ label.choice-inline {
   margin: 0.15rem 0;
   color: rgba(232, 249, 242, 0.88);
   font-size: 0.95rem;
+}
+
+/* Help panel + walkthrough */
+.help-panel {
+  position: fixed;
+  top: 5.25rem;
+  right: 0.75rem;
+  z-index: 60;
+  width: min(22rem, calc(100vw - 2rem));
+  max-height: min(34rem, calc(100vh - 7rem));
+  overflow: auto;
+  padding: 1rem 1rem 0.9rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: rgba(13, 24, 38, 0.94);
+  backdrop-filter: blur(14px);
+  box-shadow: var(--shadow);
+}
+
+.help-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.65rem;
+}
+
+.help-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+}
+
+.help-panel-body .btn {
+  margin: 0.25rem 0 0.75rem;
+}
+
+.help-section {
+  margin-top: 0.9rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.help-section-title {
+  margin: 0 0 0.35rem;
+  font-weight: 800;
+  color: #cbffe9;
+  font-size: 0.95rem;
+}
+
+.help-panel ul {
+  margin: 0.25rem 0 0;
+  padding-left: 1.15rem;
+}
+
+.help-panel li {
+  margin: 0.2rem 0;
+  color: rgba(232, 249, 242, 0.88);
+  font-size: 0.95rem;
+}
+
+.walkthrough-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  background: rgba(2, 6, 14, 0.72);
+  display: grid;
+  place-items: center;
+  padding: 1.25rem;
+}
+
+.walkthrough-card {
+  width: min(34rem, 100%);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: rgba(13, 24, 38, 0.96);
+  backdrop-filter: blur(16px);
+  box-shadow: var(--shadow);
+  padding: 1.05rem 1.15rem 1rem;
+}
+
+.walkthrough-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.walkthrough-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+}
+
+.walkthrough-body {
+  margin-top: 0.85rem;
+}
+
+.walkthrough-step {
+  margin: 0 0 0.35rem;
+  font-weight: 800;
+  color: #cbffe9;
+}
+
+.walkthrough-text {
+  margin: 0;
+  color: rgba(232, 249, 242, 0.9);
+}
+
+.walkthrough-footer {
+  margin-top: 1rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.walkthrough-actions {
+  display: flex;
+  gap: 0.65rem;
 }
 
 .user-pill {

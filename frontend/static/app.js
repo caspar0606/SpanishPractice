@@ -52,6 +52,8 @@ const state = {
   drills: null,
 };
 
+const STORAGE_TUTORIAL_DISMISSED = "sp_tutorial_dismissed";
+
 function getUsername() {
   return sessionStorage.getItem(STORAGE_USER);
 }
@@ -78,6 +80,89 @@ function setStatus(message, isError) {
   el.classList.toggle("banner-status--err", !!isError);
   if (isError) el.setAttribute("role", "alert");
   else el.removeAttribute("role");
+}
+
+const WALKTHROUGH_STEPS = [
+  {
+    title: "Step 1 — Choose an exercise",
+    text: "Pick Writing, Reading, or Drills. Writing gives detailed corrections, Reading checks comprehension, and Drills targets one focus area.",
+  },
+  {
+    title: "Step 2 — Choose focus style",
+    text: "Weak areas uses your progress to pick what to practise. Preferences lets you choose what to focus on.",
+  },
+  {
+    title: "Step 3 — Drills setup",
+    text: "If you choose Drills: with weak areas you only choose Tenses vs Grammar. With preferences you choose Tenses vs Grammar and then select subtopics.",
+  },
+  {
+    title: "Step 4 — Submit and review",
+    text: "Submit your response. The feedback page includes a summary, your original response, a corrected version, and detailed corrections.",
+  },
+  {
+    title: "Step 5 — Focus & progress",
+    text: "Use the Focus tab to see what was selected for this exercise. Use My progress to track scores over time.",
+  },
+];
+
+let walkthroughIdx = 0;
+
+function helpPanelEl() {
+  return document.getElementById("help-panel");
+}
+function walkthroughOverlayEl() {
+  return document.getElementById("walkthrough-overlay");
+}
+
+function openHelpPanel() {
+  const p = helpPanelEl();
+  if (!p) return;
+  p.classList.remove("hidden");
+}
+
+function closeHelpPanel() {
+  const p = helpPanelEl();
+  if (!p) return;
+  p.classList.add("hidden");
+}
+
+function isTutorialDismissed() {
+  return localStorage.getItem(STORAGE_TUTORIAL_DISMISSED) === "true";
+}
+
+function setTutorialDismissed(isDismissed) {
+  localStorage.setItem(STORAGE_TUTORIAL_DISMISSED, isDismissed ? "true" : "false");
+}
+
+function renderWalkthroughStep() {
+  const stepEl = document.getElementById("walkthrough-step");
+  const textEl = document.getElementById("walkthrough-text");
+  const backBtn = document.getElementById("walkthrough-back");
+  const nextBtn = document.getElementById("walkthrough-next");
+  if (!stepEl || !textEl || !backBtn || !nextBtn) return;
+  const step = WALKTHROUGH_STEPS[walkthroughIdx] || WALKTHROUGH_STEPS[0];
+  stepEl.textContent = step.title;
+  textEl.textContent = step.text;
+  backBtn.disabled = walkthroughIdx === 0;
+  nextBtn.querySelector(".btn-label").textContent =
+    walkthroughIdx === WALKTHROUGH_STEPS.length - 1 ? "Finish" : "Next";
+}
+
+function openWalkthrough() {
+  const o = walkthroughOverlayEl();
+  if (!o) return;
+  closeHelpPanel();
+  walkthroughIdx = 0;
+  renderWalkthroughStep();
+  o.classList.remove("hidden");
+}
+
+function closeWalkthrough() {
+  const o = walkthroughOverlayEl();
+  if (!o) return;
+  const dontShow = document.getElementById("walkthrough-dont-show");
+  if (dontShow && dontShow.checked) setTutorialDismissed(true);
+  o.classList.add("hidden");
 }
 
 /**
@@ -1049,6 +1134,35 @@ function init() {
     showPanel("exercise");
   });
 
+  document.getElementById("btn-help").addEventListener("click", () => {
+    const p = helpPanelEl();
+    if (!p) return;
+    p.classList.toggle("hidden");
+  });
+  document.getElementById("help-close").addEventListener("click", closeHelpPanel);
+  document.getElementById("help-walkthrough").addEventListener("click", openWalkthrough);
+  document.getElementById("walkthrough-close").addEventListener("click", closeWalkthrough);
+  document.getElementById("walkthrough-back").addEventListener("click", () => {
+    walkthroughIdx = Math.max(0, walkthroughIdx - 1);
+    renderWalkthroughStep();
+  });
+  document.getElementById("walkthrough-next").addEventListener("click", () => {
+    if (walkthroughIdx >= WALKTHROUGH_STEPS.length - 1) {
+      closeWalkthrough();
+      return;
+    }
+    walkthroughIdx += 1;
+    renderWalkthroughStep();
+  });
+  document.getElementById("walkthrough-overlay").addEventListener("click", (ev) => {
+    if (ev.target && ev.target.id === "walkthrough-overlay") closeWalkthrough();
+  });
+  document.addEventListener("keydown", (ev) => {
+    if (ev.key !== "Escape") return;
+    closeHelpPanel();
+    closeWalkthrough();
+  });
+
   document.querySelectorAll('input[name="style"]').forEach((r) => {
     r.addEventListener("change", onStyleChange);
   });
@@ -1072,6 +1186,11 @@ function init() {
   }
 
   syncPreferencePanels();
+
+  if (!isTutorialDismissed()) {
+    // Show once per device/browser; user can opt-out in the modal.
+    openWalkthrough();
+  }
 }
 
 document.addEventListener("DOMContentLoaded", init);

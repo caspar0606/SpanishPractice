@@ -20,6 +20,11 @@
           <p class="site-brand">Spanish Practice</p>
           <p class="site-tagline">Build momentum with writing, reading, and drills</p>
         </div>
+        <div class="header-actions">
+          <button type="button" class="btn btn-ghost" id="btn-help">
+            <span class="btn-label">Help</span>
+          </button>
+        </div>
       </div>
     </header>
 
@@ -190,5 +195,84 @@
     </style>
     <script src="/static/api-config.js"></script>
     <script src="/static/app.js" defer></script>
+
+    <aside id="help-panel" class="help-panel hidden" aria-label="Help panel">
+      <div class="help-panel-header">
+        <h3 class="help-title">Help</h3>
+        <button type="button" class="btn btn-ghost" id="help-close">
+          <span class="btn-label">Close</span>
+        </button>
+      </div>
+      <div class="help-panel-body">
+        <p class="hint">
+          Quick guide. Use the walkthrough for step-by-step instructions.
+        </p>
+        <button type="button" class="btn btn-secondary" id="help-walkthrough">
+          <span class="btn-label">Start walkthrough</span>
+        </button>
+
+        <div class="help-section">
+          <p class="help-section-title">1) Choose exercise</p>
+          <ul>
+            <li><strong>Writing</strong>: write a short response and get corrections.</li>
+            <li><strong>Reading</strong>: answer comprehension questions and get feedback.</li>
+            <li><strong>Drills</strong>: short questions targeting a specific focus area.</li>
+          </ul>
+        </div>
+
+        <div class="help-section">
+          <p class="help-section-title">2) Focus style</p>
+          <ul>
+            <li><strong>Weak areas</strong>: uses your progress to pick what to practise.</li>
+            <li><strong>Preferences</strong>: you choose the exact focus.</li>
+          </ul>
+        </div>
+
+        <div class="help-section">
+          <p class="help-section-title">Drills</p>
+          <ul>
+            <li><strong>Weak areas</strong>: choose only <strong>Tenses</strong> or <strong>Grammar</strong>.</li>
+            <li><strong>Preferences</strong>: choose <strong>Tenses</strong> or <strong>Grammar</strong>, then pick subtopics.</li>
+          </ul>
+        </div>
+
+        <div class="help-section">
+          <p class="help-section-title">During practice</p>
+          <ul>
+            <li>Use the <strong>Focus</strong> tab to see what this exercise targets.</li>
+            <li>Use <strong>My progress</strong> to see your scores over time.</li>
+          </ul>
+        </div>
+      </div>
+    </aside>
+
+    <div id="walkthrough-overlay" class="walkthrough-overlay hidden" role="dialog" aria-modal="true" aria-label="Walkthrough">
+      <div class="walkthrough-card">
+        <div class="walkthrough-header">
+          <h3 class="walkthrough-title">Walkthrough</h3>
+          <button type="button" class="btn btn-ghost" id="walkthrough-close">
+            <span class="btn-label">Close</span>
+          </button>
+        </div>
+        <div class="walkthrough-body">
+          <p class="walkthrough-step" id="walkthrough-step"></p>
+          <p class="walkthrough-text" id="walkthrough-text"></p>
+        </div>
+        <div class="walkthrough-footer">
+          <label class="choice-inline">
+            <input type="checkbox" id="walkthrough-dont-show" />
+            Don’t show again
+          </label>
+          <div class="walkthrough-actions">
+            <button type="button" class="btn btn-ghost" id="walkthrough-back">
+              <span class="btn-label">Back</span>
+            </button>
+            <button type="button" class="btn btn-primary" id="walkthrough-next">
+              <span class="btn-label">Next</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </body>
 </html>
