@@ -462,7 +462,7 @@ async function onWritingSubmit(ev) {
       }),
     );
     setStatus("Feedback is ready below.", false);
-    showResultsWriting(res);
+    showResultsWriting(res, text);
   } catch (e) {
     setStatus(e.message, true);
   }
@@ -542,7 +542,7 @@ function appendEditSection(parent, title, data) {
   }
 }
 
-function showResultsWriting(res) {
+function showResultsWriting(res, userResponse) {
   const root = document.getElementById("practice-root");
   root.innerHTML = "";
   const fb = document.createElement("div");
@@ -564,6 +564,11 @@ function showResultsWriting(res) {
       ].join("\n"),
     ),
   );
+
+  const hUser = document.createElement("h3");
+  hUser.textContent = "Your response";
+  fb.appendChild(hUser);
+  fb.appendChild(elBlock(userResponse ?? ""));
 
   const dc = res.detailed_correction;
   const hCorr = document.createElement("h3");
