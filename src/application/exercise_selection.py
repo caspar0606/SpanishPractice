@@ -53,7 +53,7 @@ def generate_exercise(username: str, type: ExerciseTypes, difficulty:
 
 
 # Determines user's weakest area based on their progress and selected difficulty level
-def weak_areas(difficulty_level: DifficultyLevels, preferences: AreasOfFocus, type: ExerciseTypes, user: User) -> AreasOfFocus:
+def weak_areas(difficulty_level: DifficultyLevels, preferences: AreasOfFocus | None, type: ExerciseTypes, user: User) -> AreasOfFocus:
     config = DIFFICULTY_CONFIG[difficulty_level] 
 
     if type is ExerciseTypes.DRILLS:
