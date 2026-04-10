@@ -56,34 +56,6 @@ Then open:
 2. **Choose exercise** — type (writing / reading / drills), difficulty, weaknesses vs preferences.
 3. **Practice** — generate prompt, then submit; optional **My progress** for scores.
 
-## Share over the internet (optional)
-
-For a **no-domain** test link, with the app running on port 8000, use [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/) quick mode in a **second** terminal:
-
-```bash
-cloudflared tunnel --url http://localhost:8000
-```
-
-Use the printed `https://….trycloudflare.com` URL. Keep **both** `uvicorn` and `cloudflared` running. The hostname changes each time you restart the quick tunnel unless you configure a named tunnel and your own domain.
-
-**Security:** The public URL can be discovered; treat `ACCESS_KEY` as the gate and avoid committing secrets.
-
-## Deploy the frontend on Vercel (API elsewhere)
-
-The UI is static files under `frontend/`. By default `api-config.js` keeps an empty API base so requests stay **same-origin** when you use FastAPI to serve `/` and `/static/…`.
-
-To host the UI on **Vercel** and keep the API on another host (Railway, Fly, your VPS, Cloudflare Tunnel URL, etc.):
-
-1. **Backend:** Run the FastAPI app with a public HTTPS URL. Set **`CORS_ORIGINS`** in the API’s environment to your Vercel site origin, e.g. `https://spanish-practice.vercel.app` (no trailing slash). Redeploy or restart the API after changing env vars.
-
-2. **Vercel project:** Point the project at this repo. In **Project → Settings → General**, set **Root Directory** to the repository root (leave it **empty** or `.` — **not** `src` or `frontend`). The included **`vercel.json`** runs `node scripts/write-api-config.mjs`, which writes `frontend/static/api-config.js` from **`BACKEND_URL`**.
-
-3. **Vercel environment variable:** Add **`BACKEND_URL`** = your API origin only, e.g. `https://api.example.com` (no trailing slash). The build step injects it into `api-config.js` so `fetch` calls go to that host.
-
-4. Deploy. Open the Vercel URL; login and API calls should hit your backend. If the browser blocks requests, confirm `CORS_ORIGINS` matches the exact Vercel origin (scheme + host, no path).
-
-Local development unchanged: run uvicorn as before; `api-config.js` stays empty unless you edit it for testing cross-origin.
-
 ## Project layout (high level)
 
 ```
