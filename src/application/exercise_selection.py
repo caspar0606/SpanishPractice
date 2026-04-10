@@ -23,8 +23,6 @@ def generate_exercise(username: str, type: ExerciseTypes, difficulty:
         areas_of_focus = preferences
 
     else:
-        if preferences is None:
-            raise ValueError("Preferences is incorrectly NULL")
         areas_of_focus = weak_areas(difficulty, preferences, type, user)
         
     exercise = Exercise(
