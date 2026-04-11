@@ -873,34 +873,77 @@ function showResultsReading(res, questions = [], userResponses = []) {
   root.innerHTML = "";
   const fb = document.createElement("div");
   fb.className = "feedback-block";
-  const h = document.createElement("h3");
-  h.textContent = "Feedback";
-  fb.appendChild(h);
-  const corr = res.correction;
-  (corr.individual_questions || []).forEach((t, i) => {
+
+  const feedback = res.feedback ?? res.correction;
+  const perQuestion = feedback?.individual_questions ?? [];
+  const textList = res.corrections?.corrections ?? [];
+
+  const hTitle = document.createElement("h3");
+  hTitle.textContent = "Reading — your results";
+  fb.appendChild(hTitle);
+
+  const hOverall = document.createElement("h3");
+  hOverall.textContent = "Overall";
+  fb.appendChild(hOverall);
+  fb.appendChild(elBlock(feedback?.general_feedback ?? ""));
+
+  const n = Math.max(
+    questions.length,
+    perQuestion.length,
+    textList.length,
+  );
+
+  for (let i = 0; i < n; i++) {
+    const card = document.createElement("div");
+    card.className = "reading-q-card";
+
     const hq = document.createElement("h4");
     hq.textContent = `Question ${i + 1}`;
-    const question = document.createElement("p");
-    question.className = "passage";
-    question.textContent = `Question: ${questions[i] || ""}`;
-    const response = document.createElement("p");
-    response.className = "passage";
-    response.textContent = `Your response: ${userResponses[i] || ""}`;
-    const p = document.createElement("p");
-    p.className = "passage";
-    p.textContent = `Feedback: ${t}`;
-    fb.appendChild(hq);
-    fb.appendChild(question);
-    fb.appendChild(response);
-    fb.appendChild(p);
-  });
-  const ho = document.createElement("h4");
-  ho.textContent = "Overall";
-  const g = document.createElement("p");
-  g.className = "passage";
-  g.textContent = corr.general_feedback;
-  fb.appendChild(ho);
-  fb.appendChild(g);
+    card.appendChild(hq);
+
+    const promptLine = document.createElement("p");
+    promptLine.className = "reading-meta";
+    promptLine.innerHTML = `<strong>Prompt:</strong> ${escapeHtml(questions[i] ?? "")}`;
+
+    const answerLine = document.createElement("p");
+    answerLine.className = "reading-meta";
+    answerLine.innerHTML = `<strong>Your answer:</strong> ${escapeHtml(userResponses[i] ?? "")}`;
+
+    card.appendChild(promptLine);
+    card.appendChild(answerLine);
+
+    const compLabel = document.createElement("p");
+    compLabel.className = "reading-section-label";
+    compLabel.textContent = "Comprehension feedback";
+    card.appendChild(compLabel);
+    card.appendChild(elBlock(perQuestion[i] ?? ""));
+
+    const tc = textList[i];
+    if (tc && typeof tc === "object") {
+      const sugLabel = document.createElement("p");
+      sugLabel.className = "reading-section-label";
+      sugLabel.textContent = "Suggested wording";
+      card.appendChild(sugLabel);
+      card.appendChild(elBlock(tc.corrected_version ?? ""));
+
+      const detailWrap = document.createElement("div");
+      appendEditSection(detailWrap, "Verb tenses", tc.tense_errors);
+      appendEditSection(detailWrap, "Grammar", tc.grammar_errors);
+      appendEditSection(detailWrap, "Topic / vocabulary", tc.topic_errors);
+      appendEditSection(detailWrap, "Typos & small fixes", tc.typos);
+      appendEditSection(detailWrap, "Other", tc.other_mistakes);
+      if (detailWrap.children.length) {
+        const detLabel = document.createElement("p");
+        detLabel.className = "reading-section-label";
+        detLabel.textContent = "Text corrections";
+        card.appendChild(detLabel);
+        card.appendChild(detailWrap);
+      }
+    }
+
+    fb.appendChild(card);
+  }
+
   root.appendChild(fb);
 }
 

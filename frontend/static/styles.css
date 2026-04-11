@@ -515,6 +515,41 @@ label.choice-inline {
   margin-top: 0;
 }
 
+/* Reading results: stacked question cards */
+.reading-q-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.04);
+  padding: 1rem 1.15rem 1.15rem;
+  margin-bottom: 1.25rem;
+}
+
+.reading-q-card h4 {
+  margin: 0 0 0.75rem;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  color: #cbffe9;
+}
+
+.reading-meta {
+  font-size: 0.88rem;
+  color: var(--ink-soft);
+  margin: 0 0 0.35rem;
+}
+
+.reading-section-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #bafde1;
+  margin: 1rem 0 0.45rem;
+}
+
+.reading-q-card .reading-section-label:first-of-type {
+  margin-top: 0.25rem;
+}
+
 .correction-section {
   margin-top: 1.25rem;
 }

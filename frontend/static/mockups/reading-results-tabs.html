@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Mock: Reading results (tabs)</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap"
+    />
+    <style>
+      .mock-nav {
+        max-width: 40rem;
+        margin: 0 auto;
+        padding: 1rem 1.25rem 0;
+        font-size: 0.92rem;
+        color: var(--ink-soft);
+      }
+      .mock-nav a {
+        color: var(--teal);
+        text-decoration: none;
+      }
+      .mock-nav a:hover {
+        text-decoration: underline;
+      }
+      .tab-rail {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin: 1rem 0 1.25rem;
+      }
+      .tab-rail label {
+        cursor: pointer;
+        padding: 0.45rem 0.85rem;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: rgba(255, 255, 255, 0.06);
+        font-size: 0.92rem;
+        font-weight: 600;
+        color: var(--ink-soft);
+        transition: background 0.15s, color 0.15s, border-color 0.15s;
+      }
+      .tab-rail input {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+      }
+      .tab-rail input:focus-visible + label {
+        outline: 2px solid var(--focus);
+        outline-offset: 2px;
+      }
+      .tab-rail input:checked + label {
+        background: rgba(129, 244, 191, 0.18);
+        border-color: rgba(129, 244, 191, 0.35);
+        color: #cbffe9;
+      }
+      .tab-panel {
+        display: none;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        background: rgba(255, 255, 255, 0.04);
+        padding: 1rem 1.15rem 1.15rem;
+      }
+      #tab-q1:checked ~ .tab-panels #panel-q1,
+      #tab-q2:checked ~ .tab-panels #panel-q2 {
+        display: block;
+      }
+      .reading-meta {
+        font-size: 0.88rem;
+        color: var(--ink-soft);
+        margin: 0 0 0.35rem;
+      }
+      .reading-section-label {
+        font-size: 0.78rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: #bafde1;
+        margin: 1rem 0 0.45rem;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="site-header-inner">
+        <span class="site-mark" aria-hidden="true">ES</span>
+        <div>
+          <p class="site-brand">Spanish Practice</p>
+          <p class="site-tagline">Mock: reading feedback (tabs per question)</p>
+        </div>
+      </div>
+    </header>
+
+    <main class="site-main">
+      <p class="mock-nav">
+        <a href="./reading-results-cards.html">← Stacked cards layout</a>
+      </p>
+
+      <section class="panel card">
+        <h2 class="panel-title">Reading — your results</h2>
+        <p class="panel-lead">
+          One tab per question index <code>i</code>. Data from
+          <code>feedback.individual_questions[i]</code> and
+          <code>corrections.corrections[i]</code>.
+        </p>
+
+        <div class="feedback-block">
+          <h3>Overall</h3>
+          <p class="passage">
+            You understood the passage well. Focus next on precision with past tenses when
+            narrating events in sequence.
+          </p>
+
+          <h3>Questions</h3>
+
+          <input type="radio" name="reading-tab" id="tab-q1" checked />
+          <input type="radio" name="reading-tab" id="tab-q2" />
+
+          <div class="tab-rail">
+            <label for="tab-q1">Question 1</label>
+            <label for="tab-q2">Question 2</label>
+          </div>
+
+          <div class="tab-panels">
+            <div class="tab-panel" id="panel-q1">
+              <p class="reading-meta"><strong>Prompt:</strong> ¿Por qué fue la autora al mercado?</p>
+              <p class="reading-meta"><strong>Your answer:</strong> Ella va al mercado para comprar verduras para la cena.</p>
+
+              <p class="reading-section-label">Comprehension feedback</p>
+              <p class="passage" style="margin-bottom: 0">
+                You identified the main purpose correctly; your answer could mention the time frame
+                implied in the text (yesterday).
+              </p>
+
+              <p class="reading-section-label">Suggested wording</p>
+              <p class="passage">Ella fue al mercado para comprar verduras para la cena.</p>
+
+              <div class="correction-section">
+                <p class="correction-section-title">Verb tenses</p>
+                <div class="correction-card">
+                  <p class="diff-line"><del>va</del> → <ins>fue</ins></p>
+                  <p class="reason">The passage narrates a completed trip; preterite fits past narrative.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="tab-panel" id="panel-q2">
+              <p class="reading-meta">
+                <strong>Prompt:</strong> Según el texto, ¿qué problema hubo con el transporte público?
+              </p>
+              <p class="reading-meta">
+                <strong>Your answer:</strong> El autobús llego tarde y habia mucha gente.
+              </p>
+
+              <p class="reading-section-label">Comprehension feedback</p>
+              <p class="passage" style="margin-bottom: 0">
+                Core idea is right (delay + crowding). Add the cause mentioned in paragraph 3 if you
+                want full marks.
+              </p>
+
+              <p class="reading-section-label">Suggested wording</p>
+              <p class="passage">
+                El autobús llegó tarde y había mucha gente debido a las obras en la calle principal.
+              </p>
+
+              <div class="correction-section">
+                <p class="correction-section-title">Grammar</p>
+                <div class="correction-card">
+                  <p class="diff-line"><del>llego</del> → <ins>llegó</ins></p>
+                  <p class="reason">Accent on the preterite third-person singular.</p>
+                </div>
+                <div class="correction-card">
+                  <p class="diff-line"><del>habia</del> → <ins>había</ins></p>
+                  <p class="reason">Imperfect of <em>haber</em> needs an accent.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
