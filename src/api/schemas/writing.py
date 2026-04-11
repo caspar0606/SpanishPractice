@@ -1,7 +1,8 @@
 from pydantic import BaseModel
 
-from src.domain.models.exercise import Exercise, ExerciseContext
-from src.infrastructure.llm.contracts.writing import WritingCorrection, WritingSummary
+from src.domain.models.exercise import ExerciseContext
+from src.infrastructure.llm.contracts.writing import WritingSummary
+from src.infrastructure.llm.contracts.shared import TextCorrection
 
 class WritingGenerationRequest(BaseModel):
     username: str
@@ -16,8 +17,8 @@ class WritingUserRequest(BaseModel):
     user_response: str
 
 class WritingSummaryResponse(BaseModel):
-    detailed_correction: WritingCorrection
-    summarised_correction: WritingSummary
+    corrections: TextCorrection
+    feedback: WritingSummary
 
 
 

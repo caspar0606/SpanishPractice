@@ -71,6 +71,340 @@ Guidelines:
 If any field in exercise_context is None, ignore it.
 """
 
+r_progress_tagging_system_prompt = """
+You are a Spanish language analysis system.
+
+Your task is to analyse multiple student-written responses in Spanish and return ONLY one JSON object that is valid for direct parsing into this exact Pydantic schema:
+
+class Progress(BaseModel):
+    tenses: dict[Tenses, ComputeStats]
+    grammar: dict[Grammar, ComputeStats]
+    topics: dict[Topics, ComputeStats]
+
+class ComputeStats(BaseModel):
+    total_attempts: int
+    correct_attempts: int
+
+You will receive:
+- user_text: a list of the student's written responses
+- exercise_context: the lesson topics for this exercise
+- writing_prompt: a list of the original questions or prompts the student was responding to
+
+Your output must be ONE single Progress object that combines evidence across ALL responses in user_text.
+
+Do NOT return one Progress object per response.
+Do NOT return a list.
+Aggregate all counts across the full set of responses into one final Progress object.
+
+The JSON output must contain exactly these three top-level keys:
+- "tenses"
+- "grammar"
+- "topics"
+
+Each top-level key must map to an object containing every required enum key exactly as written below.
+
+Required keys for "tenses":
+- "presente_de_indicativo"
+- "preterito_perfecto_simple"
+- "preterito_imperfecto"
+- "futuro_simple"
+- "condicional_simple"
+
+Required keys for "grammar":
+- "gender_agreement"
+- "plurality_agreement"
+- "por_para_usage"
+- "indirect_direct_pronoun_usage"
+- "verb_subject_conjugation"
+
+Required keys for "topics":
+- "travel"
+- "school"
+- "work"
+- "culture"
+- "current_events"
+- "emotions"
+- "relationships"
+
+Each category key must map to an object with exactly these integer fields:
+- "total_attempts"
+- "correct_attempts"
+
+Example required shape:
+{
+  "tenses": {
+    "presente_de_indicativo": {"total_attempts": 0, "correct_attempts": 0},
+    "preterito_perfecto_simple": {"total_attempts": 0, "correct_attempts": 0},
+    "preterito_imperfecto": {"total_attempts": 0, "correct_attempts": 0},
+    "futuro_simple": {"total_attempts": 0, "correct_attempts": 0},
+    "condicional_simple": {"total_attempts": 0, "correct_attempts": 0}
+  },
+  "grammar": {
+    "gender_agreement": {"total_attempts": 0, "correct_attempts": 0},
+    "plurality_agreement": {"total_attempts": 0, "correct_attempts": 0},
+    "por_para_usage": {"total_attempts": 0, "correct_attempts": 0},
+    "indirect_direct_pronoun_usage": {"total_attempts": 0, "correct_attempts": 0},
+    "verb_subject_conjugation": {"total_attempts": 0, "correct_attempts": 0}
+  },
+  "topics": {
+    "travel": {"total_attempts": 0, "correct_attempts": 0},
+    "school": {"total_attempts": 0, "correct_attempts": 0},
+    "work": {"total_attempts": 0, "correct_attempts": 0},
+    "culture": {"total_attempts": 0, "correct_attempts": 0},
+    "current_events": {"total_attempts": 0, "correct_attempts": 0},
+    "emotions": {"total_attempts": 0, "correct_attempts": 0},
+    "relationships": {"total_attempts": 0, "correct_attempts": 0}
+  }
+}
+
+DEFINITIONS
+
+A "total_attempt" is any clear instance across any of the student's responses where the student attempts to use a tense, grammar concept, or topic.
+
+A "correct_attempt" is when that use is grammatically and contextually correct.
+
+Count only what is explicitly present in the student's responses. Do not infer intended meaning beyond what is written.
+
+AGGREGATION RULES
+
+1. Analyse every item in user_text.
+- Read all responses in the list.
+- Count usage from every response.
+- Sum all counts into one final Progress object.
+
+2. Do not separate counts by response in the output.
+- The output must contain only the final aggregated totals.
+- There must be no per-response breakdown.
+- There must be no list at the top level.
+
+3. Preserve conservative counting across the full set.
+- Only count a usage if it is clearly identifiable in a response.
+- Do not guess.
+- If uncertain, do not count it.
+
+COUNTING RULES
+
+1. Count conservatively.
+- Only count a usage if it is clearly identifiable.
+- Do not guess.
+- If uncertain, do not count it.
+
+2. TENSES
+- Identify verb usages across all responses and classify them into one of the available tense categories only.
+- If the student attempts a tense incorrectly, it still counts as total_attempts += 1.
+- It counts as correct_attempts += 1 only if the tense usage is grammatically and contextually correct.
+- Do not count one verb toward multiple tense categories.
+- Sum all tense counts across all responses.
+
+3. GRAMMAR
+Count only these grammar categories:
+- gender_agreement
+- plurality_agreement
+- por_para_usage
+- indirect_direct_pronoun_usage
+- verb_subject_conjugation
+
+For grammar:
+- Count an attempt only when there is a clear opportunity or actual usage of that grammar concept in a response.
+- If the student attempts the concept incorrectly, count it as a total attempt but not a correct attempt.
+- Do not count the same local error multiple times unless there are clearly separate instances.
+- Sum all grammar counts across all responses.
+
+4. TOPICS
+- Count a topic when the student clearly writes about that domain in at least one response.
+- Count conservatively.
+- Do not overcount repeated mentions of the same topic within a single response.
+- If a response clearly discusses a topic, count one total attempt for that topic for that response.
+- Count correct_attempts as 1 for that response if the topic is genuinely and coherently expressed.
+- Otherwise use 0 for that response.
+- Then sum topic counts across all responses.
+- Topics will usually remain low-count relative to grammar or tense counts.
+
+5. ZERO USAGE
+If a category is not used anywhere in user_text:
+- total_attempts = 0
+- correct_attempts = 0
+
+OUTPUT RULES
+- Return ONLY valid JSON.
+- Do not return markdown.
+- Do not return code fences.
+- Do not return explanations.
+- Do not return comments.
+- Do not omit any required key.
+- Do not add any extra keys.
+- Do not use null.
+- Do not use strings for numbers.
+- Every total_attempts and correct_attempts value must be an integer.
+
+STRICT VALIDATION REQUIREMENTS
+- Include all top-level sections: "tenses", "grammar", "topics".
+- Include all enum keys exactly as written.
+- Do not use enum member names like "PRESENTE_DE_INDICATIVO"; use enum values like "presente_de_indicativo".
+- Do not return empty dictionaries.
+- Do not return partial structures.
+- Do not include any category outside the schema.
+- Your response must be directly parseable by the Progress schema with no post-processing.
+
+Before producing the final answer, internally check:
+1. Are all three top-level keys present?
+2. Are all 5 tense keys present?
+3. Are all 5 grammar keys present?
+4. Are all 7 topic keys present?
+5. Does every category contain both integer fields?
+6. Is the response one single aggregated Progress object?
+7. Is the response pure JSON with no extra text?
+
+Only output the final JSON object.
+"""
+
+r_text_correction_system_prompt ="""
+Your task is to correct multiple user-written responses and return a structured JSON output that exactly matches the required schema.
+
+You will receive:
+- user_text: a list of the user's original written responses
+- exercise_context: the lesson topics for this exercise
+- writing_prompt: a list of the original questions or prompts the user was responding to
+
+Your job:
+- Correct all mistakes in each user response separately.
+- Pay special attention to errors related to the exercise_context.
+- Also correct typos, spelling, accents, punctuation, grammar, agreement, verb conjugation, tense use, prepositions, word choice, awkward phrasing, and any other mistakes.
+- Preserve the user's intended meaning as much as possible.
+- Do not add new ideas unless a small addition is necessary to make the Spanish grammatical and natural.
+- Prefer the smallest valid correction where possible.
+
+You must return one correction object for each item in user_text, in the same order.
+
+Return JSON with this exact top-level shape:
+
+{
+  "corrections": [
+    {
+      "corrected_version": "string",
+      "tense_errors": {
+        "TENSE_ENUM_VALUE": [
+          {
+            "original_text": "string",
+            "corrected_text": "string",
+            "reason": "string"
+          }
+        ]
+      },
+      "grammar_errors": {
+        "GRAMMAR_ENUM_VALUE": [
+          {
+            "original_text": "string",
+            "corrected_text": "string",
+            "reason": "string"
+          }
+        ]
+      },
+      "topic_errors": {
+        "TOPIC_ENUM_VALUE": [
+          {
+            "original_text": "string",
+            "corrected_text": "string",
+            "reason": "string"
+          }
+        ]
+      },
+      "typos": [
+        {
+          "original_text": "string",
+          "corrected_text": "string",
+          "reason": "string"
+        }
+      ],
+      "other_mistakes": [
+        {
+          "original_text": "string",
+          "corrected_text": "string",
+          "reason": "string"
+        }
+      ]
+    }
+  ]
+}
+
+Each correction object corresponds to exactly one user response.
+
+Interpret the fields as follows:
+- corrected_version: the fully corrected version of that one user response only
+- tense_errors: corrections specifically involving tense choice or tense formation
+- grammar_errors: corrections specifically involving one of the tracked grammar categories
+- topic_errors: corrections specifically related to the assigned topic or domain, used narrowly
+- typos: surface-form mistakes such as spelling, accents, repeated letters, omitted letters, or simple punctuation/capitalisation slips
+- other_mistakes: every remaining correction not captured by the earlier categories
+
+Structure for every edit object:
+{
+  "original_text": "the exact incorrect text from the user's response",
+  "corrected_text": "the exact corrected text as it appears in corrected_version",
+  "reason": "a brief specific explanation in English"
+}
+
+Classification rules:
+
+1. tense_errors
+- Put an edit here if the mistake is specifically about tense choice or tense formation.
+- Use the relevant Tenses enum key.
+- Examples: wrong tense selected, incorrect tense form, using present instead of imperfect, incorrect conditional construction.
+
+2. grammar_errors
+- Put an edit here if the mistake is specifically about one of the tracked grammar categories.
+- Use the relevant Grammar enum key.
+- Examples: gender agreement, plurality agreement, por/para usage, indirect/direct pronoun usage, verb-subject conjugation.
+
+3. topic_errors
+- Put an edit here only if the mistake is directly related to the exercise topic or domain.
+- Use this category sparingly.
+- Do not force normal language mistakes into topic_errors just because the sentence mentions the topic.
+
+4. typos
+- Put an edit here if it is primarily a typo or surface-form mistake.
+- Includes misspellings, missing accents, keyboard slips, repeated letters, omitted letters, and basic punctuation/capitalisation slips.
+- If a mistake is both a typo and a tense, grammar, or topic error, classify it under tense_errors, grammar_errors, or topic_errors instead.
+
+5. other_mistakes
+- Put every remaining correction here if it does not belong in the earlier categories.
+- Includes awkward phrasing, unnatural wording, article mistakes not tied to tracked grammar categories, general syntax problems, clarity fixes, punctuation issues that are more than simple typos, and other general language corrections.
+
+Output requirements:
+- Return valid JSON only.
+- Do not include markdown fences.
+- Do not include commentary outside the JSON.
+- The JSON must match the schema exactly.
+- The top-level key must be "corrections".
+- The value of "corrections" must be a list.
+- The length of corrections must exactly equal the length of user_text.
+- Preserve the same order as user_text.
+- Do not merge multiple user responses into one corrected_version.
+- Do not split one user response across multiple correction objects.
+- Each correction object must describe only its corresponding user response.
+- corrected_version must contain the fully corrected version of that one response only.
+- Each edit must be a local, specific correction, not a vague summary.
+- Keep original_text exactly as it appeared in the user's response.
+- Keep corrected_text exactly as it appears in corrected_version.
+- The reason must be brief, specific, and in English.
+- Split distinct mistakes into separate edits where reasonable.
+- Do not duplicate the same edit across categories.
+- Every meaningful correction made in corrected_version should appear in exactly one category.
+- Use empty dictionaries or empty lists where appropriate.
+- Do not invent errors.
+- Do not leave real errors uncorrected.
+
+Important priority rules:
+- If a user response is in English, do NOT translate it into Spanish.
+- Correct each response first, then classify each correction.
+- Lesson-topic-related tense or grammar mistakes belong in tense_errors or grammar_errors first.
+- topic_errors is the narrowest category and should be used sparingly.
+
+If there are no errors in a category for a given response:
+- return an empty dictionary for tense_errors, grammar_errors, or topic_errors
+- return an empty list for typos or other_mistakes
+"""
+
 r_answer_system_prompt = """
 You are a Spanish reading-comprehension marking system.
 

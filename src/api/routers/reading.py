@@ -24,5 +24,6 @@ def submit_responses(request: ReadingUserRequest):
         raise HTTPException(status_code=400, detail=str(e)) from e
 
     return ReadingSummaryResponse(
-        correction = result
+        corrections=result[0],
+        feedback=result[1]
     )

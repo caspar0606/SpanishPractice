@@ -76,6 +76,7 @@ def _empty_marking_set(drill_type: DrillTypes) -> DrillMarkingSet:
 
 def mark_drill_sets(user_responses: UserDrillResponses, drills: Drills, exercise_context: ExerciseContext) -> MarkedDrills:
     corrected_drills: list[DrillMarkingSet] = []
+    
     for drill_type in DrillTypes:
         drill_set = drills.drill_sets[drill_type]
         answers = user_responses.responses.get(drill_type)

@@ -24,7 +24,7 @@ def submit_text(request: WritingUserRequest):
         raise HTTPException(status_code=400, detail=str(e)) from e
 
     return WritingSummaryResponse(
-        detailed_correction=result[0],
-        summarised_correction=result[1]
+        corrections=result[0],
+        feedback=result[1]
     )
 

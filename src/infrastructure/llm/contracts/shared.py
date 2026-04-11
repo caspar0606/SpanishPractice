@@ -2,6 +2,7 @@ from enum import Enum
 from typing import Optional, Union
 from pydantic import BaseModel
 
+from src.domain.enums import Grammar, Tenses, Topics
 from src.domain.models.exercise import ExerciseContext
 from src.infrastructure.llm.contracts.reading import ReadingGeneration
 
@@ -32,3 +33,17 @@ class AgentNames(str, Enum):
     TRANSLATE_GENERATOR = "translate_generator"
     ERROR_CORRECTION_GENERATOR = "error_correction_generator"
     OPTION_SELECTION_GENERATOR = "option_selection_generator"
+
+
+class Edit(BaseModel):
+    original_text: str
+    corrected_text: str
+    reason: str
+
+class TextCorrection(BaseModel):
+    corrected_version: str
+    tense_errors: dict[Tenses, list[Edit]]
+    grammar_errors: dict[Grammar, list[Edit]]
+    topic_errors: dict[Topics, list[Edit]]
+    typos: list[Edit]
+    other_mistakes: list[Edit]

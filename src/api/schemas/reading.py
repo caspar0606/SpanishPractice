@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 
-from src.domain.models.exercise import Exercise, ExerciseContext
-from src.infrastructure.llm.contracts.reading import ReadingGeneration, QuestionMarking
+from src.domain.models.exercise import ExerciseContext
+from src.infrastructure.llm.contracts.reading import ReadingGeneration, QuestionMarking, TextCorrections
 
 class ReadingGenerationRequest(BaseModel):
     username: str
@@ -15,7 +15,9 @@ class ReadingUserRequest(BaseModel):
     user_response: list[str]
 
 class ReadingSummaryResponse(BaseModel):
-    correction: QuestionMarking
+    corrections: TextCorrections
+    feedback: QuestionMarking
+
 
 
 

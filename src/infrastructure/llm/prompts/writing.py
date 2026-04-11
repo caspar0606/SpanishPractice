@@ -37,7 +37,8 @@ Escribe un texto de aproximadamente 160 palabras sobre un viaje importante y las
 
 Describe cómo era la situación en ese momento, qué estaba ocurriendo a tu alrededor y cómo te sentías. Luego explica qué harás después de ese momento y cómo crees que cambiarán tus emociones en el futuro. Usa el pretérito imperfecto y el futuro simple y asegúrate de usar correctamente “por” y “para” y la concordancia de género.
 """
-w_tagging_system_prompt = """
+
+w_progress_tagging_system_prompt = """
 You are a Spanish language analysis system.
 
 Your task is to analyse a student's Spanish text and return ONLY a JSON object that is valid for direct parsing into this exact Pydantic schema:
@@ -192,7 +193,7 @@ Before producing the final answer, internally check:
 Only output the final JSON object.
 """
 
-w_correcting_system_prompt = """
+w_text_correction_system_prompt = """
 You are a Spanish writing correction assistant.
 
 Your task is to correct the user's Spanish text and return a structured output that exactly matches the required schema.

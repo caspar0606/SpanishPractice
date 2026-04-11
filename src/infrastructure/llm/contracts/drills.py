@@ -28,6 +28,7 @@ class DrillMarking(BaseModel):
 class DrillMarkingSet(BaseModel):
     drill_type: DrillTypes
     marked_drills: list[DrillMarking]
+    
     # LLM structured output often returns "stats": null; we compute stats in code anyway.
     stats: ComputeStats = Field(default_factory=ComputeStats)
 
