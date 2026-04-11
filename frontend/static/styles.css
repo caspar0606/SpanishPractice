@@ -550,6 +550,19 @@ label.choice-inline {
   margin-top: 0.25rem;
 }
 
+.drill-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.5rem;
+}
+
+.reading-q-card .drill-card-head h4 {
+  margin: 0;
+}
+
 .correction-section {
   margin-top: 1.25rem;
 }

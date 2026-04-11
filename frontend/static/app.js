@@ -904,13 +904,13 @@ function showResultsReading(res, questions = [], userResponses = []) {
     const promptLine = document.createElement("p");
     promptLine.className = "reading-meta";
     promptLine.innerHTML = `<strong>Prompt:</strong> ${escapeHtml(questions[i] ?? "")}`;
-
-    const answerLine = document.createElement("p");
-    answerLine.className = "reading-meta";
-    answerLine.innerHTML = `<strong>Your answer:</strong> ${escapeHtml(userResponses[i] ?? "")}`;
-
     card.appendChild(promptLine);
-    card.appendChild(answerLine);
+
+    const yourAnsLabel = document.createElement("p");
+    yourAnsLabel.className = "reading-section-label";
+    yourAnsLabel.textContent = "Your answer";
+    card.appendChild(yourAnsLabel);
+    card.appendChild(elBlock(userResponses[i] ?? ""));
 
     const compLabel = document.createElement("p");
     compLabel.className = "reading-section-label";
@@ -1047,43 +1047,80 @@ function showResultsDrills(res) {
   root.innerHTML = "";
   const fb = document.createElement("div");
   fb.className = "feedback-block";
-  const h = document.createElement("h3");
-  h.textContent = "Results";
-  fb.appendChild(h);
   const md = res.marked_drills;
+
+  const hTitle = document.createElement("h3");
+  hTitle.textContent = "Drills — your results";
+  fb.appendChild(hTitle);
+
+  if (md.stats) {
+    const hOverall = document.createElement("h3");
+    hOverall.textContent = "Overall";
+    fb.appendChild(hOverall);
+    fb.appendChild(
+      elBlock(
+        `${md.stats.correct_attempts} / ${md.stats.total_attempts} correct`,
+      ),
+    );
+  }
+
   for (const set of md.marked_drill_sets || []) {
     const dt = set.drill_type;
-    const sub = document.createElement("h4");
-    sub.className = "drill-type-title";
-    sub.textContent = humanizeKey(dt);
-    sub.style.marginTop = "1rem";
-    fb.appendChild(sub);
+    const typeH = document.createElement("h3");
+    typeH.textContent = humanizeKey(dt);
+    typeH.style.marginTop = "1.25rem";
+    fb.appendChild(typeH);
+
+    let qIdx = 0;
     for (const row of set.marked_drills || []) {
-      const div = document.createElement("div");
-      div.className = "drill-result-item";
+      qIdx += 1;
+      const card = document.createElement("div");
+      card.className = "reading-q-card";
+
+      const head = document.createElement("div");
+      head.className = "drill-card-head";
+      const hq = document.createElement("h4");
+      hq.textContent = `Question ${qIdx}`;
       const badge = document.createElement("span");
       badge.className = row.is_correct ? "badge badge-ok" : "badge badge-no";
       badge.textContent = row.is_correct ? "Correct" : "Review";
-      div.appendChild(badge);
-      div.appendChild(
-        document.createTextNode(` ${row.prompt || ""} — Your answer: "${row.user_response || ""}"`),
-      );
-      if (row.comment) {
-        const c = document.createElement("p");
-        c.className = "reason";
-        c.style.marginTop = "0.35rem";
-        c.textContent = row.comment;
-        div.appendChild(c);
+      head.appendChild(hq);
+      head.appendChild(badge);
+      card.appendChild(head);
+
+      const promptLine = document.createElement("p");
+      promptLine.className = "reading-meta";
+      promptLine.innerHTML = `<strong>Prompt:</strong> ${escapeHtml(row.prompt || "")}`;
+      card.appendChild(promptLine);
+
+      const yourAnsLabel = document.createElement("p");
+      yourAnsLabel.className = "reading-section-label";
+      yourAnsLabel.textContent = "Your answer";
+      card.appendChild(yourAnsLabel);
+      card.appendChild(elBlock(row.user_response ?? ""));
+
+      const correctLabel = document.createElement("p");
+      correctLabel.className = "reading-section-label";
+      correctLabel.textContent = "Correct answer";
+      card.appendChild(correctLabel);
+      card.appendChild(elBlock(row.answer ?? ""));
+
+      const commentStr =
+        row.comment != null && String(row.comment).trim()
+          ? String(row.comment).trim()
+          : null;
+      if (commentStr) {
+        const commLabel = document.createElement("p");
+        commLabel.className = "reading-section-label";
+        commLabel.textContent = "Comment";
+        card.appendChild(commLabel);
+        card.appendChild(elBlock(commentStr));
       }
-      fb.appendChild(div);
+
+      fb.appendChild(card);
     }
   }
-  if (md.stats) {
-    const pill = document.createElement("p");
-    pill.className = "stats-pill";
-    pill.textContent = `Score: ${md.stats.correct_attempts} / ${md.stats.total_attempts} correct`;
-    fb.appendChild(pill);
-  }
+
   root.appendChild(fb);
 }
 
