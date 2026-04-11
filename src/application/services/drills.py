@@ -66,10 +66,31 @@ def create_drills(exercise_context: ExerciseContext) -> Drills:
             )
 
 
-def mark_drill_sets(user_responses: UserDrillResponses, drills: Drills, exercise_context: ExerciseContext) -> MarkedDrills:
+def _empty_marking_set(drill_type: DrillTypes) -> DrillMarkingSet:
+    return DrillMarkingSet(
+        drill_type=drill_type,
+        marked_drills=[],
+        stats=ComputeStats(total_attempts=0, correct_attempts=0),
+    )
 
-    corrected_drills = [mark_drill_set(user_responses.responses[drill_type], drills.drill_sets[drill_type], 
-                                    exercise_context, drill_type) for drill_type in DrillTypes]
+
+def mark_drill_sets(user_responses: UserDrillResponses, drills: Drills, exercise_context: ExerciseContext) -> MarkedDrills:
+    corrected_drills: list[DrillMarkingSet] = []
+    for drill_type in DrillTypes:
+        drill_set = drills.drill_sets[drill_type]
+        answers = user_responses.responses.get(drill_type)
+        if answers is None:
+            answers = []
+        if not drill_set.drills:
+            corrected_drills.append(_empty_marking_set(drill_type))
+            continue
+        if len(answers) != len(drill_set.drills):
+            raise ValueError(
+                f"Drill type {drill_type.value}: expected {len(drill_set.drills)} answer(s), got {len(answers)}",
+            )
+        corrected_drills.append(
+            mark_drill_set(answers, drill_set, exercise_context, drill_type),
+        )
     
     for drill_set in corrected_drills:
         drill_set.stats = ComputeStats(
