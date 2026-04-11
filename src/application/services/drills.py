@@ -59,6 +59,15 @@ def submit_drills(username: str, responses: UserDrillResponses) -> MarkedDrills:
 def create_drills(exercise_context: ExerciseContext) -> Drills:
     question_set = QUESTION_NUMBER_CONFIG[exercise_context.exercise_config.difficulty]
 
+    if exercise_context.areas_of_focus.focus_grammar:
+        types = [DrillTypes.OPTION_SELECTION, DrillTypes.TRANSLATION, DrillTypes.ERROR_CORRECTION]
+        
+        return Drills(drill_sets={
+            drill_type: create_drill_set(exercise_context, question_set, drill_type) 
+            for drill_type in types
+            }
+        )
+
     return Drills(drill_sets={
                 drill_type: create_drill_set(exercise_context, question_set, drill_type) 
                 for drill_type in DrillTypes
@@ -76,7 +85,7 @@ def _empty_marking_set(drill_type: DrillTypes) -> DrillMarkingSet:
 
 def mark_drill_sets(user_responses: UserDrillResponses, drills: Drills, exercise_context: ExerciseContext) -> MarkedDrills:
     corrected_drills: list[DrillMarkingSet] = []
-    
+
     for drill_type in DrillTypes:
         drill_set = drills.drill_sets[drill_type]
         answers = user_responses.responses.get(drill_type)

@@ -47,7 +47,7 @@ class AoFs(str, Enum):
 
 class DrillTypes(str, Enum):
     SENTENCE_COMPLETION = "sentence_completion"
-    TRANSLATION = "translate"
+    TRANSLATION = "translation"
     ERROR_CORRECTION = "error_correction"
     OPTION_SELECTION = "option_selection"
 
