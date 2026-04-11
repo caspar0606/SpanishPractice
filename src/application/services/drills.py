@@ -13,6 +13,17 @@ from src.infrastructure.persistence.user_storage import user_exercise_cache
 
 
 def generate_drills(username: str) -> Drills:
+    """Generates all drill_sets for the exercise, saves drills to user's current session,
+    and saves user state.
+    
+    Args: 
+        username: Used to load user and current exercise objects.
+        
+    Returns:
+        All drills for the exercise.
+    """
+        
+    
     user, exercise = user_exercise_cache(username)
 
     if user.current_exercise is None:
@@ -31,6 +42,17 @@ def generate_drills(username: str) -> Drills:
 
 
 def submit_drills(username: str, responses: UserDrillResponses) -> MarkedDrills:
+    """Marks user responses to drill exercises, updates user progress, and returns LLM feedback.
+    
+    Args: 
+        username: Used to load user and current exercise objects.
+        responses: Formatted user responses to drill exercises.
+        
+        
+    Returns:
+        feedback including all marked drills, correct answers, user responses, and comments.
+    """
+    
     user, exercise = user_exercise_cache(username)
 
     if user.current_exercise is None or user.current_exercise.prompt is None:
@@ -57,6 +79,16 @@ def submit_drills(username: str, responses: UserDrillResponses) -> MarkedDrills:
 
 
 def create_drills(exercise_context: ExerciseContext) -> Drills:
+    """Creates all drills for the exercise, drill are effected by the exercise focuses.
+    
+    Args: 
+        exercise_context: object containing exercise focuses and difficulty.
+    
+    Returns:
+        Drills object containing all drills for the exercise.
+    """
+    
+    #Defines number of questions per drill type
     question_set = QUESTION_NUMBER_CONFIG[exercise_context.exercise_config.difficulty]
 
     if exercise_context.areas_of_focus.focus_grammar:
@@ -76,14 +108,34 @@ def create_drills(exercise_context: ExerciseContext) -> Drills:
 
 
 def _empty_marking_set(drill_type: DrillTypes) -> DrillMarkingSet:
+    """Initialises an empty marking set with specified drill type.
+    
+    Args: 
+        drill_type: from DrillTypes.
+    
+    Returns:
+        empty DrillMarkingSet object with specified drill type.
+    """
+    
     return DrillMarkingSet(
         drill_type=drill_type,
         marked_drills=[],
         stats=ComputeStats(total_attempts=0, correct_attempts=0),
     )
 
-
 def mark_drill_sets(user_responses: UserDrillResponses, drills: Drills, exercise_context: ExerciseContext) -> MarkedDrills:
+    """Marks each drill attempt from the user's responses using mark_drill_set, then computes 
+    the scores based on is_correct flag from each marked drill attempt.
+    
+    Args: 
+        user_responses: Formatted user responses to drill exercises.
+        drills: Formatted drills from the exercise.
+        exercise_context: object containing exercise focuses and difficulty.
+    
+    Returns:
+        Marked drills including correct answers, user responses, comments, and overall scores.
+    """
+    
     corrected_drills: list[DrillMarkingSet] = []
 
     for drill_type in drills.drill_sets:
@@ -117,7 +169,17 @@ def mark_drill_sets(user_responses: UserDrillResponses, drills: Drills, exercise
 
 
 def create_drill_set(exercise_context: ExerciseContext, question_set: dict, drill_type: DrillTypes) -> DrillSet:
-
+    """Creates a drill set based on specified type.
+    
+    Args: 
+        exercise_context: object containing exercise focuses and difficulty.
+        question_set: Config object that specifies the number of questions per drill type.
+        drill_type: Enum value specifying the type of drill.
+    
+    Returns:
+        A DrillSet object including drill question, correct answer, and [options].
+    """
+    
     agent_input = agent_inputs(name=AgentNames.SENTENCE_COMPLETION_GENERATOR, 
                                system_prompt=DRILLS_PROMPT_CONFIG[drill_type]["generate"],
                                exercise_context=exercise_context,
@@ -125,13 +187,23 @@ def create_drill_set(exercise_context: ExerciseContext, question_set: dict, dril
                                stimulus=f"number_of_questions: {question_set[drill_type]}")
     
     return response_format(agent_input, DrillSet)
-
             
 
 
 def mark_drill_set(user_response: list[str], drill_set: DrillSet, 
                    exercise_context: ExerciseContext, drill_type: DrillTypes) ->DrillMarkingSet:
-
+    """Marks a drill set using the pre-existing answer, and updates the is_correct flag.
+    
+    Args: 
+        user_response: list of user responses to each question for this specific drill.
+        drill_set: Formatted set of drills including the question, answer, and [options].
+        exercise_context: object containing exercise focuses and difficulty.
+        drill_type: Enum value specifying the type of drill.
+    
+    Returns:
+        A marked drill including correct answers, user responses, and comments.
+    """
+    
     agent_input = agent_inputs(name=AgentNames.SENTENCE_COMPLETION_GENERATOR, 
                                system_prompt=DRILLS_PROMPT_CONFIG[drill_type]["mark"],
                                exercise_context=exercise_context,
