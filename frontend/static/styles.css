@@ -105,13 +105,11 @@ body {
   padding: 1.75rem 1.25rem 3.5rem;
 }
 
-/* Drills: extra horizontal room for many questions (practice + results). */
-.site-main:has(#panel-practice .form-drills-wizard),
+/* Drills results only: wide column so four feedback quadrants fit. */
 .site-main:has(#panel-practice .drill-results-feedback) {
   max-width: min(76rem, calc(100vw - 2.5rem));
 }
 
-#panel-practice.card.panel:has(.form-drills-wizard),
 #panel-practice.card.panel:has(.drill-results-feedback) {
   padding: 1.85rem 2rem 2rem;
 }
@@ -954,34 +952,55 @@ label.choice-inline {
   margin-top: 1rem;
 }
 
+/* Four quadrants: one drill type per cell (2×2). */
 .drill-feedback-grid {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 1.5rem;
-  align-items: start;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: 1rem 1.25rem;
+  align-items: stretch;
+  min-height: min(88vh, 56rem);
 }
 
 .drill-feedback-tile {
   margin: 0 !important;
-  padding: 1.75rem 2rem 2.25rem !important;
+  padding: 1rem 1.15rem 1.2rem !important;
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-radius: var(--radius-sm);
   background: rgba(255, 255, 255, 0.04);
-  box-shadow: var(--shadow);
+  box-shadow: var(--shadow-sm);
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 }
 
 .drill-feedback-tile .drill-type-title {
   margin-top: 0;
-  font-size: 1.12rem;
+  flex-shrink: 0;
 }
 
 .drill-feedback-tile .reading-q-card {
-  padding: 1.2rem 1.35rem 1.35rem;
-  margin-bottom: 1.35rem;
+  padding: 1rem 1.1rem 1.1rem;
+  margin-bottom: 1rem;
+  flex-shrink: 0;
 }
 
 .drill-feedback-tile .reading-q-card:last-child {
   margin-bottom: 0;
+}
+
+@media (max-width: 720px) {
+  .drill-feedback-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: none;
+    grid-auto-rows: auto;
+    min-height: unset;
+  }
+
+  .drill-feedback-tile {
+    overflow-y: visible;
+  }
 }
 
 .feedback-block > .drill-type-section {

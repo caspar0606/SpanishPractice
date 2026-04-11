@@ -26,10 +26,13 @@
         text-decoration: underline;
       }
 
-      .mock-wide {
+      /* Practice matches default app width; results block is wider (like production). */
+      .drill-feedback-shell {
+        margin-top: 2.5rem;
         max-width: min(76rem, calc(100vw - 2.5rem));
         margin-left: auto;
         margin-right: auto;
+        width: 100%;
       }
 
       /* —— Practice wizard —— */
@@ -130,24 +133,31 @@
         margin: 0;
       }
 
-      /* —— Feedback: full-width stacked cards (room for many questions) —— */
-      .drill-feedback-shell {
-        margin-top: 2.5rem;
-      }
-
+      /* Four quadrants (matches production `.drill-feedback-grid`). */
       .drill-feedback-grid {
         display: grid;
-        grid-template-columns: 1fr;
-        gap: 1.5rem;
-        align-items: start;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-rows: repeat(2, minmax(0, 1fr));
+        gap: 1rem 1.25rem;
+        align-items: stretch;
+        min-height: min(88vh, 56rem);
       }
 
       .drill-feedback-tile {
         border: 1px solid var(--border);
-        border-radius: var(--radius);
+        border-radius: var(--radius-sm);
         background: rgba(255, 255, 255, 0.04);
-        box-shadow: var(--shadow);
-        padding: 1.75rem 2rem 2.25rem;
+        box-shadow: var(--shadow-sm);
+        padding: 1rem 1.15rem 1.2rem;
+        min-height: 0;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .drill-feedback-tile-body {
+        flex: 1;
+        min-height: 0;
       }
 
       .drill-feedback-tile-head {
@@ -192,6 +202,19 @@
         margin: 0 0 0.35rem;
       }
 
+      @media (max-width: 720px) {
+        .drill-feedback-grid {
+          grid-template-columns: 1fr;
+          grid-template-rows: none;
+          grid-auto-rows: auto;
+          min-height: unset;
+        }
+
+        .drill-feedback-tile {
+          overflow-y: visible;
+        }
+      }
+
       /* Match production inputs; keep textarea shorter in the demo */
       .mock-textarea-compact {
         min-height: 6.5rem;
@@ -222,7 +245,7 @@
       </div>
     </header>
 
-    <main class="site-main mock-wide">
+    <main class="site-main">
       <p class="mock-nav">
         <a href="./index.html">← Style lab index</a>
         · Static preview only; wire into <code>app.js</code> after sign-off.
@@ -331,12 +354,12 @@
         </div>
       </section>
 
-      <!-- —— B: Results (one large card per drill type, full width) —— -->
+      <!-- —— B: Results (2×2 quadrants, one drill type per quadrant) —— -->
       <section class="panel card drill-feedback-shell">
         <h2 class="panel-title">Drills — your results</h2>
         <p class="panel-lead">
-          After submit, each drill <strong>type</strong> appears in its own wide card so there is room for
-          <strong>many questions</strong> without cramming the layout.
+          The page uses a <strong>2×2 grid</strong>: one quadrant per drill type. Long feedback scrolls
+          inside its quadrant.
         </p>
 
         <div class="drill-feedback-grid" aria-label="Drill feedback by type">

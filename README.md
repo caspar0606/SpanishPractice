@@ -57,7 +57,7 @@ With the server running, these load the same `/static/` assets as the app (no AP
 - **Style lab** (links to reading mockups): http://127.0.0.1:8000/static/mockups/index.html
 - **Reading results — stacked cards:** http://127.0.0.1:8000/static/mockups/reading-results-cards.html
 - **Reading results — tabs:** http://127.0.0.1:8000/static/mockups/reading-results-tabs.html
-- **Drills — stepped practice + full-width results:** http://127.0.0.1:8000/static/mockups/drills-wizard-feedback-grid.html
+- **Drills — stepped practice + 2×2 results quadrants:** http://127.0.0.1:8000/static/mockups/drills-wizard-feedback-grid.html
 
 ### Typical user flow (UI)
 
