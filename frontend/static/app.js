@@ -37,9 +37,10 @@ const TOPIC_OPTS = [
   ["relationships", "Relationships"],
 ];
 
+/** Preferred display order; keys must match backend `DrillTypes` (`src/domain/enums.py`). */
 const DRILL_ORDER = [
   "sentence_completion",
-  "translate",
+  "translation",
   "error_correction",
   "option_selection",
 ];
@@ -47,10 +48,44 @@ const DRILL_ORDER = [
 /** Short line shown under the progress count for each drill step. */
 const DRILL_STEP_BLURB = {
   sentence_completion: "fill the gap in each sentence.",
-  translate: "translate each prompt into Spanish.",
+  translation: "translate each prompt into Spanish.",
   error_correction: "fix the mistake in each sentence.",
   option_selection: "choose the best answer for each question.",
 };
+
+/**
+ * Drill types actually present in the API payload, ordered by DRILL_ORDER then alphabetically.
+ * Does not assume the first type or a fixed key set — uses `drill_sets` keys from the server.
+ * @param {Record<string, { drills?: unknown[] }> | undefined} drillSets
+ */
+function orderedDrillKeysWithDrills(drillSets) {
+  if (!drillSets || typeof drillSets !== "object") return [];
+  const keys = Object.keys(drillSets).filter((k) => drillSets[k]?.drills?.length);
+  const rank = new Map(DRILL_ORDER.map((k, i) => [k, i]));
+  return keys.sort((a, b) => {
+    const ra = rank.has(a) ? rank.get(a) : DRILL_ORDER.length;
+    const rb = rank.has(b) ? rank.get(b) : DRILL_ORDER.length;
+    if (ra !== rb) return ra - rb;
+    return String(a).localeCompare(String(b));
+  });
+}
+
+/**
+ * @param {Record<string, { marked_drills?: unknown[] }>} setsByType
+ */
+function orderedDrillKeysWithMarked(setsByType) {
+  if (!setsByType || typeof setsByType !== "object") return [];
+  const keys = Object.keys(setsByType).filter(
+    (k) => setsByType[k]?.marked_drills?.length,
+  );
+  const rank = new Map(DRILL_ORDER.map((k, i) => [k, i]));
+  return keys.sort((a, b) => {
+    const ra = rank.has(a) ? rank.get(a) : DRILL_ORDER.length;
+    const rb = rank.has(b) ? rank.get(b) : DRILL_ORDER.length;
+    if (ra !== rb) return ra - rb;
+    return String(a).localeCompare(String(b));
+  });
+}
 
 /** @type {{ exercise: object | null, writingPrompt: string | null, readingPrompt: object | null, drills: object | null }} */
 const state = {
@@ -968,9 +1003,7 @@ function renderDrillsPractice() {
   const root = document.getElementById("practice-root");
   const drills = state.drills;
   root.innerHTML = "";
-  const typesPresent = DRILL_ORDER.filter(
-    (dt) => drills.drill_sets[dt]?.drills?.length,
-  );
+  const typesPresent = orderedDrillKeysWithDrills(drills.drill_sets);
   if (typesPresent.length === 0) {
     root.textContent = "No drills loaded.";
     return;
@@ -1129,7 +1162,7 @@ function collectDrillResponses() {
   const drills = state.drills;
   /** @type {Record<string, string[]>} */
   const responses = {};
-  for (const dt of DRILL_ORDER) {
+  for (const dt of orderedDrillKeysWithDrills(drills.drill_sets)) {
     const set = drills.drill_sets[dt];
     if (!set || !set.drills?.length) continue;
     responses[dt] = set.drills.map((_, i) => {
@@ -1195,7 +1228,7 @@ function showResultsDrills(res) {
   grid.className = "drill-feedback-grid";
   grid.setAttribute("aria-label", "Drill feedback by type");
 
-  for (const dt of DRILL_ORDER) {
+  for (const dt of orderedDrillKeysWithMarked(setsByType)) {
     const set = setsByType[dt];
     if (!set || !set.marked_drills?.length) continue;
 
