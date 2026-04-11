@@ -209,13 +209,27 @@ function apiBase() {
  */
 async function api(method, path, body) {
   /** @type {RequestInit} */
-  const opts = { method };
+  const opts = {
+    method,
+    mode: "cors",
+    credentials: "omit",
+    cache: "no-store",
+  };
   if (body !== undefined) {
     opts.headers = { "Content-Type": "application/json" };
     opts.body = JSON.stringify(body);
   }
   const url = path.startsWith("http") ? path : `${apiBase()}${path}`;
-  const r = await fetch(url, opts);
+  let r;
+  try {
+    r = await fetch(url, opts);
+  } catch (e) {
+    const msg =
+      e instanceof TypeError
+        ? "Network error (request failed or was blocked). If the API is slow, the connection may time out — check Railway logs and try again."
+        : String(e?.message || e);
+    throw new Error(msg);
+  }
   const text = await r.text();
   let data;
   try {
