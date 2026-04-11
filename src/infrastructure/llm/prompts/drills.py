@@ -74,6 +74,7 @@ A) If focus_tenses is non-null:
 
 B) If focus_grammar is non-null:
 - Every drill must test the given grammar concept only.
+- Include the category of word in brackets after the blank (pronoun, adjective, article)
 - The blank should directly require use of that grammar concept.
 - Examples:
   - por_para_usage -> blank should require either "por" or "para"

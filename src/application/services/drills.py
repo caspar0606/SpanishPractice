@@ -9,7 +9,6 @@ from src.infrastructure.llm.prompts.drills import DRILLS_PROMPT_CONFIG
 from src.infrastructure.llm.harness import agent_inputs, response_format
 from src.domain.models.progress import ComputeStats
 from src.infrastructure.persistence.file_storage import save_user_state
-from src.infrastructure.persistence.file_storage import save_user_state
 from src.infrastructure.persistence.user_storage import user_exercise_cache
 
 
