@@ -266,6 +266,16 @@ function humanizeKey(key) {
     .join(" ");
 }
 
+/** Fisher–Yates shuffle (copy). */
+function shuffleArray(items) {
+  const a = items.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 function buildCheckboxGrid(container, options, namePrefix) {
   container.innerHTML = "";
   for (const [value, text] of options) {
@@ -917,7 +927,8 @@ function renderDrillsPractice() {
         const ul = document.createElement("ul");
         ul.className = "option-list";
         const name = `drill-${dt}-${i}`;
-        d.options.forEach((opt, j) => {
+        const opts = shuffleArray(d.options);
+        opts.forEach((opt) => {
           const li = document.createElement("li");
           const lab = document.createElement("label");
           const radio = document.createElement("input");
@@ -925,7 +936,6 @@ function renderDrillsPractice() {
           radio.name = name;
           radio.value = opt;
           radio.required = true;
-          if (j === 0) radio.checked = true;
           lab.appendChild(radio);
           lab.appendChild(document.createTextNode(opt));
           li.appendChild(lab);
