@@ -266,6 +266,15 @@ function humanizeKey(key) {
     .join(" ");
 }
 
+/** e.g. sentence_completion → "Sentence completion" (for UI section titles). */
+function humanizeKeyTitle(key) {
+  return String(key)
+    .split("_")
+    .filter(Boolean)
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+    .join(" ");
+}
+
 /** Fisher–Yates shuffle (copy). */
 function shuffleArray(items) {
   const a = items.slice();
@@ -956,10 +965,14 @@ function renderDrillsPractice() {
   for (const dt of DRILL_ORDER) {
     const set = drills.drill_sets[dt];
     if (!set || !set.drills?.length) continue;
+    const section = document.createElement("section");
+    section.className = "drill-type-section";
+    section.setAttribute("aria-labelledby", `drill-type-head-${dt}`);
     const h = document.createElement("h3");
     h.className = "drill-type-title";
-    h.textContent = humanizeKey(dt);
-    form.appendChild(h);
+    h.id = `drill-type-head-${dt}`;
+    h.textContent = humanizeKeyTitle(dt);
+    section.appendChild(h);
     set.drills.forEach((d, i) => {
       const block = document.createElement("div");
       block.className = "question-block";
@@ -993,8 +1006,9 @@ function renderDrillsPractice() {
         inp.setAttribute("aria-label", `Answer for: ${d.prompt.slice(0, 80)}`);
         block.appendChild(inp);
       }
-      form.appendChild(block);
+      section.appendChild(block);
     });
+    form.appendChild(section);
   }
   const btn = document.createElement("button");
   btn.type = "submit";
@@ -1064,15 +1078,28 @@ function showResultsDrills(res) {
     );
   }
 
+  /** @type {Record<string, object>} */
+  const setsByType = {};
   for (const set of md.marked_drill_sets || []) {
-    const dt = set.drill_type;
+    const k = set.drill_type;
+    if (k != null) setsByType[k] = set;
+  }
+
+  for (const dt of DRILL_ORDER) {
+    const set = setsByType[dt];
+    if (!set || !set.marked_drills?.length) continue;
+
+    const section = document.createElement("section");
+    section.className = "drill-type-section";
+    section.setAttribute("aria-labelledby", `drill-feedback-head-${dt}`);
     const typeH = document.createElement("h3");
-    typeH.textContent = humanizeKey(dt);
-    typeH.style.marginTop = "1.25rem";
-    fb.appendChild(typeH);
+    typeH.className = "drill-type-title";
+    typeH.id = `drill-feedback-head-${dt}`;
+    typeH.textContent = humanizeKeyTitle(dt);
+    section.appendChild(typeH);
 
     let qIdx = 0;
-    for (const row of set.marked_drills || []) {
+    for (const row of set.marked_drills) {
       qIdx += 1;
       const card = document.createElement("div");
       card.className = "reading-q-card";
@@ -1117,8 +1144,9 @@ function showResultsDrills(res) {
         card.appendChild(elBlock(commentStr));
       }
 
-      fb.appendChild(card);
+      section.appendChild(card);
     }
+    fb.appendChild(section);
   }
 
   root.appendChild(fb);
