@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from src.infrastructure.llm.contracts.shared import TextCorrection
+from src.infrastructure.llm.contracts.text_correction import TextCorrection
 
 class ReadingGeneration(BaseModel):
     passage: str

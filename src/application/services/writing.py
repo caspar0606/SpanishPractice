@@ -3,8 +3,8 @@ from src.application.services.progress import save_user_progress
 from src.domain.models.exercise import ExerciseContext
 from src.domain.models.progress import Progress
 from src.infrastructure.llm.contracts.writing import WritingSummary
-from src.infrastructure.llm.contracts.shared import TextCorrection
 from src.infrastructure.llm.contracts.shared import AgentInputs, AgentNames
+from src.infrastructure.llm.contracts.text_correction import TextCorrection
 from src.infrastructure.llm.prompts.writing import w_progress_tagging_system_prompt, w_text_correction_system_prompt, \
                                                     w_instruction_system_prompt, w_summary_system_prompt
 from src.infrastructure.llm.harness import agent_inputs, agent_run, response_format
