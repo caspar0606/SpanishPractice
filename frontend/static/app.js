@@ -44,6 +44,14 @@ const DRILL_ORDER = [
   "option_selection",
 ];
 
+/** Short line shown under the progress count for each drill step. */
+const DRILL_STEP_BLURB = {
+  sentence_completion: "fill the gap in each sentence.",
+  translate: "translate each prompt into Spanish.",
+  error_correction: "fix the mistake in each sentence.",
+  option_selection: "choose the best answer for each question.",
+};
+
 /** @type {{ exercise: object | null, writingPrompt: string | null, readingPrompt: object | null, drills: object | null }} */
 const state = {
   exercise: null,
@@ -960,14 +968,52 @@ function renderDrillsPractice() {
   const root = document.getElementById("practice-root");
   const drills = state.drills;
   root.innerHTML = "";
+  const typesPresent = DRILL_ORDER.filter(
+    (dt) => drills.drill_sets[dt]?.drills?.length,
+  );
+  if (typesPresent.length === 0) {
+    root.textContent = "No drills loaded.";
+    return;
+  }
+
   const form = document.createElement("form");
   form.id = "form-drills";
-  for (const dt of DRILL_ORDER) {
+  form.className = "form-drills-wizard";
+
+  const progressRow = document.createElement("div");
+  progressRow.className = "drill-progress-row";
+  progressRow.setAttribute("aria-live", "polite");
+  const countEl = document.createElement("span");
+  countEl.className = "drill-progress-count";
+  countEl.id = "drill-progress-count";
+  const descEl = document.createElement("p");
+  descEl.className = "drill-progress-label";
+  descEl.id = "drill-progress-desc";
+  progressRow.appendChild(countEl);
+  progressRow.appendChild(descEl);
+
+  const bar = document.createElement("div");
+  bar.className = "drill-progress-bar";
+  bar.setAttribute("role", "progressbar");
+  bar.setAttribute("aria-valuemin", "1");
+  bar.setAttribute("aria-valuemax", String(typesPresent.length));
+  bar.setAttribute("aria-labelledby", "drill-progress-desc");
+  const fill = document.createElement("div");
+  fill.className = "drill-progress-fill";
+  fill.id = "drill-progress-fill";
+  bar.appendChild(fill);
+
+  const pagesWrap = document.createElement("div");
+  pagesWrap.className = "drill-wizard-pages";
+
+  for (let si = 0; si < typesPresent.length; si++) {
+    const dt = typesPresent[si];
     const set = drills.drill_sets[dt];
-    if (!set || !set.drills?.length) continue;
     const section = document.createElement("section");
-    section.className = "drill-type-section";
+    section.className = "drill-type-section drill-wizard-page";
+    if (si === 0) section.classList.add("is-active");
     section.setAttribute("aria-labelledby", `drill-type-head-${dt}`);
+    section.setAttribute("aria-hidden", si === 0 ? "false" : "true");
     const h = document.createElement("h3");
     h.className = "drill-type-title";
     h.id = `drill-type-head-${dt}`;
@@ -1008,15 +1054,75 @@ function renderDrillsPractice() {
       }
       section.appendChild(block);
     });
-    form.appendChild(section);
+    pagesWrap.appendChild(section);
   }
-  const btn = document.createElement("button");
-  btn.type = "submit";
-  btn.className = "btn btn-primary";
-  btn.innerHTML = '<span class="btn-label">Submit drills</span>';
-  form.appendChild(btn);
+
+  const nav = document.createElement("div");
+  nav.className = "drill-wizard-nav";
+  const btnBack = document.createElement("button");
+  btnBack.type = "button";
+  btnBack.className = "btn btn-secondary";
+  btnBack.textContent = "Back";
+  const btnNext = document.createElement("button");
+  btnNext.type = "button";
+  btnNext.className = "btn btn-primary";
+  btnNext.textContent = "Next";
+  const submitBtn = document.createElement("button");
+  submitBtn.type = "submit";
+  submitBtn.className = "btn btn-primary";
+  submitBtn.innerHTML = '<span class="btn-label">Submit drills</span>';
+
+  nav.appendChild(btnBack);
+  nav.appendChild(btnNext);
+  nav.appendChild(submitBtn);
+
+  form.appendChild(progressRow);
+  form.appendChild(bar);
+  form.appendChild(pagesWrap);
+  form.appendChild(nav);
+
+  let step = 0;
+  const n = typesPresent.length;
+
+  function syncWizard() {
+    countEl.textContent = `${step + 1}/${n}`;
+    const dt = typesPresent[step];
+    const title = humanizeKeyTitle(dt);
+    const blurb = DRILL_STEP_BLURB[dt] || "";
+    descEl.innerHTML = `<strong>${escapeHtml(title)}</strong> — ${escapeHtml(blurb)}`;
+    fill.style.width = `${((step + 1) / n) * 100}%`;
+    bar.setAttribute("aria-valuenow", String(step + 1));
+
+    const pages = pagesWrap.querySelectorAll(".drill-wizard-page");
+    pages.forEach((el, j) => {
+      const on = j === step;
+      el.classList.toggle("is-active", on);
+      el.setAttribute("aria-hidden", on ? "false" : "true");
+    });
+
+    btnBack.disabled = step === 0;
+    const last = step === n - 1;
+    btnNext.hidden = last;
+    submitBtn.hidden = !last;
+  }
+
+  btnBack.addEventListener("click", () => {
+    if (step > 0) {
+      step -= 1;
+      syncWizard();
+    }
+  });
+
+  btnNext.addEventListener("click", () => {
+    if (step < n - 1) {
+      step += 1;
+      syncWizard();
+    }
+  });
+
   form.addEventListener("submit", onDrillsSubmit);
   root.appendChild(form);
+  syncWizard();
 }
 
 function collectDrillResponses() {
@@ -1060,7 +1166,7 @@ function showResultsDrills(res) {
   const root = document.getElementById("practice-root");
   root.innerHTML = "";
   const fb = document.createElement("div");
-  fb.className = "feedback-block";
+  fb.className = "feedback-block drill-results-feedback";
   const md = res.marked_drills;
 
   const hTitle = document.createElement("h3");
@@ -1085,12 +1191,16 @@ function showResultsDrills(res) {
     if (k != null) setsByType[k] = set;
   }
 
+  const grid = document.createElement("div");
+  grid.className = "drill-feedback-grid";
+  grid.setAttribute("aria-label", "Drill feedback by type");
+
   for (const dt of DRILL_ORDER) {
     const set = setsByType[dt];
     if (!set || !set.marked_drills?.length) continue;
 
     const section = document.createElement("section");
-    section.className = "drill-type-section";
+    section.className = "drill-type-section drill-feedback-tile";
     section.setAttribute("aria-labelledby", `drill-feedback-head-${dt}`);
     const typeH = document.createElement("h3");
     typeH.className = "drill-type-title";
@@ -1146,7 +1256,11 @@ function showResultsDrills(res) {
 
       section.appendChild(card);
     }
-    fb.appendChild(section);
+    grid.appendChild(section);
+  }
+
+  if (grid.children.length) {
+    fb.appendChild(grid);
   }
 
   root.appendChild(fb);

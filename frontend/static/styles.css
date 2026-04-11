@@ -105,6 +105,17 @@ body {
   padding: 1.75rem 1.25rem 3.5rem;
 }
 
+/* Drills: extra horizontal room for many questions (practice + results). */
+.site-main:has(#panel-practice .form-drills-wizard),
+.site-main:has(#panel-practice .drill-results-feedback) {
+  max-width: min(76rem, calc(100vw - 2.5rem));
+}
+
+#panel-practice.card.panel:has(.form-drills-wizard),
+#panel-practice.card.panel:has(.drill-results-feedback) {
+  padding: 1.85rem 2rem 2rem;
+}
+
 .hero-shelf {
   position: relative;
   overflow: hidden;
@@ -855,10 +866,122 @@ label.choice-inline {
   margin-bottom: 0.85rem;
 }
 
-#form-drills .drill-type-section + .drill-type-section {
+#form-drills:not(.form-drills-wizard) .drill-type-section + .drill-type-section {
   margin-top: 1.35rem;
   padding-top: 1.35rem;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+#form-drills.form-drills-wizard .drill-type-section {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
+}
+
+.drill-progress-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.drill-progress-count {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: var(--teal);
+  letter-spacing: -0.02em;
+  min-width: 3.5rem;
+}
+
+.drill-progress-label {
+  flex: 1;
+  min-width: 12rem;
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--ink-soft);
+}
+
+.drill-progress-label strong {
+  color: #cbffe9;
+  font-weight: 600;
+}
+
+.drill-progress-bar {
+  width: 100%;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  margin-bottom: 1.25rem;
+}
+
+.drill-progress-fill {
+  height: 100%;
+  width: 25%;
+  border-radius: inherit;
+  background: linear-gradient(
+    90deg,
+    rgba(59, 216, 255, 0.95) 0%,
+    rgba(129, 244, 191, 0.95) 100%
+  );
+  transition: width 0.3s ease;
+}
+
+.drill-wizard-page:not(.is-active) {
+  display: none !important;
+}
+
+.drill-wizard-nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.drill-wizard-nav .btn[hidden] {
+  display: none !important;
+}
+
+.feedback-block.drill-results-feedback .drill-feedback-grid {
+  margin-top: 1rem;
+}
+
+.drill-feedback-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.drill-feedback-tile {
+  margin: 0 !important;
+  padding: 1.75rem 2rem 2.25rem !important;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.04);
+  box-shadow: var(--shadow);
+}
+
+.drill-feedback-tile .drill-type-title {
+  margin-top: 0;
+  font-size: 1.12rem;
+}
+
+.drill-feedback-tile .reading-q-card {
+  padding: 1.2rem 1.35rem 1.35rem;
+  margin-bottom: 1.35rem;
+}
+
+.drill-feedback-tile .reading-q-card:last-child {
+  margin-bottom: 0;
 }
 
 .feedback-block > .drill-type-section {

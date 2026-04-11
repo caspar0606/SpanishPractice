@@ -50,6 +50,15 @@ Then open:
 - **API docs:** http://127.0.0.1:8000/docs
 - **Health:** http://127.0.0.1:8000/health
 
+### Static mockups (optional previews)
+
+With the server running, these load the same `/static/` assets as the app (no API calls):
+
+- **Style lab** (links to reading mockups): http://127.0.0.1:8000/static/mockups/index.html
+- **Reading results — stacked cards:** http://127.0.0.1:8000/static/mockups/reading-results-cards.html
+- **Reading results — tabs:** http://127.0.0.1:8000/static/mockups/reading-results-tabs.html
+- **Drills — stepped practice + full-width results:** http://127.0.0.1:8000/static/mockups/drills-wizard-feedback-grid.html
+
 ### Typical user flow (UI)
 
 1. **Log in** — username, `ACCESS_KEY`, optional “new user” on first visit.

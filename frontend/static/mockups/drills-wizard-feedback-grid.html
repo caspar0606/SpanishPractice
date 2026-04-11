@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Mock: Drills — stepped practice + grid feedback</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap"
+    />
+    <style>
+      /* Mock-only: drills stepped flow + feedback mosaic */
+      .mock-nav {
+        max-width: 56rem;
+        margin: 0 auto;
+        padding: 1rem 1.25rem 0;
+        font-size: 0.92rem;
+        color: var(--ink-soft);
+      }
+      .mock-nav a {
+        color: var(--teal);
+        text-decoration: none;
+      }
+      .mock-nav a:hover {
+        text-decoration: underline;
+      }
+
+      .mock-wide {
+        max-width: min(76rem, calc(100vw - 2.5rem));
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      /* —— Practice wizard —— */
+      .drill-wizard {
+        position: relative;
+      }
+
+      .drill-progress-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin-bottom: 1.15rem;
+      }
+
+      .drill-progress-count {
+        font-family: var(--font-display);
+        font-size: 1.35rem;
+        font-weight: 600;
+        color: var(--teal);
+        letter-spacing: -0.02em;
+        min-width: 3.5rem;
+      }
+
+      .drill-progress-label {
+        flex: 1;
+        min-width: 12rem;
+        font-size: 0.95rem;
+        color: var(--ink-soft);
+      }
+
+      .drill-progress-label strong {
+        color: #cbffe9;
+        font-weight: 600;
+      }
+
+      .drill-progress-bar {
+        width: 100%;
+        height: 10px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid var(--border);
+        overflow: hidden;
+        margin-bottom: 1.25rem;
+      }
+
+      .drill-progress-fill {
+        height: 100%;
+        width: 25%;
+        border-radius: inherit;
+        background: linear-gradient(
+          90deg,
+          rgba(59, 216, 255, 0.95) 0%,
+          rgba(129, 244, 191, 0.95) 100%
+        );
+        transition: width 0.35s ease;
+      }
+
+      .drill-wizard-pages {
+        position: relative;
+        min-height: 12rem;
+      }
+
+      .drill-wizard-page {
+        display: none;
+        animation: mockFade 0.25s ease;
+      }
+
+      .drill-wizard-page.is-active {
+        display: block;
+      }
+
+      @keyframes mockFade {
+        from {
+          opacity: 0;
+          transform: translateY(4px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .drill-wizard-nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 0.75rem;
+        margin-top: 1.5rem;
+        padding-top: 1.25rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .drill-wizard-hint {
+        font-size: 0.86rem;
+        color: var(--ink-soft);
+        margin: 0;
+      }
+
+      /* —— Feedback: full-width stacked cards (room for many questions) —— */
+      .drill-feedback-shell {
+        margin-top: 2.5rem;
+      }
+
+      .drill-feedback-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+        align-items: start;
+      }
+
+      .drill-feedback-tile {
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        background: rgba(255, 255, 255, 0.04);
+        box-shadow: var(--shadow);
+        padding: 1.75rem 2rem 2.25rem;
+      }
+
+      .drill-feedback-tile-head {
+        margin: 0 0 0.75rem;
+        padding-bottom: 0.55rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        font-family: var(--font-display);
+        font-size: 1.05rem;
+        color: #cbffe9;
+      }
+
+      .drill-feedback-mini {
+        margin-bottom: 1rem;
+        padding-bottom: 0.85rem;
+        border-bottom: 1px dashed rgba(255, 255, 255, 0.08);
+      }
+
+      .drill-feedback-mini:last-child {
+        margin-bottom: 0;
+        padding-bottom: 0;
+        border-bottom: none;
+      }
+
+      .drill-feedback-mini h5 {
+        margin: 0 0 0.4rem;
+        font-size: 0.82rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #bafde1;
+      }
+
+      .drill-feedback-mini .passage {
+        margin: 0;
+        font-size: 0.95rem;
+        line-height: 1.5;
+      }
+
+      .drill-feedback-legend {
+        font-size: 0.78rem;
+        color: var(--ink-soft);
+        margin: 0 0 0.35rem;
+      }
+
+      /* Match production inputs; keep textarea shorter in the demo */
+      .mock-textarea-compact {
+        min-height: 6.5rem;
+      }
+
+      .mock-passage-issue {
+        border-left: 3px solid var(--coral);
+      }
+
+      .mock-q-label {
+        margin: 0 0 0.5rem;
+        color: var(--ink-soft);
+        font-size: 0.88rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        font-weight: 600;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="site-header-inner">
+        <span class="site-mark" aria-hidden="true">ES</span>
+        <div>
+          <p class="site-brand">Spanish Practice</p>
+          <p class="site-tagline">Mock: drills — one type per step · grid results</p>
+        </div>
+      </div>
+    </header>
+
+    <main class="site-main mock-wide">
+      <p class="mock-nav">
+        <a href="./index.html">← Style lab index</a>
+        · Static preview only; wire into <code>app.js</code> after sign-off.
+      </p>
+
+      <!-- —— A: Practice (one drill type “page” at a time) —— -->
+      <section class="panel card">
+        <h2 class="panel-title">Drills — practice</h2>
+        <p class="panel-lead">
+          One drill <strong>type</strong> per screen (sentence completion → translate → error correction →
+          option selection). Progress uses a bar plus <strong>step count</strong> (e.g. 2/4) so the
+          session feels bounded, not endless.
+        </p>
+
+        <div class="drill-wizard" id="drill-wizard-demo">
+          <div class="drill-progress-row" aria-live="polite">
+            <span class="drill-progress-count" id="drill-step-count">1/4</span>
+            <p class="drill-progress-label" id="drill-step-desc">
+              <strong>Sentence completion</strong> — fill the gap in each sentence.
+            </p>
+          </div>
+          <div
+            class="drill-progress-bar"
+            role="progressbar"
+            aria-valuemin="1"
+            aria-valuemax="4"
+            aria-valuenow="1"
+            aria-labelledby="drill-step-desc"
+            id="drill-progress-bar"
+          >
+            <div class="drill-progress-fill" id="drill-progress-fill"></div>
+          </div>
+
+          <div class="drill-wizard-pages">
+            <div class="drill-wizard-page is-active" data-step="0" aria-hidden="false">
+              <div class="question-block">
+                <p class="mock-q-label">Question 1</p>
+                <p class="passage">
+                  Mañana voy al mercado ___ comprar verduras frescas.
+                </p>
+                <label for="mock-sc1">Your answer</label>
+                <input id="mock-sc1" type="text" placeholder="one word" />
+              </div>
+              <div class="question-block">
+                <p class="mock-q-label">Question 2</p>
+                <p class="passage">Ella estudia ___ que apruebe el examen.</p>
+                <label for="mock-sc2">Your answer</label>
+                <input id="mock-sc2" type="text" placeholder="one word" />
+              </div>
+            </div>
+
+            <div class="drill-wizard-page" data-step="1" aria-hidden="true">
+              <div class="question-block">
+                <p class="mock-q-label">Question 1</p>
+                <p class="passage">Translate: “We used to live near the coast.”</p>
+                <label for="mock-tr1">Your answer</label>
+                <textarea class="mock-textarea-compact" id="mock-tr1" rows="4"></textarea>
+              </div>
+            </div>
+
+            <div class="drill-wizard-page" data-step="2" aria-hidden="true">
+              <div class="question-block">
+                <p class="mock-q-label">Question 1</p>
+                <p class="passage mock-passage-issue">Yo no sé nada de matemáticas.</p>
+                <p class="hint">Correct the mistake.</p>
+                <label for="mock-ec1">Your answer</label>
+                <input id="mock-ec1" type="text" />
+              </div>
+            </div>
+
+            <div class="drill-wizard-page" data-step="3" aria-hidden="true">
+              <div class="question-block">
+                <p class="mock-q-label">Question 1</p>
+                <p class="passage">¿Cuál es el tema principal del texto?</p>
+                <ul class="option-list" role="radiogroup" aria-label="Choose one">
+                  <li>
+                    <label>
+                      <input type="radio" name="mock-opt" value="a" required />
+                      La historia del autor
+                    </label>
+                  </li>
+                  <li>
+                    <label>
+                      <input type="radio" name="mock-opt" value="b" />
+                      El impacto del cambio climático
+                    </label>
+                  </li>
+                  <li>
+                    <label>
+                      <input type="radio" name="mock-opt" value="c" />
+                      Las tradiciones locales
+                    </label>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="drill-wizard-nav">
+            <button type="button" class="btn btn-secondary" id="drill-btn-back" disabled>
+              Back
+            </button>
+            <p class="drill-wizard-hint">Demo: use Next to move between types.</p>
+            <button type="button" class="btn btn-primary" id="drill-btn-next">Next</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- —— B: Results (one large card per drill type, full width) —— -->
+      <section class="panel card drill-feedback-shell">
+        <h2 class="panel-title">Drills — your results</h2>
+        <p class="panel-lead">
+          After submit, each drill <strong>type</strong> appears in its own wide card so there is room for
+          <strong>many questions</strong> without cramming the layout.
+        </p>
+
+        <div class="drill-feedback-grid" aria-label="Drill feedback by type">
+          <article class="drill-feedback-tile">
+            <h3 class="drill-feedback-tile-head">Sentence completion</h3>
+            <div class="drill-feedback-tile-body">
+              <div class="drill-feedback-mini">
+                <h5>Question 1</h5>
+                <p class="drill-feedback-legend">Your answer</p>
+                <p class="passage">para</p>
+                <p class="drill-feedback-legend">Correct answer</p>
+                <p class="passage">para</p>
+                <p class="drill-feedback-legend">Comment</p>
+                <p class="passage">Natural use of purpose clause.</p>
+              </div>
+              <div class="drill-feedback-mini">
+                <h5>Question 2</h5>
+                <p class="drill-feedback-legend">Your answer</p>
+                <p class="passage">para</p>
+                <p class="drill-feedback-legend">Correct answer</p>
+                <p class="passage">para que</p>
+                <p class="drill-feedback-legend">Comment</p>
+                <p class="passage">Subjunctive clause needs “para que”.</p>
+              </div>
+            </div>
+          </article>
+
+          <article class="drill-feedback-tile">
+            <h3 class="drill-feedback-tile-head">Translate</h3>
+            <div class="drill-feedback-tile-body">
+              <div class="drill-feedback-mini">
+                <h5>Question 1</h5>
+                <p class="drill-feedback-legend">Your answer</p>
+                <p class="passage">Solíamos vivir cerca de la costa.</p>
+                <p class="drill-feedback-legend">Correct answer</p>
+                <p class="passage">Solíamos vivir cerca de la costa.</p>
+              </div>
+            </div>
+          </article>
+
+          <article class="drill-feedback-tile">
+            <h3 class="drill-feedback-tile-head">Error correction</h3>
+            <div class="drill-feedback-tile-body">
+              <div class="drill-feedback-mini">
+                <h5>Question 1</h5>
+                <p class="drill-feedback-legend">Your answer</p>
+                <p class="passage">Yo no sé nada de matemática.</p>
+                <p class="drill-feedback-legend">Correct answer</p>
+                <p class="passage">No sé nada de matemáticas.</p>
+                <p class="drill-feedback-legend">Comment</p>
+                <p class="passage">Agreement and more natural omission of subject.</p>
+              </div>
+            </div>
+          </article>
+
+          <article class="drill-feedback-tile">
+            <h3 class="drill-feedback-tile-head">Option selection</h3>
+            <div class="drill-feedback-tile-body">
+              <div class="drill-feedback-mini">
+                <h5>Question 1</h5>
+                <p class="drill-feedback-legend">Your answer</p>
+                <p class="passage">El impacto del cambio climático</p>
+                <p class="drill-feedback-legend">Correct answer</p>
+                <p class="passage">El impacto del cambio climático</p>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      (function () {
+        const steps = [
+          {
+            title: "Sentence completion",
+            blurb: "fill the gap in each sentence.",
+            pct: 25,
+          },
+          {
+            title: "Translate",
+            blurb: "translate each prompt into Spanish.",
+            pct: 50,
+          },
+          {
+            title: "Error correction",
+            blurb: "fix the mistake in each sentence.",
+            pct: 75,
+          },
+          {
+            title: "Option selection",
+            blurb: "choose the best answer for each question.",
+            pct: 100,
+          },
+        ];
+
+        const pages = document.querySelectorAll(".drill-wizard-page");
+        const fill = document.getElementById("drill-progress-fill");
+        const bar = document.getElementById("drill-progress-bar");
+        const countEl = document.getElementById("drill-step-count");
+        const descEl = document.getElementById("drill-step-desc");
+        const btnBack = document.getElementById("drill-btn-back");
+        const btnNext = document.getElementById("drill-btn-next");
+
+        let i = 0;
+
+        function render() {
+          const n = i + 1;
+          countEl.textContent = n + "/" + steps.length;
+          descEl.innerHTML =
+            "<strong>" +
+            steps[i].title +
+            "</strong> — " +
+            steps[i].blurb;
+          fill.style.width = steps[i].pct + "%";
+          bar.setAttribute("aria-valuenow", String(n));
+          btnBack.disabled = i === 0;
+          btnNext.textContent = i === steps.length - 1 ? "Submit drills" : "Next";
+
+          pages.forEach(function (p, j) {
+            var on = j === i;
+            p.classList.toggle("is-active", on);
+            p.setAttribute("aria-hidden", on ? "false" : "true");
+          });
+        }
+
+        btnBack.addEventListener("click", function () {
+          if (i > 0) {
+            i -= 1;
+            render();
+          }
+        });
+
+        btnNext.addEventListener("click", function () {
+          if (i < steps.length - 1) {
+            i += 1;
+            render();
+          } else {
+            document.querySelector(".drill-feedback-shell")?.scrollIntoView({
+              behavior: "smooth",
+              block: "start",
+            });
+          }
+        });
+
+        render();
+      })();
+    </script>
+  </body>
+</html>
