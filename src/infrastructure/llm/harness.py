@@ -65,10 +65,3 @@ def agent_inputs(
         stimulus=stimulus,
         input_text=input
     )
-
-def call_agent(system_prompt: str, exercise_context: ExerciseContext, 
-               schema: type[T], stimulus: Any | None, input: Any | None):
-    
-    inputs = agent_inputs(None, system_prompt, exercise_context, schema, stimulus, input)
-
-    return response_format(inputs, schema)

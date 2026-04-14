@@ -82,7 +82,7 @@ def text_correction(user_response: list[str], exercise_context: ExerciseContext,
 
 def question_marking(user_responses: list[str], reading_prompt: ReadingGeneration, exercise_context: ExerciseContext):
 
-    agent_input = agent_inputs(AgentNames.READING_MARKING, r_answer_system_prompt, 
+    agent_input = agent_inputs(AgentNames.READING_MARKING, system_prompt=r_answer_system_prompt, schema=QuestionMarking,
                                exercise_context=exercise_context, stimulus=reading_prompt, input=user_responses)
 
     return response_format(agent_input, QuestionMarking)
