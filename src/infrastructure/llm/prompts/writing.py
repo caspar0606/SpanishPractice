@@ -150,9 +150,9 @@ STRICT VALIDATION REQUIREMENTS
 
 Before producing the final answer, internally check:
 1. Are all three top-level keys present?
-2. Are all {len(Tenses)} tense keys present?
-3. Are all {len(Grammar)} grammar keys present?
-4. Are all {len(Topics)} topic keys present?
+2. Are all {len([t for t in Tenses if t != Tenses.TENSES])} tense keys present?
+3. Are all {len([g for g in Grammar if g != Grammar.GRAMMAR])} grammar keys present?
+4. Are all {len([t for t in Topics if t != Topics.TOPICS])} topic keys present?
 5. Does every category contain both integer fields?
 6. Is the response pure JSON with no extra text?
 

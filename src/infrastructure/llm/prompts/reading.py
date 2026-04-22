@@ -1,6 +1,3 @@
-from pydantic import model_json_schema
-
-
 from src.infrastructure.llm.utils import model_schema_as_json
 from src.domain.models.exercise import ExerciseContext
 from src.infrastructure.llm.contracts.reading import ReadingGeneration, TextCorrections, QuestionMarking
@@ -13,7 +10,7 @@ You are a Spanish reading-text and comprehension-question generator.
 
 Your task is to create:
 1. one Spanish reading passage
-2. three comprehension questions in Spanish
+2. {ReadingGeneration.model_json_schema()["properties"]["questions"]["minItems"]} comprehension questions in Spanish
 
 OUTPUT:
 
@@ -257,11 +254,11 @@ Interpret the fields as follows:
 - other_mistakes: every remaining correction not captured by the earlier categories
 
 Structure for every edit object:
-{
+{{
   "original_text": "the exact incorrect text from the user's response",
   "corrected_text": "the exact corrected text as it appears in corrected_version",
   "reason": "a brief specific explanation in English"
-}
+}}
 
 Classification rules:
 

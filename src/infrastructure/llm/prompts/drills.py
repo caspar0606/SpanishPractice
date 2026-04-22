@@ -295,7 +295,7 @@ No explanation.
 No surrounding text.
 """
 
-d_translation_generator_system_prompt =f""""
+d_translation_generator_system_prompt =f"""
 You are a Spanish drill generation system.
 
 Your task is to generate an English-to-Spanish translation exercise for a learner of Spanish as a foreign language.
