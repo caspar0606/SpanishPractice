@@ -5,8 +5,7 @@ from src.domain.models.progress import Progress
 from src.infrastructure.llm.contracts.writing import WritingSummary
 from src.infrastructure.llm.contracts.shared import AgentInputs, AgentNames
 from src.infrastructure.llm.contracts.text_correction import TextCorrection
-from src.infrastructure.llm.prompts.writing import w_progress_tagging_system_prompt, w_text_correction_system_prompt, \
-                                                    w_instruction_system_prompt, w_summary_system_prompt
+from src.infrastructure.llm.prompts.writing import WRITING_PROMPT_CONFIG
 from src.infrastructure.llm.harness import agent_inputs, agent_run, response_format
 from src.infrastructure.persistence.file_storage import save_user_state
 from src.infrastructure.persistence.user_storage import user_exercise_cache
@@ -49,7 +48,7 @@ def create_instructions(exercise_context: ExerciseContext):
 
     agent_input = AgentInputs(
         name=AgentNames.WRITING_INSTRUCTIONS,
-        system_prompt=w_instruction_system_prompt,
+        system_prompt=WRITING_PROMPT_CONFIG[AgentNames.WRITING_INSTRUCTIONS],
         exercise_context=exercise_context
     )
 
@@ -58,21 +57,21 @@ def create_instructions(exercise_context: ExerciseContext):
 
 def progress_tagging(user_response: str, exercise_context: ExerciseContext):
 
-    agent_input = agent_inputs(name=AgentNames.WRITING_TAGGING, system_prompt=w_progress_tagging_system_prompt, 
+    agent_input = agent_inputs(name=AgentNames.WRITING_TAGGING, system_prompt=WRITING_PROMPT_CONFIG[AgentNames.WRITING_TAGGING], 
                                exercise_context=exercise_context, input=user_response, schema=Progress)
 
     return response_format(agent_input, Progress)
 
 def text_correction(user_response: str, exercise_context: ExerciseContext, writing_instruction: str):
 
-    agent_input = agent_inputs(AgentNames.WRITING_CORRECTOR, system_prompt=w_text_correction_system_prompt, 
+    agent_input = agent_inputs(AgentNames.WRITING_CORRECTOR, system_prompt=WRITING_PROMPT_CONFIG[AgentNames.WRITING_CORRECTOR], 
                                exercise_context=exercise_context, schema=TextCorrection, stimulus=writing_instruction,input=user_response)
 
     return response_format(agent_input, TextCorrection)
 
 def correction_summary(edits: TextCorrection, exercise_context: ExerciseContext, exercise_counts: Progress):
 
-    agent_input = agent_inputs(name=AgentNames.WRITING_SUMMARY, system_prompt=w_summary_system_prompt,exercise_context=exercise_context,
-        schema=WritingSummary, stimulus=[edits.model_dump_json(), exercise_counts.model_dump_json()])
+    agent_input = agent_inputs(name=AgentNames.WRITING_SUMMARY, system_prompt=WRITING_PROMPT_CONFIG[AgentNames.WRITING_SUMMARY],exercise_context=exercise_context,
+        schema=WritingSummary, stimulus=[edits, exercise_counts])
 
     return response_format(agent_input, WritingSummary)
