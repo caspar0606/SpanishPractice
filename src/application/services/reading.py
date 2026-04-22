@@ -66,7 +66,7 @@ def create_text(exercise_context: ExerciseContext):
 
 def response_tagging(user_responses: list[str], reading_prompt: ReadingGeneration, exercise_context: ExerciseContext):
 
-    agent_input = agent_inputs(AgentNames.WRITING_TAGGING, system_prompt=r_progress_tagging_system_prompt, exercise_context=exercise_context,
+    agent_input = agent_inputs(AgentNames.READING_TAGGING, system_prompt=r_progress_tagging_system_prompt, exercise_context=exercise_context,
                                input=user_responses, schema=Progress, stimulus=reading_prompt)
 
     return response_format(agent_input, Progress)
@@ -74,7 +74,7 @@ def response_tagging(user_responses: list[str], reading_prompt: ReadingGeneratio
 
 def text_correction(user_response: list[str], exercise_context: ExerciseContext, writing_instruction: str):
 
-    agent_input = agent_inputs(AgentNames.WRITING_CORRECTOR, system_prompt=r_text_correction_system_prompt, 
+    agent_input = agent_inputs(AgentNames.READING_CORRECTOR, system_prompt=r_text_correction_system_prompt, 
                                exercise_context=exercise_context, schema=TextCorrections, stimulus=writing_instruction,input=user_response)
 
     return response_format(agent_input, TextCorrections)
@@ -82,7 +82,7 @@ def text_correction(user_response: list[str], exercise_context: ExerciseContext,
 
 def question_marking(user_responses: list[str], reading_prompt: ReadingGeneration, exercise_context: ExerciseContext):
 
-    agent_input = agent_inputs(AgentNames.READING_MARKING, system_prompt=r_answer_system_prompt, schema=QuestionMarking,
+    agent_input = agent_inputs(AgentNames.READING_SUMMARY, system_prompt=r_answer_system_prompt, schema=QuestionMarking,
                                exercise_context=exercise_context, stimulus=reading_prompt, input=user_responses)
 
     return response_format(agent_input, QuestionMarking)

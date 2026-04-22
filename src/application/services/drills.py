@@ -3,7 +3,8 @@ from src.application.services.progress import build_drill_progress_update, save_
 from src.domain.enums import DrillTypes
 from src.domain.models.exercise import ExerciseContext
 from src.domain.rules.config import QUESTION_NUMBER_CONFIG
-from src.infrastructure.llm.contracts.drills import DrillMarkingSet, Drills, MarkedDrills, UserDrillResponses, DrillSet
+from src.infrastructure.llm.contracts.drills import DrillMarkingSet, Drills, MarkedDrills, UserDrillResponses, DrillSet, \
+                                                    DRILL_GENERATE_TYPE_CONFIG, DRILL_MARKING_TYPE_CONFIG
 from src.infrastructure.llm.contracts.shared import AgentNames
 from src.infrastructure.llm.prompts.drills import DRILLS_PROMPT_CONFIG
 from src.infrastructure.llm.harness import agent_inputs, response_format
@@ -180,7 +181,7 @@ def create_drill_set(exercise_context: ExerciseContext, question_set: dict, dril
         A DrillSet object including drill question, correct answer, and [options].
     """
     
-    agent_input = agent_inputs(name=AgentNames.SENTENCE_COMPLETION_GENERATOR, 
+    agent_input = agent_inputs(name=DRILL_GENERATE_TYPE_CONFIG[drill_type], 
                                system_prompt=DRILLS_PROMPT_CONFIG[drill_type]["generate"],
                                exercise_context=exercise_context,
                                schema=DrillSet,
@@ -204,7 +205,7 @@ def mark_drill_set(user_response: list[str], drill_set: DrillSet,
         A marked drill including correct answers, user responses, and comments.
     """
     
-    agent_input = agent_inputs(name=AgentNames.SENTENCE_COMPLETION_GENERATOR, 
+    agent_input = agent_inputs(name=DRILL_MARKING_TYPE_CONFIG[drill_type], 
                                system_prompt=DRILLS_PROMPT_CONFIG[drill_type]["mark"],
                                exercise_context=exercise_context,
                                schema=DrillMarkingSet,

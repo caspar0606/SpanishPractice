@@ -31,7 +31,7 @@ def load_user_state(username: str):
     with user_file.open("r") as f:
         user_data = json.load(f)
 
-    user_data["history"] = user_data.get("history") or []
+    user_data["exercise_history"] = user_data.get("exercise_history") or []
     user_data["progress_history"] = user_data.get("progress_history") or []
 
     return User.model_validate(user_data)

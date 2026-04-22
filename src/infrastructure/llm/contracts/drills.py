@@ -4,6 +4,7 @@ from pydantic import BaseModel, Field, field_validator
 
 from src.domain.enums import DrillTypes
 from src.domain.models.progress import ComputeStats
+from src.infrastructure.llm.contracts.shared import AgentNames
 
 
 class DrillItem(BaseModel):
@@ -45,3 +46,17 @@ class MarkedDrills(BaseModel):
 
 class UserDrillResponses(BaseModel):
     responses: dict[DrillTypes, list[str]]
+
+DRILL_GENERATE_TYPE_CONFIG = {
+    DrillTypes.SENTENCE_COMPLETION: AgentNames.DRILLS_SENTENCE_COMPLETION_GENERATOR,
+    DrillTypes.TRANSLATION: AgentNames.DRILLS_TRANSLATION_GENERATOR,
+    DrillTypes.ERROR_CORRECTION: AgentNames.DRILLS_ERROR_CORRECTION_GENERATOR,
+    DrillTypes.OPTION_SELECTION: AgentNames.DRILLS_OPTION_SELECTION_GENERATOR,
+}
+
+DRILL_MARKING_TYPE_CONFIG = {
+    DrillTypes.SENTENCE_COMPLETION: AgentNames.DRILLS_SENTENCE_COMPLETION_MARKING,
+    DrillTypes.TRANSLATION: AgentNames.DRILLS_TRANSLATION_MARKING,
+    DrillTypes.ERROR_CORRECTION: AgentNames.DRILLS_ERROR_CORRECTION_MARKING,
+    DrillTypes.OPTION_SELECTION: AgentNames.DRILLS_OPTION_SELECTION_MARKING,
+}
