@@ -1,5 +1,5 @@
 from src.domain.enums import DrillTypes
-from src.domain.domain.models.exercise import ExerciseContext
+from src.domain.models.exercise import ExerciseContext
 from src.infrastructure.llm.contracts.drills import DrillSet, DrillMarkingSet
 from src.infrastructure.llm.utils import serialise_for_prompt
 
