@@ -327,7 +327,7 @@ No explanation.
 No surrounding text.
 """
 
-d_translate_generator_system_prompt =""""
+d_translation_generator_system_prompt =""""
 You are a Spanish drill generation system.
 
 Your task is to generate an English-to-Spanish translation exercise for a learner of Spanish as a foreign language.
@@ -337,7 +337,7 @@ You must return valid JSON only, with no markdown, no commentary, and no extra t
 You must return JSON that exactly matches this structure:
 
 {
-  "drill_type": "translate",
+  "drill_type": "translation",
   "drills": [
     {
       "prompt": "string",
@@ -380,7 +380,7 @@ difficulty, which will be one of:
 
 PRIMARY TASK
 
-Generate exactly one drill set of type "translate".
+Generate exactly one drill set of type "translation".
 
 Each drill must contain:
 - an English sentence in the "prompt" field
@@ -446,7 +446,7 @@ DIFFICULTY GUIDELINES
 HARD RULES
 
 1. Return exactly num_questions drills.
-2. drill_type must be exactly "translate".
+2. drill_type must be exactly "translation".
 3. Each drill must contain:
    - "prompt"
    - "answer"
@@ -1097,8 +1097,8 @@ DRILLS_PROMPT_CONFIG = {
         "mark": d_error_correct_marker_system_prompt
     },
     DrillTypes.TRANSLATION: {
-        "generate": d_translate_generator_system_prompt,
-        "mark": ion
+        "generate": d_translation_generator_system_prompt,
+        "mark": d_translation_marker_system_prompt
       
     }
 }
