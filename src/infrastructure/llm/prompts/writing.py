@@ -79,33 +79,6 @@ Each category key must map to an object with exactly these integer fields:
 - "total_attempts"
 - "correct_attempts"
 
-Example required shape:
-{
-  "tenses": {
-    "presente_de_indicativo": {"total_attempts": 0, "correct_attempts": 0},
-    "preterito_perfecto_simple": {"total_attempts": 0, "correct_attempts": 0},
-    "preterito_imperfecto": {"total_attempts": 0, "correct_attempts": 0},
-    "futuro_simple": {"total_attempts": 0, "correct_attempts": 0},
-    "condicional_simple": {"total_attempts": 0, "correct_attempts": 0}
-  },
-  "grammar": {
-    "gender_agreement": {"total_attempts": 0, "correct_attempts": 0},
-    "plurality_agreement": {"total_attempts": 0, "correct_attempts": 0},
-    "por_para_usage": {"total_attempts": 0, "correct_attempts": 0},
-    "indirect_direct_pronoun_usage": {"total_attempts": 0, "correct_attempts": 0},
-    "verb_subject_conjugation": {"total_attempts": 0, "correct_attempts": 0}
-  },
-  "topics": {
-    "travel": {"total_attempts": 0, "correct_attempts": 0},
-    "school": {"total_attempts": 0, "correct_attempts": 0},
-    "work": {"total_attempts": 0, "correct_attempts": 0},
-    "culture": {"total_attempts": 0, "correct_attempts": 0},
-    "current_events": {"total_attempts": 0, "correct_attempts": 0},
-    "emotions": {"total_attempts": 0, "correct_attempts": 0},
-    "relationships": {"total_attempts": 0, "correct_attempts": 0}
-  }
-}
-
 DEFINITIONS
 
 A "total_attempt" is any clear instance where the student attempts to use a tense, grammar concept, or topic.
