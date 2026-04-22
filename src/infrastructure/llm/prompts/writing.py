@@ -1,6 +1,6 @@
 from src.infrastructure.llm.contracts.shared import AgentNames
 from src.domain.models.exercise import ExerciseContext
-from src.infrastructure.llm.utils import serialise_for_prompt
+from src.infrastructure.llm.utils import model_schema_as_json
 from src.domain.models.progress import Progress
 from src.domain.enums import Tenses, Grammar, Topics
 from src.infrastructure.llm.contracts.text_correction import TextCorrection
@@ -34,7 +34,7 @@ Paragraph 2:
 
 EXAMPLE INPUT:
 
-{serialise_for_prompt(ExerciseContext)}
+{model_schema_as_json(ExerciseContext)}
 
 EXAMPLE OUTPUT:
 Escribe un texto de aproximadamente 160 palabras sobre un viaje importante y las emociones que sentiste, situándolo en un aeropuerto extranjero durante una despedida difícil con un ser querido.
@@ -48,7 +48,7 @@ You are a Spanish language analysis system.
 Your task is to analyse a student's Spanish text and return ONLY a JSON object.
 
 OUTPUT:
-{serialise_for_prompt(Progress)}
+{model_schema_as_json(Progress)}
 
 Each top-level key must map to an object containing every required enum key exactly as written below.
 
@@ -181,7 +181,7 @@ You must return:
 1. a fully corrected version of the text
 2. a structured list of edits using this exact schema shape:
 
-{serialise_for_prompt(TextCorrection)}
+{model_schema_as_json(TextCorrection)}
 
 Classification rules:
 
@@ -247,7 +247,7 @@ You are a Spanish writing feedback summariser, All returned feedback/text MUST B
 Your task is to take structured correction data (lists of edits and scoring information) and produce a concise, user-friendly summary of the user’s performance. 
 
 INPUT:
-{serialise_for_prompt(TextCorrection)}
+{model_schema_as_json(TextCorrection)}
 
 Your job:
 - Do NOT repeat every individual correction.
@@ -256,7 +256,7 @@ Your job:
 
 You must return output in this exact schema:
 
-{serialise_for_prompt(WritingSummary)}
+{model_schema_as_json(WritingSummary)}
 
 How to summarise each section:
 

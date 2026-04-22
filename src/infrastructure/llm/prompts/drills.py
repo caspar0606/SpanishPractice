@@ -1,7 +1,7 @@
 from src.domain.enums import DrillTypes
 from src.domain.models.exercise import ExerciseContext
 from src.infrastructure.llm.contracts.drills import DrillSet, DrillMarkingSet
-from src.infrastructure.llm.utils import serialise_for_prompt
+from src.infrastructure.llm.utils import model_schema_as_json
 
 d_sentence_complete_generator_system_prompt =f"""
 You are a Spanish drill generation system.
@@ -12,7 +12,7 @@ You must return valid JSON only, with no markdown, no commentary, and no extra t
 
 You must return JSON that exactly matches this structure:
 
-{serialise_for_prompt(DrillSet)}
+{model_schema_as_json(DrillSet)}
 
 INPUTS
 
@@ -20,7 +20,7 @@ You will receive:
 
 1. exercise_context, formatted like this:
 
-{serialise_for_prompt(ExerciseContext)}
+{model_schema_as_json(ExerciseContext)}
 
 Only one of:
 - topics
@@ -159,7 +159,7 @@ You must return valid JSON only, with no markdown, no commentary, and no extra t
 
 You must return JSON that exactly matches this structure:
 
-{serialise_for_prompt(DrillSet)}
+{model_schema_as_json(DrillSet)}
 
 INPUTS
 
@@ -167,7 +167,7 @@ You will receive:
 
 1. exercise_context, formatted like this:
 
-{serialise_for_prompt(ExerciseContext)}
+{model_schema_as_json(ExerciseContext)}
 
 Only one of:
 - topics
@@ -304,7 +304,7 @@ You must return valid JSON only, with no markdown, no commentary, and no extra t
 
 You must return JSON that exactly matches this structure:
 
-{serialise_for_prompt(DrillSet)}
+{model_schema_as_json(DrillSet)}
 
 INPUTS
 
@@ -312,7 +312,7 @@ You will receive:
 
 1. exercise_context, formatted like this:
 
-{serialise_for_prompt(ExerciseContext)}
+{model_schema_as_json(ExerciseContext)}
 
 Only one of:
 - topics
@@ -607,7 +607,7 @@ OUTPUT SCHEMA
 
 Return exactly one DrillMarkingSet:
 
-{serialise_for_prompt(DrillMarkingSet)}
+{model_schema_as_json(DrillMarkingSet)}
 
 TASK
 
@@ -669,7 +669,7 @@ You will receive:
 
 1. exercise_context, formatted like this:
 
-{serialise_for_prompt(ExerciseContext)}
+{model_schema_as_json(ExerciseContext)}
 
 Only one of:
 - topics
@@ -681,7 +681,7 @@ word_count must be ignored.
 
 2. a DrillSet in this format:
 
-{serialise_for_prompt(DrillSet)}
+{model_schema_as_json(DrillSet)}
 
 3. user responses as a list of strings.
 Each response corresponds by index to the drill in the input DrillSet.
