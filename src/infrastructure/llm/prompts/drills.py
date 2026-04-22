@@ -1,6 +1,9 @@
 from src.domain.enums import DrillTypes
+from src.domain.domain.models.exercise import ExerciseContext
+from src.infrastructure.llm.contracts.drills import DrillSet, DrillMarkingSet
+from src.infrastructure.llm.utils import serialise_for_prompt
 
-d_sentence_complete_generator_system_prompt ="""
+d_sentence_complete_generator_system_prompt =f"""
 You are a Spanish drill generation system.
 
 Your task is to generate a Spanish sentence completion exercise for a learner of Spanish as a foreign language.
@@ -9,16 +12,7 @@ You must return valid JSON only, with no markdown, no commentary, and no extra t
 
 You must return JSON that exactly matches this structure:
 
-{
-  "drill_type": "sentence_completion",
-  "drills": [
-    {
-      "prompt": "string",
-      "answer": "string",
-      "options": null
-    }
-  ]
-}
+{serialise_for_prompt(DrillSet)}
 
 INPUTS
 
@@ -26,13 +20,7 @@ You will receive:
 
 1. exercise_context, formatted like this:
 
-{
-  "topics": [... ] or null,
-  "grammar": [... ] or null,
-  "tenses": [... ] or null,
-  "difficulty": "beginner" | "novice" | "intermediate",
-  "word_count": 0
-}
+{serialise_for_prompt(ExerciseContext)}
 
 Only one of:
 - topics
@@ -53,7 +41,7 @@ difficulty, which will be one of:
 
 PRIMARY TASK
 
-Generate exactly one drill set of type "sentence_completion".
+Generate exactly one drill set of type {DrillTypes.SENTENCE_COMPLETION.value}.
 
 Each drill must contain:
 - a Spanish sentence prompt
@@ -128,13 +116,8 @@ The difficulty must strongly affect vocabulary, sentence length, and grammatical
 - The answer must still be clearly inferable and suitable for exercise marking.
 
 HARD RULES
-
 1. Return exactly num_questions drills.
-2. drill_type must be exactly "sentence_completion".
-3. Every drill must have:
-   - "prompt"
-   - "answer"
-   - "options"
+2. drill_type must be exactly {DrillTypes.SENTENCE_COMPLETION.value}.
 4. "options" must always be null.
 5. Every prompt must contain exactly one blank written as "_____".
 6. Every answer must be the exact correct text that fills the blank.
@@ -167,7 +150,7 @@ No explanation.
 No surrounding text.
 """
 
-d_option_select_generator_system_prompt ="""
+d_option_select_generator_system_prompt =f"""
 You are a Spanish drill generation system.
 
 Your task is to generate a Spanish multiple-choice exercise for a learner of Spanish as a foreign language.
@@ -176,16 +159,7 @@ You must return valid JSON only, with no markdown, no commentary, and no extra t
 
 You must return JSON that exactly matches this structure:
 
-{
-  "drill_type": "option_selection",
-  "drills": [
-    {
-      "prompt": "string",
-      "answer": "string",
-      "options": ["string", "string", "string", "string"]
-    }
-  ]
-}
+{serialise_for_prompt(DrillSet)}
 
 INPUTS
 
@@ -193,13 +167,7 @@ You will receive:
 
 1. exercise_context, formatted like this:
 
-{
-  "topics": [... ] or null,
-  "grammar": [... ] or null,
-  "tenses": [... ] or null,
-  "difficulty": "beginner" | "novice" | "intermediate",
-  "word_count": 0
-}
+{serialise_for_prompt(ExerciseContext)}
 
 Only one of:
 - topics
@@ -220,7 +188,7 @@ difficulty, which will be one of:
 
 PRIMARY TASK
 
-Generate exactly one drill set of type "option_selection".
+Generate exactly one drill set of type {DrillTypes.OPTION_SELECTION.value}.
 
 Each drill must contain:
 - a prompt
@@ -293,7 +261,7 @@ DIFFICULTY GUIDELINES
 HARD RULES
 
 1. Return exactly num_questions drills.
-2. drill_type must be exactly "option_selection".
+2. drill_type must be exactly {DrillTypes.OPTION_SELECTION.value}.
 3. Each drill must contain:
    - "prompt"
    - "answer"
@@ -327,7 +295,7 @@ No explanation.
 No surrounding text.
 """
 
-d_translation_generator_system_prompt =""""
+d_translation_generator_system_prompt =f""""
 You are a Spanish drill generation system.
 
 Your task is to generate an English-to-Spanish translation exercise for a learner of Spanish as a foreign language.
@@ -336,16 +304,7 @@ You must return valid JSON only, with no markdown, no commentary, and no extra t
 
 You must return JSON that exactly matches this structure:
 
-{
-  "drill_type": "translation",
-  "drills": [
-    {
-      "prompt": "string",
-      "answer": "string",
-      "options": null
-    }
-  ]
-}
+{serialise_for_prompt(DrillSet)}
 
 INPUTS
 
@@ -353,13 +312,7 @@ You will receive:
 
 1. exercise_context, formatted like this:
 
-{
-  "topics": [... ] or null,
-  "grammar": [... ] or null,
-  "tenses": [... ] or null,
-  "difficulty": "beginner" | "novice" | "intermediate",
-  "word_count": 0
-}
+{serialise_for_prompt(ExerciseContext)}
 
 Only one of:
 - topics
@@ -380,7 +333,7 @@ difficulty, which will be one of:
 
 PRIMARY TASK
 
-Generate exactly one drill set of type "translation".
+Generate exactly one drill set of type {DrillTypes.TRANSLATION.value}.
 
 Each drill must contain:
 - an English sentence in the "prompt" field
@@ -446,7 +399,7 @@ DIFFICULTY GUIDELINES
 HARD RULES
 
 1. Return exactly num_questions drills.
-2. drill_type must be exactly "translation".
+2. drill_type must be exactly {DrillTypes.TRANSLATION.value}.
 3. Each drill must contain:
    - "prompt"
    - "answer"
@@ -478,7 +431,7 @@ No explanation.
 No surrounding text.
 """
 
-d_error_correct_generator_system_prompt ="""
+d_error_correct_generator_system_prompt =f"""
 You are a Spanish drill generation system.
 
 Your task is to generate a Spanish error correction exercise for a learner of Spanish as a foreign language.
@@ -487,16 +440,7 @@ You must return valid JSON only, with no markdown, no commentary, and no extra t
 
 You must return JSON that exactly matches this structure:
 
-{
-  "drill_type": "error_correction",
-  "drills": [
-    {
-      "prompt": "string",
-      "answer": "string",
-      "options": null
-    }
-  ]
-}
+{serialise_for_prompt(DrillSet)}
 
 INPUTS
 
@@ -504,13 +448,7 @@ You will receive:
 
 1. exercise_context, formatted like this:
 
-{
-  "topics": [... ] or null,
-  "grammar": [... ] or null,
-  "tenses": [... ] or null,
-  "difficulty": "beginner" | "novice" | "intermediate",
-  "word_count": 0
-}
+{serialise_for_prompt(ExerciseContext)}
 
 Only one of:
 - topics
@@ -532,7 +470,7 @@ difficulty, which will be one of:
 
 PRIMARY TASK
 
-Generate exactly one drill set of type "error_correction".
+Generate exactly one drill set of type {DrillTypes.ERROR_CORRECTION.value}.
 
 Each drill must contain:
 - a Spanish sentence in the "prompt" field that is incorrect
@@ -599,7 +537,7 @@ DIFFICULTY GUIDELINES
 HARD RULES
 
 1. Return exactly num_questions drills.
-2. drill_type must be exactly "error_correction".
+2. drill_type must be exactly {DrillTypes.ERROR_CORRECTION.value}.
 3. Each drill must contain:
    - "prompt"
    - "answer"
@@ -632,7 +570,7 @@ No explanation.
 No surrounding text.
 """
 
-d_sentence_complete_marker_system_prompt="""
+d_sentence_complete_marker_system_prompt=f"""
 You are a Spanish drill marking system.
 
 Your task is to mark a sentence completion drill for a learner of Spanish.
@@ -648,13 +586,7 @@ You will receive:
 
 1. exercise_context, formatted like this:
 
-{
-  "topics": [... ] or null,
-  "grammar": [... ] or null,
-  "tenses": [... ] or null,
-  "difficulty": "beginner" | "novice" | "intermediate",
-  "word_count": 0
-}
+{serialise_for_prompt(ExerciseContext)}
 
 Only one of:
 - topics
@@ -666,16 +598,7 @@ word_count must be ignored.
 
 2. a DrillSet in this format:
 
-{
-  "drill_type": "sentence_completion",
-  "drills": [
-    {
-      "prompt": "string",
-      "answer": "string",
-      "options": null
-    }
-  ]
-}
+{serialise_for_prompt(DrillSet)}  
 
 3. user responses as a list of strings.
 Each response corresponds by index to the drill in the input DrillSet.
@@ -684,19 +607,7 @@ OUTPUT SCHEMA
 
 Return exactly one DrillMarkingSet:
 
-{
-  "drill_type": "sentence_completion",
-  "marked_drills": [
-    {
-      "prompt": "string",
-      "answer": "string",
-      "user_response": "string",
-      "comment": "string or null",
-      "is_correct": true
-    }
-  ],
-  "stats": null
-}
+{serialise_for_prompt(DrillMarkingSet)}
 
 TASK
 
@@ -742,7 +653,7 @@ OUTPUT REQUIREMENTS
 7. Return JSON only.
 """
 
-d_option_select_marker_system_prompt="""
+d_option_select_marker_system_prompt=f"""
 You are a Spanish drill marking system.
 
 Your task is to mark an option selection drill for a learner of Spanish.
@@ -758,13 +669,7 @@ You will receive:
 
 1. exercise_context, formatted like this:
 
-{
-  "topics": [... ] or null,
-  "grammar": [... ] or null,
-  "tenses": [... ] or null,
-  "difficulty": "beginner" | "novice" | "intermediate",
-  "word_count": 0
-}
+{serialise_for_prompt(ExerciseContext)}
 
 Only one of:
 - topics
@@ -776,16 +681,7 @@ word_count must be ignored.
 
 2. a DrillSet in this format:
 
-{
-  "drill_type": "option_selection",
-  "drills": [
-    {
-      "prompt": "string",
-      "answer": "string",
-      "options": ["string", "string", "string", "string"] or ["string", "string", "string"]
-    }
-  ]
-}
+{serialise_for_prompt(DrillSet)}
 
 3. user responses as a list of strings.
 Each response corresponds by index to the drill in the input DrillSet.
@@ -794,19 +690,7 @@ OUTPUT SCHEMA
 
 Return exactly one DrillMarkingSet:
 
-{
-  "drill_type": "option_selection",
-  "marked_drills": [
-    {
-      "prompt": "string",
-      "answer": "string",
-      "user_response": "string",
-      "comment": "string or null",
-      "is_correct": true
-    }
-  ],
-  "stats": null
-}
+{serialise_for_prompt(DrillMarkingSet)}
 
 TASK
 
@@ -848,7 +732,7 @@ OUTPUT REQUIREMENTS
 7. Return JSON only.
 """
 
-d_translation_marker_system_prompt="""
+d_translation_marker_system_prompt=f"""
 You are a Spanish drill marking system.
 
 Your task is to mark an English-to-Spanish translation drill for a learner of Spanish.
@@ -864,13 +748,7 @@ You will receive:
 
 1. exercise_context, formatted like this:
 
-{
-  "topics": [... ] or null,
-  "grammar": [... ] or null,
-  "tenses": [... ] or null,
-  "difficulty": "beginner" | "novice" | "intermediate",
-  "word_count": 0
-}
+{serialise_for_prompt(ExerciseContext)}
 
 Only one of:
 - topics
@@ -882,16 +760,7 @@ word_count must be ignored.
 
 2. a DrillSet in this format:
 
-{
-  "drill_type": "translation",
-  "drills": [
-    {
-      "prompt": "English sentence",
-      "answer": "Spanish reference translation",
-      "options": null
-    }
-  ]
-}
+{serialise_for_prompt(DrillSet)}
 
 3. user responses as a list of strings.
 Each response corresponds by index to the drill in the input DrillSet.
@@ -900,19 +769,7 @@ OUTPUT SCHEMA
 
 Return exactly one DrillMarkingSet:
 
-{
-  "drill_type": "translation",
-  "marked_drills": [
-    {
-      "prompt": "string",
-      "answer": "string",
-      "user_response": "string",
-      "comment": "string or null",
-      "is_correct": true
-    }
-  ],
-  "stats": null
-}
+{serialise_for_prompt(DrillMarkingSet)}
 
 TASK
 
@@ -967,7 +824,7 @@ OUTPUT REQUIREMENTS
 7. Return JSON only.
 """
 
-d_error_correct_marker_system_prompt="""
+d_error_correct_marker_system_prompt=f"""
 
 You are a Spanish drill marking system.
 
@@ -984,13 +841,7 @@ You will receive:
 
 1. exercise_context, formatted like this:
 
-{
-  "topics": [... ] or null,
-  "grammar": [... ] or null,
-  "tenses": [... ] or null,
-  "difficulty": "beginner" | "novice" | "intermediate",
-  "word_count": 0
-}
+{serialise_for_prompt(ExerciseContext)}
 
 Only one of:
 - topics
@@ -1002,16 +853,7 @@ word_count must be ignored.
 
 2. a DrillSet in this format:
 
-{
-  "drill_type": "error_correction",
-  "drills": [
-    {
-      "prompt": "incorrect Spanish sentence",
-      "answer": "corrected Spanish sentence",
-      "options": null
-    }
-  ]
-}
+{serialise_for_prompt(DrillSet)}
 
 3. user responses as a list of strings.
 Each response corresponds by index to the drill in the input DrillSet.
@@ -1020,19 +862,7 @@ OUTPUT SCHEMA
 
 Return exactly one DrillMarkingSet:
 
-{
-  "drill_type": "error_correction",
-  "marked_drills": [
-    {
-      "prompt": "string",
-      "answer": "string",
-      "user_response": "string",
-      "comment": "string or null",
-      "is_correct": true
-    }
-  ],
-  "stats": null
-}
+{serialise_for_prompt(DrillMarkingSet)}
 
 TASK
 
