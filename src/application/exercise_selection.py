@@ -54,6 +54,11 @@ def generate_exercise(username: str, type: ExerciseTypes, difficulty:
 def weak_areas(difficulty_level: DifficultyLevels, preferences: AreasOfFocus | None, type: ExerciseTypes, user: User) -> AreasOfFocus:
     config = DIFFICULTY_CONFIG[difficulty_level] 
 
+    if ((type is ExerciseTypes.DRILLS) and ((preferences is None) or (preferences.focus_tenses is None and \
+                                                                        preferences.focus_grammar is None and \
+                                                                        preferences.focus_topics is None))):
+        raise ValueError("Preferences is incorrectly NULL or incomplete for drills")
+
     if type is ExerciseTypes.DRILLS:
         focus, loc, num = next(
             FOCUS_CONFIG[topic]
