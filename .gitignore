@@ -4,3 +4,5 @@ __pycache__/
 .env
 .env.example
 userdata/
+.cursor/
+debug_prompt_contract_audit.py

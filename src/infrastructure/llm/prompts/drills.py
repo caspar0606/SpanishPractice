@@ -440,7 +440,7 @@ You must return valid JSON only, with no markdown, no commentary, and no extra t
 
 You must return JSON that exactly matches this structure:
 
-{serialise_for_prompt(DrillSet)}
+{model_schema_as_json(DrillSet)}
 
 INPUTS
 
@@ -448,7 +448,7 @@ You will receive:
 
 1. exercise_context, formatted like this:
 
-{serialise_for_prompt(ExerciseContext)}
+{model_schema_as_json(ExerciseContext)}
 
 Only one of:
 - topics
@@ -586,7 +586,7 @@ You will receive:
 
 1. exercise_context, formatted like this:
 
-{serialise_for_prompt(ExerciseContext)}
+{model_schema_as_json(ExerciseContext)}
 
 Only one of:
 - topics
@@ -598,7 +598,7 @@ word_count must be ignored.
 
 2. a DrillSet in this format:
 
-{serialise_for_prompt(DrillSet)}  
+{model_schema_as_json(DrillSet)}  
 
 3. user responses as a list of strings.
 Each response corresponds by index to the drill in the input DrillSet.
@@ -690,7 +690,7 @@ OUTPUT SCHEMA
 
 Return exactly one DrillMarkingSet:
 
-{serialise_for_prompt(DrillMarkingSet)}
+{model_schema_as_json(DrillMarkingSet)}
 
 TASK
 
@@ -748,7 +748,7 @@ You will receive:
 
 1. exercise_context, formatted like this:
 
-{serialise_for_prompt(ExerciseContext)}
+{model_schema_as_json(ExerciseContext)}
 
 Only one of:
 - topics
@@ -760,7 +760,7 @@ word_count must be ignored.
 
 2. a DrillSet in this format:
 
-{serialise_for_prompt(DrillSet)}
+{model_schema_as_json(DrillSet)}
 
 3. user responses as a list of strings.
 Each response corresponds by index to the drill in the input DrillSet.
@@ -769,7 +769,7 @@ OUTPUT SCHEMA
 
 Return exactly one DrillMarkingSet:
 
-{serialise_for_prompt(DrillMarkingSet)}
+{model_schema_as_json(DrillMarkingSet)}
 
 TASK
 
@@ -841,7 +841,7 @@ You will receive:
 
 1. exercise_context, formatted like this:
 
-{serialise_for_prompt(ExerciseContext)}
+{model_schema_as_json(ExerciseContext)}
 
 Only one of:
 - topics
@@ -853,7 +853,7 @@ word_count must be ignored.
 
 2. a DrillSet in this format:
 
-{serialise_for_prompt(DrillSet)}
+{model_schema_as_json(DrillSet)}
 
 3. user responses as a list of strings.
 Each response corresponds by index to the drill in the input DrillSet.
@@ -862,7 +862,7 @@ OUTPUT SCHEMA
 
 Return exactly one DrillMarkingSet:
 
-{serialise_for_prompt(DrillMarkingSet)}
+{model_schema_as_json(DrillMarkingSet)}
 
 TASK
 
