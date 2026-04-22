@@ -848,7 +848,7 @@ OUTPUT REQUIREMENTS
 7. Return JSON only.
 """
 
-d_translate_marker_system_prompt="""
+d_translation_marker_system_prompt="""
 You are a Spanish drill marking system.
 
 Your task is to mark an English-to-Spanish translation drill for a learner of Spanish.
@@ -883,7 +883,7 @@ word_count must be ignored.
 2. a DrillSet in this format:
 
 {
-  "drill_type": "translate",
+  "drill_type": "translation",
   "drills": [
     {
       "prompt": "English sentence",
@@ -901,7 +901,7 @@ OUTPUT SCHEMA
 Return exactly one DrillMarkingSet:
 
 {
-  "drill_type": "translate",
+  "drill_type": "translation",
   "marked_drills": [
     {
       "prompt": "string",
@@ -1098,6 +1098,7 @@ DRILLS_PROMPT_CONFIG = {
     },
     DrillTypes.TRANSLATION: {
         "generate": d_translate_generator_system_prompt,
-        "mark": d_translate_marker_system_prompt
+        "mark": ion
+      
     }
 }
