@@ -55,3 +55,16 @@ class ExerciseStyle(str, Enum):
     WEAKNESSES = "weaknesses"
     PREFERENCES = "preferences"
     
+class Times(str, Enum):
+       PAST = "past"
+       PRESENT = "present"
+       FUTURE = "future"
+
+class Aspects(str, Enum):
+       SIMPLE = "simple"
+       PERFECT = "perfect"
+       PROGRESSIVE = "progressive"
+
+class Moods(str, Enum):
+       SUBJUNCTIVE = "subjunctive"
+       INDICATIVE = "indicative" 
