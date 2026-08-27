@@ -1,13 +1,10 @@
-from src.domain.models.progress import ComputeStats, Progress
-from src.domain.enums import Grammar, Tenses, Topics
-from src.domain.enums import Tenses
-from src.domain.utils import initialise_progress
-from src.infrastructure.persistence.file_storage import create_new_user_file, save_user_state, load_user_state
-from src.domain.models.session import User
-from src.domain.enums import Grammar, Topics, Topics
-from src.domain.enums import Tenses
-from dotenv import load_dotenv
 import os
+
+from dotenv import load_dotenv
+
+from src.domain.models.user import User
+from src.domain.utils import initialise_progress
+from src.infrastructure.persistence.file_storage import create_new_user_file, load_user_state, save_user_state
 
 # Creates a new user with initialised progress and name
 def create_user(name: str) -> User:

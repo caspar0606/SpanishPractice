@@ -24,7 +24,7 @@ FastAPI backend plus a small web UI for Spanish **writing**, **reading**, and **
    pip install -r requirements.txt
    ```
 
-2. Copy environment variables — create a **`.env`** file in the project root (it is gitignored). At minimum:
+2. Copy environment variables: run `cp .env.example .env`, then fill in the values (`.env` is gitignored). At minimum:
 
    | Variable | Purpose |
    |----------|---------|
@@ -77,7 +77,7 @@ frontend/        # Static UI: index.html; assets in frontend/static/ (URL /stati
 userdata/        # Runtime user JSON files (gitignored by default)
 ```
 
-CLI entrypoints under `src/app/` and related `infrastructure/cli/` are legacy / local use; the primary surface for learners is the **web UI** and **API**.
+Helpers under `infrastructure/cli/` are legacy / local use; the primary surface for learners is the **web UI** and **API**.
 
 ## Development notes
 

@@ -5,7 +5,8 @@ from src.domain.rules.config import DIFFICULTY_CONFIG, FOCUS_CONFIG
 from src.infrastructure.config.logging import generate_id
 from src.domain.enums import DifficultyLevels, ExerciseStyle, ExerciseTypes, Grammar, Tenses, Topics
 from src.domain.models.exercise import AreasOfFocus, Exercise, ExerciseConfig
-from src.domain.models.session import ExerciseStorage, User
+from src.domain.models.exercise import ExerciseStorage
+from src.domain.models.user import User
 from src.infrastructure.llm.contracts.shared import ExerciseContext
 from src.infrastructure.persistence.file_storage import load_user_state, save_user_state
 

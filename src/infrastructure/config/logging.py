@@ -1,5 +1,5 @@
-from datetime import datetime
+from datetime import datetime, timezone
 import uuid
 
 def generate_id():
-    return f"{datetime.utcnow().isoformat()}_{uuid.uuid4()}"
+    return f"{datetime.now(timezone.utc).isoformat()}_{uuid.uuid4()}"
