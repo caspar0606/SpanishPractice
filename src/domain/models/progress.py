@@ -3,9 +3,9 @@ from datetime import datetime
 
 from typing import ClassVar
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, field_validator
 
-from src.domain.enums import Grammar, Tenses, Topics
+from src.domain.enums import Grammar, Tenses, Topics, is_category_sentinel, practice_members
 
 
 class ComputeStats(BaseModel):
@@ -50,6 +50,20 @@ class Progress(BaseModel):
     tenses: dict[Tenses, ComputeStats]
     grammar: dict[Grammar, ComputeStats] 
     topics: dict[Topics, ComputeStats]
+
+    # Progress is kept total over the practisable areas: every real area is present and no
+    # category sentinel ever is. That heals user files written before sentinels were
+    # excluded, absorbs the partial dicts a tagging agent returns, and lets weak-area
+    # selection assume every area it can choose from has an entry.
+    @field_validator("tenses", "grammar", "topics", mode="after")
+    @classmethod
+    def cover_practisable_areas(cls, scores: dict, info) -> dict:
+        enum_cls = {"tenses": Tenses, "grammar": Grammar, "topics": Topics}[info.field_name]
+        covered = {area: ComputeStats() for area in practice_members(enum_cls)}
+        for area, stats in scores.items():
+            if not is_category_sentinel(area):
+                covered[area] = stats
+        return covered
 
     @classmethod
     def example_json(cls) -> dict:

@@ -5,6 +5,8 @@ from typing import Any, Type, get_args, get_origin
 
 from pydantic import BaseModel
 
+from src.domain.enums import is_category_sentinel
+
 
 def _to_prompt_jsonable(value: Any) -> Any:
     """Convert nested values into something json.dumps can handle."""
@@ -62,7 +64,7 @@ def model_prompt_example_as_json(model: Type[BaseModel]) -> str:
 
 
 def _is_sentinel_enum_member(member: Enum) -> bool:
-    return member.name in {"TENSES", "GRAMMAR", "TOPICS"} and str(member.value) in {"tenses", "grammar", "topics"}
+    return is_category_sentinel(member)
 
 
 def _fallback_for_annotation(annotation: Any) -> Any:

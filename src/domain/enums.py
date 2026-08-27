@@ -68,3 +68,21 @@ class Aspects(str, Enum):
 class Moods(str, Enum):
        SUBJUNCTIVE = "subjunctive"
        INDICATIVE = "indicative" 
+
+# Tenses.TENSES, Grammar.GRAMMAR and Topics.TOPICS name their own category rather
+# than a practisable area. They are retained so user files saved before they were
+# excluded still validate, but they must never be tracked in progress or offered as
+# an area of focus. Use practice_members() anywhere a real area is required.
+_CATEGORY_SENTINEL_VALUES = frozenset({"tenses", "grammar", "topics"})
+
+FOCUS_ENUMS = (Tenses, Grammar, Topics)
+
+
+def is_category_sentinel(member: object) -> bool:
+    """True for the self-naming sentinel member of Tenses, Grammar or Topics."""
+    return isinstance(member, FOCUS_ENUMS) and member.value in _CATEGORY_SENTINEL_VALUES
+
+
+def practice_members(enum_cls: type[Enum]) -> list[Enum]:
+    """Members of a focus enum that a learner can actually practise."""
+    return [member for member in enum_cls if not is_category_sentinel(member)]

@@ -79,6 +79,16 @@ userdata/        # Runtime user JSON files (gitignored by default)
 
 CLI entrypoints under `src/app/` and related `infrastructure/cli/` are legacy / local use; the primary surface for learners is the **web UI** and **API**.
 
+## Tests
+
+```bash
+pip install -r requirements.txt -r requirements-dev.txt
+python -m pytest
+```
+
+The suite is offline: it exercises the domain and application layers directly and never
+calls the LLM, so no `OPENAI_API_KEY` is needed to run it.
+
 ## Development notes
 
 - **Port in use:** If `8000` is busy, pick another port (e.g. `--port 8001`) and point `cloudflared` at that URL.

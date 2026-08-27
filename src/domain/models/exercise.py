@@ -1,9 +1,9 @@
 from datetime import datetime
 from typing import Any, ClassVar, Optional
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, field_validator
 
-from src.domain.enums import DifficultyLevels, ExerciseTypes, Grammar, Tenses, Topics
+from src.domain.enums import DifficultyLevels, ExerciseTypes, Grammar, Tenses, Topics, is_category_sentinel
 from src.domain.models.progress import Progress
 
 
@@ -18,6 +18,16 @@ class AreasOfFocus(BaseModel):
     focus_tenses: Optional[list[Tenses]] = None
     focus_grammar: Optional[list[Grammar]] = None
     focus_topics: Optional[list[Topics]] = None
+
+    # A category sentinel names the category, not something a learner can practise, so it
+    # is not a valid focus even when a client sends one. Dropping it keeps the downstream
+    # progress lookups (which only ever hold practisable areas) from raising.
+    @field_validator("focus_tenses", "focus_grammar", "focus_topics", mode="after")
+    @classmethod
+    def drop_category_sentinels(cls, areas: Optional[list]) -> Optional[list]:
+        if areas is None:
+            return None
+        return [area for area in areas if not is_category_sentinel(area)]
 
     @classmethod
     def example_json(cls) -> dict:
