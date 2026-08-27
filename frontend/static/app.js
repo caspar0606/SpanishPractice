@@ -4,6 +4,8 @@
  */
 
 const STORAGE_USER = "sp_username";
+const STORAGE_ACCESS_KEY = "sp_access_key";
+const ACCESS_KEY_HEADER = "X-Access-Key";
 
 const WORD_COUNTS = {
   beginner: { w: 60, r: 100 },
@@ -105,8 +107,17 @@ function setUsername(name) {
   sessionStorage.setItem(STORAGE_USER, name);
 }
 
+function getAccessKey() {
+  return sessionStorage.getItem(STORAGE_ACCESS_KEY);
+}
+
+function setAccessKey(key) {
+  sessionStorage.setItem(STORAGE_ACCESS_KEY, key);
+}
+
 function clearSession() {
   sessionStorage.removeItem(STORAGE_USER);
+  sessionStorage.removeItem(STORAGE_ACCESS_KEY);
 }
 
 function setStatus(message, isError) {
@@ -258,10 +269,15 @@ async function api(method, path, body) {
     credentials: "omit",
     cache: "no-store",
   };
+  /** @type {Record<string, string>} */
+  const headers = {};
+  const accessKey = getAccessKey();
+  if (accessKey) headers[ACCESS_KEY_HEADER] = accessKey;
   if (body !== undefined) {
-    opts.headers = { "Content-Type": "application/json" };
+    headers["Content-Type"] = "application/json";
     opts.body = JSON.stringify(body);
   }
+  if (Object.keys(headers).length > 0) opts.headers = headers;
   const url = path.startsWith("http") ? path : `${apiBase()}${path}`;
   let r;
   try {
@@ -279,6 +295,11 @@ async function api(method, path, body) {
     data = text ? JSON.parse(text) : null;
   } catch {
     data = text;
+  }
+  if (r.status === 401) {
+    clearSession();
+    showPanel("login");
+    throw new Error("Your access code is no longer valid. Please sign in again.");
   }
   if (!r.ok) {
     let msg;
@@ -429,6 +450,7 @@ async function onLogin(ev) {
       api("POST", "/user/login", { username, key, new: newUser }),
     );
     setUsername(username);
+    setAccessKey(key);
     setStatus("Signed in. Choose an exercise below.", false);
     updateExerciseUserLabel();
     showPanel("exercise");

@@ -8,6 +8,7 @@ from src.domain.enums import Grammar, Topics, Topics
 from src.domain.enums import Tenses
 from dotenv import load_dotenv
 import os
+import secrets
 
 # Creates a new user with initialised progress and name
 def create_user(name: str) -> User:
@@ -19,7 +20,8 @@ def select_user(username: str, key: str, new: bool) -> User | None:
 
     load_dotenv()
     access_key = os.getenv("ACCESS_KEY")
-    if not (access_key == key):
+    # compare_digest keeps the check from leaking the key one character at a time.
+    if not access_key or not secrets.compare_digest(key or "", access_key):
         return None
 
     if new:

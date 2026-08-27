@@ -3,7 +3,7 @@ import os
 from pathlib import Path
 
 from dotenv import load_dotenv
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
@@ -11,6 +11,7 @@ from fastapi.staticfiles import StaticFiles
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 load_dotenv(_PROJECT_ROOT / ".env")
 
+from src.api.dependencies import require_access_key
 from src.api.routers.drills import router as drills_router
 from src.api.routers.exercise_selection import router as exercise_router
 from src.api.routers.progress import router as progress_router
@@ -68,12 +69,17 @@ def create_app() -> FastAPI:
             "CORS disabled: set CORS_ORIGINS and/or CORS_ORIGIN_REGEX (no CORS headers will be sent)",
         )
 
+    # Login is where the access code is supplied, so it cannot require it up front.
     app.include_router(user_router, prefix="/user", tags=["user"])
-    app.include_router(exercise_router, prefix="/exercise", tags=["exercise"])
-    app.include_router(progress_router, prefix="/progress", tags=["progress"])
-    app.include_router(writing_router, prefix="/writing", tags=["writing"])
-    app.include_router(reading_router, prefix="/reading", tags=["reading"])
-    app.include_router(drills_router, prefix="/drills", tags=["drills"])
+
+    # Everything below reads or writes user state, and the practice routers spend
+    # money on model calls, so all of it sits behind the shared access code.
+    guarded = [Depends(require_access_key)]
+    app.include_router(exercise_router, prefix="/exercise", tags=["exercise"], dependencies=guarded)
+    app.include_router(progress_router, prefix="/progress", tags=["progress"], dependencies=guarded)
+    app.include_router(writing_router, prefix="/writing", tags=["writing"], dependencies=guarded)
+    app.include_router(reading_router, prefix="/reading", tags=["reading"], dependencies=guarded)
+    app.include_router(drills_router, prefix="/drills", tags=["drills"], dependencies=guarded)
 
     @app.get("/health", tags=["health"])
     def health_check() -> dict[str, str]:
