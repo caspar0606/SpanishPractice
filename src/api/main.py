@@ -13,12 +13,33 @@ load_dotenv(_PROJECT_ROOT / ".env")
 
 from src.api.routers.drills import router as drills_router
 from src.api.routers.exercise_selection import router as exercise_router
+from src.api.routers.onboarding import router as onboarding_router
 from src.api.routers.progress import router as progress_router
 from src.api.routers.reading import router as reading_router
 from src.api.routers.user import router as user_router
 from src.api.routers.writing import router as writing_router
+from src.application.container import Deps, configure
+from src.infrastructure.wiring import (
+    build_content_repository,
+    build_llm_gateway,
+    build_user_repository,
+)
 
 _LOG = logging.getLogger(__name__)
+
+
+def configure_container() -> None:
+    """Bind application ports to infrastructure adapters.
+
+    This is the only place that knows about both layers.
+    """
+    configure(
+        Deps(
+            users=build_user_repository(),
+            llm=build_llm_gateway(),
+            content=build_content_repository(),
+        ),
+    )
 
 
 def _parse_cors_origins(raw: str) -> list[str]:
@@ -38,6 +59,8 @@ def _parse_cors_regex(raw: str | None) -> str | None:
 
 
 def create_app() -> FastAPI:
+    configure_container()
+
     app = FastAPI(
         title="Spanish Practice API",
         version="1.0.0",
@@ -69,6 +92,7 @@ def create_app() -> FastAPI:
         )
 
     app.include_router(user_router, prefix="/user", tags=["user"])
+    app.include_router(onboarding_router, prefix="/onboarding", tags=["onboarding"])
     app.include_router(exercise_router, prefix="/exercise", tags=["exercise"])
     app.include_router(progress_router, prefix="/progress", tags=["progress"])
     app.include_router(writing_router, prefix="/writing", tags=["writing"])

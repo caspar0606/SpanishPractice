@@ -854,6 +854,50 @@ label.choice-inline {
   border-radius: 999px;
 }
 
+.level-summary {
+  margin: 0 0 1.35rem;
+  padding: 1rem 1.15rem;
+  background: rgba(129, 244, 191, 0.08);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.level-summary-now {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  color: var(--ink);
+}
+
+.level-summary-goal {
+  margin: 0.35rem 0 0;
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+}
+
+.placement-section {
+  margin: 0 0 1.85rem;
+  padding: 0 0 1.35rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.placement-section:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.placement-question {
+  margin: 0 0 1rem;
+}
+
+.placement-question legend {
+  margin-bottom: 0.5rem;
+}
+
+.placement-reading-answer {
+  margin-bottom: 1rem;
+}
+
 .drill-type-section {
   margin: 0;
   padding: 0;

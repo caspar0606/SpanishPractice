@@ -1,8 +1,7 @@
-from src.infrastructure.llm.contracts.shared import AgentNames
 from src.domain.models.exercise import ExerciseContext
 from src.infrastructure.llm.utils import model_prompt_example_as_json, model_schema_as_json
 from src.domain.models.progress import Progress
-from src.domain.enums import Tenses, Grammar, Topics, AoFs, tracked_members
+from src.domain.enums import AgentNames, Tenses, Grammar, Topics, AoFs, tracked_members
 from src.infrastructure.llm.contracts.text_correction import TextCorrection
 from src.infrastructure.llm.contracts.writing import WritingSummary
 

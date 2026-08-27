@@ -2,9 +2,9 @@ import json
 import os
 from pathlib import Path
 
-from src.domain.enums import CATEGORY_SENTINEL_VALUES
 from src.domain.models.user import User
 from src.domain.utils import validate_username
+from src.infrastructure.persistence.migrations import to_v2
 
 _PROJECT_ROOT = Path(__file__).resolve().parents[3]
 
@@ -22,32 +22,6 @@ USERDATA_DIR = _userdata_dir()
 
 def _user_file(username: str) -> Path:
     return USERDATA_DIR / f"{validate_username(username)}.json"
-
-
-def _drop_sentinel_keys(progress_data: object) -> None:
-    if not isinstance(progress_data, dict):
-        return
-    for category in ("tenses", "grammar", "topics"):
-        bucket = progress_data.get(category)
-        if isinstance(bucket, dict):
-            for sentinel in CATEGORY_SENTINEL_VALUES:
-                bucket.pop(sentinel, None)
-
-
-def _strip_sentinels_from_user_data(user_data: dict) -> None:
-    _drop_sentinel_keys(user_data.get("progress"))
-    current = user_data.get("current_exercise")
-    if isinstance(current, dict):
-        _drop_sentinel_keys(current.get("score"))
-    for history_name in ("exercise_history", "progress_history"):
-        items = user_data.get(history_name) or []
-        if not isinstance(items, list):
-            continue
-        for item in items:
-            if not isinstance(item, dict):
-                continue
-            _drop_sentinel_keys(item.get("score"))
-            _drop_sentinel_keys(item.get("new_progress"))
 
 
 def save_user_state(user: User):
@@ -82,6 +56,5 @@ def load_user_state(username: str):
 
     user_data["exercise_history"] = user_data.get("exercise_history") or []
     user_data["progress_history"] = user_data.get("progress_history") or []
-    _strip_sentinels_from_user_data(user_data)
 
-    return User.model_validate(user_data)
+    return User.model_validate(to_v2(user_data))

@@ -2,9 +2,9 @@ import os
 
 from dotenv import load_dotenv
 
+from src.application import container
 from src.domain.models.user import User
 from src.domain.utils import initialise_progress, validate_username
-from src.infrastructure.persistence.file_storage import create_new_user_file, load_user_state, save_user_state
 
 
 def create_user(name: str) -> User:
@@ -20,14 +20,16 @@ def select_user(username: str, key: str, new: bool) -> User | None:
     if not (access_key == key):
         return None
 
+    users = container.users()
+
     if new:
         user = create_user(username)
-        if create_new_user_file(username) == 1:
+        if not users.create(username):
             raise ValueError("User Already Exists. Pick a different username.")
-        save_user_state(user)
+        users.save(user)
         return user
 
-    user = load_user_state(username)
+    user = users.load(username)
 
     if user is None:
         raise ValueError("User doesn't exist.")

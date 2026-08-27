@@ -3,7 +3,7 @@ from typing import Any, ClassVar, Optional
 
 from pydantic import BaseModel, field_validator
 
-from src.domain.enums import DifficultyLevels, ExerciseTypes, Grammar, Tenses, Topics
+from src.domain.enums import Band, ExerciseTypes, Grammar, LengthPreference, Tenses, Topics
 from src.domain.models.progress import Progress
 
 
@@ -30,10 +30,19 @@ class AreasOfFocus(BaseModel):
         return cls._EXAMPLE.copy()
 
 class ExerciseConfig(BaseModel):
-    _EXAMPLE: ClassVar[dict] = {"difficulty": "beginner", "word_count": 160}
+    _EXAMPLE: ClassVar[dict] = {
+        "band": "A2",
+        "length": "standard",
+        "word_count": 100,
+        "question_count": 0,
+        "cefr_hint": "A2: common vocabulary, simple past and present, mostly simple sentences.",
+    }
 
-    difficulty: DifficultyLevels
+    band: Band
+    length: LengthPreference = LengthPreference.STANDARD
     word_count: int
+    question_count: int = 0
+    cefr_hint: str = ""
 
     @classmethod
     def example_json(cls) -> dict:
@@ -42,7 +51,8 @@ class ExerciseConfig(BaseModel):
 class Exercise(BaseModel):
     id: str
     exercise_type: ExerciseTypes
-    difficulty_level: DifficultyLevels
+    band: Band
+    length: LengthPreference = LengthPreference.STANDARD
     areas_of_focus: AreasOfFocus
     start_time: datetime
     end_time: Optional[datetime] = None

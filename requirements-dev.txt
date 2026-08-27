@@ -1,0 +1,3 @@
+# Test/dev tooling only. Runtime dependencies live in requirements.txt.
+-r requirements.txt
+pytest==9.1.1

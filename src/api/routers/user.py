@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException
 
 from src.application import user as user_file
+from src.application.services import onboarding as onboarding_file
 from src.api.schemas.user import UserRequest, UserResponse
 
 router = APIRouter()
@@ -16,4 +17,4 @@ def select_user(request: UserRequest):
     if result is None:
         raise HTTPException(status_code=401, detail="Invalid access code")
 
-    return UserResponse(user=result)
+    return UserResponse(user=result, step=onboarding_file.current_step(result))

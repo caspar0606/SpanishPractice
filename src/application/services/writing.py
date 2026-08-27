@@ -1,14 +1,14 @@
+from src.application import container
 from src.application.exercise_selection import create_exercise_context
+from src.application.services.exercise_common import user_exercise_cache
 from src.application.services.progress import save_user_progress
+from src.domain.enums import AgentNames
 from src.domain.models.exercise import ExerciseContext
+from src.domain.models.llm import agent_request
 from src.domain.models.progress import Progress
-from src.infrastructure.llm.contracts.writing import WritingSummary
-from src.infrastructure.llm.contracts.shared import AgentInputs, AgentNames
 from src.infrastructure.llm.contracts.text_correction import TextCorrection
+from src.infrastructure.llm.contracts.writing import WritingSummary
 from src.infrastructure.llm.prompts.writing import WRITING_PROMPT_CONFIG
-from src.infrastructure.llm.harness import agent_inputs, agent_run, message_text, response_format
-from src.infrastructure.persistence.file_storage import save_user_state
-from src.infrastructure.persistence.user_storage import user_exercise_cache
 
 
 def generate_instructions(username: str) -> str:
@@ -16,16 +16,16 @@ def generate_instructions(username: str) -> str:
 
     if (user.current_exercise is None):
         raise ValueError(f"User current storage not found")
-    
+
     exercise_context = create_exercise_context(exercise)
 
     prompt = create_instructions(exercise_context)
 
     user.current_exercise.prompt = prompt
-    save_user_state(user)
+    container.users().save(user)
 
     return prompt
-    
+
 def submit_response(response: str, username: str) -> tuple[TextCorrection, WritingSummary]:
     user, exercise = user_exercise_cache(username)
 
@@ -43,35 +43,34 @@ def submit_response(response: str, username: str) -> tuple[TextCorrection, Writi
     return corrected, summary
 
 
-    
-def create_instructions(exercise_context: ExerciseContext):    
 
-    agent_input = AgentInputs(
+def create_instructions(exercise_context: ExerciseContext):
+
+    request = agent_request(
         name=AgentNames.WRITING_INSTRUCTIONS,
         system_prompt=WRITING_PROMPT_CONFIG[AgentNames.WRITING_INSTRUCTIONS],
-        exercise_context=exercise_context
+        exercise_context=exercise_context,
     )
 
-    response = agent_run(agent_input)
-    return message_text(response["messages"][-1].content)
+    return container.llm().text(request)
 
 def progress_tagging(user_response: str, exercise_context: ExerciseContext):
 
-    agent_input = agent_inputs(name=AgentNames.WRITING_TAGGING, system_prompt=WRITING_PROMPT_CONFIG[AgentNames.WRITING_TAGGING], 
-                               exercise_context=exercise_context, input=user_response, schema=Progress)
+    request = agent_request(name=AgentNames.WRITING_TAGGING, system_prompt=WRITING_PROMPT_CONFIG[AgentNames.WRITING_TAGGING],
+                            exercise_context=exercise_context, input=user_response, schema=Progress)
 
-    return response_format(agent_input, Progress)
+    return container.llm().structured(request, Progress)
 
 def text_correction(user_response: str, exercise_context: ExerciseContext, writing_instruction: str):
 
-    agent_input = agent_inputs(AgentNames.WRITING_CORRECTOR, system_prompt=WRITING_PROMPT_CONFIG[AgentNames.WRITING_CORRECTOR], 
-                               exercise_context=exercise_context, schema=TextCorrection, stimulus=writing_instruction,input=user_response)
+    request = agent_request(AgentNames.WRITING_CORRECTOR, system_prompt=WRITING_PROMPT_CONFIG[AgentNames.WRITING_CORRECTOR],
+                            exercise_context=exercise_context, schema=TextCorrection, stimulus=writing_instruction, input=user_response)
 
-    return response_format(agent_input, TextCorrection)
+    return container.llm().structured(request, TextCorrection)
 
 def correction_summary(edits: TextCorrection, exercise_context: ExerciseContext, exercise_counts: Progress):
 
-    agent_input = agent_inputs(name=AgentNames.WRITING_SUMMARY, system_prompt=WRITING_PROMPT_CONFIG[AgentNames.WRITING_SUMMARY],exercise_context=exercise_context,
-        schema=WritingSummary, stimulus=[edits, exercise_counts])
+    request = agent_request(name=AgentNames.WRITING_SUMMARY, system_prompt=WRITING_PROMPT_CONFIG[AgentNames.WRITING_SUMMARY], exercise_context=exercise_context,
+                            schema=WritingSummary, stimulus=[edits, exercise_counts])
 
-    return response_format(agent_input, WritingSummary)
+    return container.llm().structured(request, WritingSummary)

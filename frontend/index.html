@@ -68,22 +68,90 @@
         </form>
       </section>
 
+      <section id="panel-goals" class="panel card hidden" aria-labelledby="goals-heading">
+        <h2 id="goals-heading" class="panel-title">Tell us about your Spanish</h2>
+        <p class="panel-lead">
+          Four quick questions. We use these to pick the right work for you, and you can
+          change them any time.
+        </p>
+        <form id="form-goals">
+          <label for="goal-direction">Why are you learning Spanish?</label>
+          <select id="goal-direction" name="direction" required>
+            <option value="travel">Travel</option>
+            <option value="school">School or exams</option>
+            <option value="work">Work</option>
+            <option value="social">Friends and family</option>
+            <option value="personal">Personal interest</option>
+          </select>
+
+          <label for="goal-target">Where would you like to get to?</label>
+          <select id="goal-target" name="desired_band" required>
+            <option value="A2">Basic conversational — order food, ask directions</option>
+            <option value="B1" selected>
+              Solid conversational — hold a real conversation
+            </option>
+            <option value="B1.5">Comfortable in most everyday situations</option>
+            <option value="B2">Upper intermediate — work or study in Spanish</option>
+          </select>
+
+          <label for="goal-time">How much time can you give it each week?</label>
+          <select id="goal-time" name="weekly_time" required>
+            <option value="30-60m">30–60 minutes</option>
+            <option value="1-2h" selected>1–2 hours</option>
+            <option value="2-3h">2–3 hours</option>
+            <option value="4-5h">4–5 hours</option>
+            <option value="6-7h">6–7 hours</option>
+            <option value="7h+">7+ hours</option>
+            <option value="14h+">14+ hours</option>
+          </select>
+
+          <label for="goal-length">How long should each exercise be?</label>
+          <select id="goal-length" name="length_preference" required>
+            <option value="short">Short — quick practice</option>
+            <option value="standard" selected>Standard</option>
+            <option value="long">Long — a proper session</option>
+          </select>
+
+          <div class="actions">
+            <button type="submit" class="btn btn-primary">
+              <span class="btn-label">Continue</span>
+            </button>
+            <button type="button" class="btn btn-ghost" id="btn-goals-logout">
+              <span class="btn-label">Log out</span>
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <section id="panel-placement" class="panel card hidden" aria-labelledby="placement-heading">
+        <h2 id="placement-heading" class="panel-title">Quick placement check</h2>
+        <p class="panel-lead">
+          This is not a test you can fail. Answer what you can and skip anything you
+          don't know — it just tells us where to start you.
+        </p>
+        <form id="form-placement">
+          <div id="placement-root"></div>
+          <div class="actions">
+            <button type="submit" class="btn btn-primary">
+              <span class="btn-label">Finish and see my level</span>
+            </button>
+            <button type="button" class="btn btn-ghost" id="btn-placement-logout">
+              <span class="btn-label">Log out</span>
+            </button>
+          </div>
+        </form>
+      </section>
+
       <section id="panel-exercise" class="panel card hidden" aria-labelledby="exercise-heading">
         <h2 id="exercise-heading" class="panel-title">Choose exercise</h2>
         <p class="user-pill" id="exercise-user-label" hidden></p>
+        <div id="level-summary" class="level-summary" hidden></div>
         <form id="form-exercise">
           <label for="ex-type">Type</label>
           <select id="ex-type" name="type" required>
             <option value="writing">Writing</option>
             <option value="reading">Reading</option>
             <option value="drills">Drills</option>
-          </select>
-
-          <label for="ex-difficulty">Difficulty</label>
-          <select id="ex-difficulty" name="difficulty" required>
-            <option value="beginner">Beginner</option>
-            <option value="novice">Novice</option>
-            <option value="intermediate">Intermediate</option>
           </select>
 
           <fieldset class="fieldset-plain">

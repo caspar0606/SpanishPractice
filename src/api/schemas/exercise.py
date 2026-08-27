@@ -1,12 +1,13 @@
 from pydantic import BaseModel
 
-from src.domain.enums import DifficultyLevels, ExerciseStyle, ExerciseTypes
+from src.domain.enums import ExerciseStyle, ExerciseTypes
 from src.domain.models.exercise import AreasOfFocus, Exercise, ExerciseContext
 
 class ExerciseRequest(BaseModel):
+    """Difficulty is derived from the learner's band, never sent by the client."""
+
     username: str
     type: ExerciseTypes
-    difficulty: DifficultyLevels
     style: ExerciseStyle
     preferences: AreasOfFocus | None = None
 

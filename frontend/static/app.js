@@ -5,11 +5,37 @@
 
 const STORAGE_USER = "sp_username";
 
-const WORD_COUNTS = {
-  beginner: { w: 60, r: 100 },
-  novice: { w: 120, r: 250 },
-  intermediate: { w: 200, r: 400 },
+/** Plain-English label for each band. Mirrors `gloss` in `src/domain/rules/band.py`. */
+const BAND_LABELS = {
+  A1: "first words and phrases",
+  "A1.5": "getting by with the basics",
+  A2: "basic conversational Spanish",
+  "A2.5": "confident with the basics",
+  B1: "solid conversational Spanish",
+  "B1.5": "comfortable in most everyday situations",
+  B2: "upper intermediate",
 };
+
+function bandLabel(band) {
+  if (!band) return "";
+  return BAND_LABELS[band] || String(band);
+}
+
+/**
+ * Turns a week count into something a person can picture. Long goals read
+ * better in months or years than as "roughly 120 weeks".
+ */
+function humanizeDuration(weeks) {
+  if (!weeks || weeks < 1) return "";
+  if (weeks < 9) return `about ${Math.round(weeks)} week${Math.round(weeks) === 1 ? "" : "s"}`;
+  if (weeks < 52) {
+    const months = Math.round(weeks / 4.35);
+    return `about ${months} month${months === 1 ? "" : "s"}`;
+  }
+  const years = weeks / 52;
+  const rounded = years < 2 ? Math.round(years * 2) / 2 : Math.round(years);
+  return `about ${rounded} year${rounded === 1 ? "" : "s"}`;
+}
 
 const TENSE_OPTS = [
   ["presente_de_indicativo", "Presente de indicativo"],
@@ -87,12 +113,14 @@ function orderedDrillKeysWithMarked(setsByType) {
   });
 }
 
-/** @type {{ exercise: object | null, writingPrompt: string | null, readingPrompt: object | null, drills: object | null }} */
+/** @type {{ exercise: object | null, writingPrompt: string | null, readingPrompt: object | null, drills: object | null, placementForm: object | null, plan: object | null }} */
 const state = {
   exercise: null,
   writingPrompt: null,
   readingPrompt: null,
   drills: null,
+  placementForm: null,
+  plan: null,
 };
 
 const STORAGE_TUTORIAL_DISMISSED = "sp_tutorial_dismissed";
@@ -292,17 +320,6 @@ async function api(method, path, body) {
   return data;
 }
 
-function exerciseContextFromExercise(ex) {
-  const d = ex.difficulty_level;
-  const isReading = ex.exercise_type === "reading";
-  const wc = WORD_COUNTS[d];
-  const word_count = isReading ? wc.r : wc.w;
-  return {
-    areas_of_focus: ex.areas_of_focus,
-    exercise_config: { difficulty: d, word_count },
-  };
-}
-
 function humanizeKey(key) {
   return String(key)
     .split("_")
@@ -359,11 +376,13 @@ function rebuildDrillPrefGrid() {
   buildCheckboxGrid(wrap, opts, "drill-pref-item");
 }
 
+const PANELS = ["login", "goals", "placement", "exercise", "practice", "progress"];
+
 function showPanel(id) {
-  document.getElementById("panel-login").classList.toggle("hidden", id !== "login");
-  document.getElementById("panel-exercise").classList.toggle("hidden", id !== "exercise");
-  document.getElementById("panel-practice").classList.toggle("hidden", id !== "practice");
-  document.getElementById("panel-progress").classList.toggle("hidden", id !== "progress");
+  for (const name of PANELS) {
+    const el = document.getElementById(`panel-${name}`);
+    if (el) el.classList.toggle("hidden", id !== name);
+  }
 }
 
 function updateExerciseUserLabel() {
@@ -425,13 +444,240 @@ async function onLogin(ev) {
   }
   const submitBtn = ev.target.querySelector('button[type="submit"]');
   try {
-    await withBusy(submitBtn, "Signing in…", () =>
+    const res = await withBusy(submitBtn, "Signing in…", () =>
       api("POST", "/user/login", { username, key, new: newUser }),
     );
     setUsername(username);
-    setStatus("Signed in. Choose an exercise below.", false);
     updateExerciseUserLabel();
+    await routeToStep(res.step);
+  } catch (e) {
+    setStatus(e.message, true);
+  }
+}
+
+/**
+ * Sends the learner to whichever onboarding stage they still owe us.
+ * @param {"goals" | "placement" | "ready"} step
+ */
+async function routeToStep(step) {
+  if (step === "goals") {
+    setStatus("Welcome — a few quick questions first.", false);
+    showPanel("goals");
+    return;
+  }
+  if (step === "placement") {
+    setStatus("");
+    showPanel("placement");
+    await loadPlacementForm();
+    return;
+  }
+  setStatus("Choose an exercise below.", false);
+  showPanel("exercise");
+  await refreshLevelSummary();
+}
+
+async function refreshLevelSummary() {
+  const u = getUsername();
+  const el = document.getElementById("level-summary");
+  if (!u || !el) return;
+  try {
+    const res = await api("GET", `/onboarding/status?username=${encodeURIComponent(u)}`);
+    state.plan = res.plan;
+    renderLevelSummary(res.plan);
+  } catch {
+    el.hidden = true;
+  }
+}
+
+function renderLevelSummary(plan) {
+  const el = document.getElementById("level-summary");
+  if (!el) return;
+  if (!plan || !plan.current_band) {
+    el.hidden = true;
+    return;
+  }
+  el.innerHTML = "";
+
+  const now = document.createElement("p");
+  now.className = "level-summary-now";
+  now.textContent = `Your level: ${plan.current_band} — ${plan.current_gloss}`;
+  el.appendChild(now);
+
+  if (plan.target_band) {
+    const next = document.createElement("p");
+    next.className = "level-summary-goal";
+    const duration = humanizeDuration(plan.estimated_weeks);
+    if (plan.half_steps_remaining === 0) {
+      next.textContent = `You've reached your goal of ${plan.target_band}. Keep practising to hold it.`;
+    } else if (duration) {
+      next.textContent = `Goal: ${plan.target_band} — ${plan.target_gloss}. At your current pace that's ${duration} of steady practice.`;
+    } else {
+      next.textContent = `Goal: ${plan.target_band} — ${plan.target_gloss}.`;
+    }
+    el.appendChild(next);
+  }
+
+  el.hidden = false;
+}
+
+async function onGoalsSubmit(ev) {
+  ev.preventDefault();
+  setStatus("");
+  const username = getUsername();
+  if (!username) {
+    showPanel("login");
+    return;
+  }
+  const goals = {
+    direction: document.getElementById("goal-direction").value,
+    desired_band: document.getElementById("goal-target").value,
+    weekly_time: document.getElementById("goal-time").value,
+    length_preference: document.getElementById("goal-length").value,
+  };
+  const submitBtn = ev.target.querySelector('button[type="submit"]');
+  try {
+    const res = await withBusy(submitBtn, "Saving…", () =>
+      api("POST", "/onboarding/goals", { username, goals }),
+    );
+    await routeToStep(res.step);
+  } catch (e) {
+    setStatus(e.message, true);
+  }
+}
+
+async function loadPlacementForm() {
+  const root = document.getElementById("placement-root");
+  if (!root) return;
+  root.innerHTML = '<p class="hint">Loading…</p>';
+  try {
+    const res = await api("GET", "/onboarding/placement");
+    state.placementForm = res.form;
+    renderPlacementForm(res.form);
+  } catch (e) {
+    root.innerHTML = "";
+    setStatus(e.message, true);
+  }
+}
+
+function renderPlacementForm(form) {
+  const root = document.getElementById("placement-root");
+  root.innerHTML = "";
+
+  const mcqSection = document.createElement("div");
+  mcqSection.className = "placement-section";
+  const mcqTitle = document.createElement("p");
+  mcqTitle.className = "help-section-title";
+  mcqTitle.textContent = "Part 1 — Choose the best option";
+  mcqSection.appendChild(mcqTitle);
+
+  (form.mcq || []).forEach((item, idx) => {
+    const block = document.createElement("fieldset");
+    block.className = "fieldset-plain placement-question";
+    const legend = document.createElement("legend");
+    legend.className = "fake-label";
+    legend.textContent = `${idx + 1}. ${item.prompt}`;
+    block.appendChild(legend);
+
+    const row = document.createElement("div");
+    row.className = "row row-tight";
+    item.options.forEach((option) => {
+      const label = document.createElement("label");
+      label.className = "choice-inline";
+      const input = document.createElement("input");
+      input.type = "radio";
+      input.name = `mcq-${item.id}`;
+      input.value = option;
+      label.appendChild(input);
+      label.appendChild(document.createTextNode(` ${option}`));
+      row.appendChild(label);
+    });
+    block.appendChild(row);
+    mcqSection.appendChild(block);
+  });
+  root.appendChild(mcqSection);
+
+  const writingSection = document.createElement("div");
+  writingSection.className = "placement-section";
+  const writingTitle = document.createElement("p");
+  writingTitle.className = "help-section-title";
+  writingTitle.textContent = "Part 2 — Write a little Spanish";
+  const writingPrompt = document.createElement("p");
+  writingPrompt.className = "hint";
+  writingPrompt.textContent = `${form.writing_prompt_en} Aim for about ${form.writing_target_words} words, but write as much or as little as you can.`;
+  const writingInput = document.createElement("textarea");
+  writingInput.id = "placement-writing";
+  writingInput.rows = 6;
+  writingInput.placeholder = "Write in Spanish here, or leave blank if you're a complete beginner.";
+  writingSection.appendChild(writingTitle);
+  writingSection.appendChild(writingPrompt);
+  writingSection.appendChild(writingInput);
+  root.appendChild(writingSection);
+
+  const readingSection = document.createElement("div");
+  readingSection.className = "placement-section";
+  const readingTitle = document.createElement("p");
+  readingTitle.className = "help-section-title";
+  readingTitle.textContent = "Part 3 — Read and answer";
+  const passage = document.createElement("p");
+  passage.className = "passage";
+  passage.textContent = form.reading_passage;
+  readingSection.appendChild(readingTitle);
+  readingSection.appendChild(passage);
+
+  (form.reading_questions || []).forEach((question, idx) => {
+    const label = document.createElement("label");
+    label.htmlFor = `placement-reading-${idx}`;
+    label.textContent = question;
+    const input = document.createElement("input");
+    input.type = "text";
+    input.id = `placement-reading-${idx}`;
+    input.className = "placement-reading-answer";
+    input.placeholder = "Answer in Spanish or English";
+    readingSection.appendChild(label);
+    readingSection.appendChild(input);
+  });
+  root.appendChild(readingSection);
+}
+
+async function onPlacementSubmit(ev) {
+  ev.preventDefault();
+  setStatus("");
+  const username = getUsername();
+  const form = state.placementForm;
+  if (!username || !form) {
+    showPanel("login");
+    return;
+  }
+
+  const mcqAnswers = {};
+  (form.mcq || []).forEach((item) => {
+    const picked = document.querySelector(`input[name="mcq-${item.id}"]:checked`);
+    if (picked) mcqAnswers[item.id] = picked.value;
+  });
+
+  const readingAnswers = (form.reading_questions || []).map(
+    (_, idx) => document.getElementById(`placement-reading-${idx}`)?.value || "",
+  );
+
+  const submission = {
+    mcq_answers: mcqAnswers,
+    writing_response: document.getElementById("placement-writing")?.value || "",
+    reading_answers: readingAnswers,
+  };
+
+  const submitBtn = ev.target.querySelector('button[type="submit"]');
+  try {
+    const res = await withBusy(submitBtn, "Working out your level…", () =>
+      api("POST", "/onboarding/placement", { username, submission }),
+    );
+    state.plan = res.plan;
+    renderLevelSummary(res.plan);
     showPanel("exercise");
+    setStatus(
+      `You're starting at ${res.assigned_band} — ${res.gloss}. ${res.notes_en}`,
+      false,
+    );
+    await refreshLevelSummary();
   } catch (e) {
     setStatus(e.message, true);
   }
@@ -440,7 +686,6 @@ async function onLogin(ev) {
 function readExerciseFormBody() {
   const username = getUsername();
   const type = document.getElementById("ex-type").value;
-  const difficulty = document.getElementById("ex-difficulty").value;
   const style = document.querySelector('input[name="style"]:checked').value;
   let preferences = null;
 
@@ -499,7 +744,7 @@ function readExerciseFormBody() {
     }
   }
 
-  return { username, type, difficulty, style, preferences };
+  return { username, type, style, preferences };
 }
 
 async function onExerciseSubmit(ev) {
@@ -549,27 +794,17 @@ async function runGenerateForCurrentExercise() {
   const u = getUsername();
   if (!ex || !u) return;
   showPracticeLoading("Building your exercise — this can take a moment…");
-  const ctx = exerciseContextFromExercise(ex);
   try {
     if (ex.exercise_type === "writing") {
-      const res = await api("POST", "/writing/generate", {
-        username: u,
-        exercise_context: ctx,
-      });
+      const res = await api("POST", "/writing/generate", { username: u });
       state.writingPrompt = res.prompt;
       renderWritingPractice();
     } else if (ex.exercise_type === "reading") {
-      const res = await api("POST", "/reading/generate", {
-        username: u,
-        exercise_context: ctx,
-      });
+      const res = await api("POST", "/reading/generate", { username: u });
       state.readingPrompt = res.prompt;
       renderReadingPractice();
     } else if (ex.exercise_type === "drills") {
-      const res = await api("POST", "/drills/generate", {
-        username: u,
-        exercise_context: ctx,
-      });
+      const res = await api("POST", "/drills/generate", { username: u });
       state.drills = res.prompt;
       renderDrillsPractice();
     } else {
@@ -815,7 +1050,7 @@ function updateFocusWidgetFromExercise(ex) {
   }
 
   const aof = ex.areas_of_focus || {};
-  const difficulty = ex.exercise_config?.difficulty || ex.difficulty_level || "";
+  const band = ex.band || ex.exercise_config?.band || "";
   const type = ex.exercise_type || "";
 
   const normList = (arr) =>
@@ -857,7 +1092,9 @@ function updateFocusWidgetFromExercise(ex) {
   h3.textContent = "Focus";
   const meta = document.createElement("p");
   meta.className = "focus-meta";
-  meta.textContent = `Type: ${humanizeKey(type)} • Difficulty: ${humanizeKey(difficulty)}`;
+  meta.textContent = band
+    ? `Type: ${humanizeKey(type)} • Level: ${band} — ${bandLabel(band)}`
+    : `Type: ${humanizeKey(type)}`;
   drawer.appendChild(h3);
   drawer.appendChild(meta);
   drawer.appendChild(section("Tenses", tenses));
@@ -1407,8 +1644,12 @@ function init() {
   buildCheckboxGrid(prefTopics, TOPIC_OPTS, "pref-topic");
 
   document.getElementById("form-login").addEventListener("submit", onLogin);
+  document.getElementById("form-goals").addEventListener("submit", onGoalsSubmit);
+  document.getElementById("form-placement").addEventListener("submit", onPlacementSubmit);
   document.getElementById("form-exercise").addEventListener("submit", onExerciseSubmit);
   document.getElementById("btn-logout").addEventListener("click", onLogout);
+  document.getElementById("btn-goals-logout").addEventListener("click", onLogout);
+  document.getElementById("btn-placement-logout").addEventListener("click", onLogout);
   document.getElementById("btn-progress").addEventListener("click", onProgressClick);
   document.getElementById("btn-back-exercise").addEventListener("click", onBackExercise);
   document.getElementById("btn-close-progress").addEventListener("click", () => {
@@ -1459,9 +1700,14 @@ function init() {
     });
   });
 
-  if (getUsername()) {
+  const resuming = getUsername();
+  if (resuming) {
     updateExerciseUserLabel();
     showPanel("exercise");
+    // A returning session may still owe us onboarding, so ask the server.
+    api("GET", `/onboarding/status?username=${encodeURIComponent(resuming)}`)
+      .then((res) => routeToStep(res.step))
+      .catch(() => showPanel("login"));
   } else {
     showPanel("login");
   }

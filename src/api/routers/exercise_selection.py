@@ -12,7 +12,6 @@ def generate_exercise_endpoint(request: ExerciseRequest):
         result = selection_file.generate_exercise(
             request.username,
             request.type,
-            request.difficulty,
             request.style,
             request.preferences,
         )

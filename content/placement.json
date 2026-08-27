@@ -1,0 +1,72 @@
+{
+  "mcq": [
+    {
+      "id": "a1-1",
+      "band": "A1",
+      "prompt": "Yo _____ estudiante de español.",
+      "options": ["soy", "es", "eres", "son"],
+      "answer": "soy"
+    },
+    {
+      "id": "a1-2",
+      "band": "A1",
+      "prompt": "Choose the correct article: _____ casa es grande.",
+      "options": ["La", "El", "Los", "Un"],
+      "answer": "La"
+    },
+    {
+      "id": "a2-1",
+      "band": "A2",
+      "prompt": "Ayer nosotros _____ al cine.",
+      "options": ["fuimos", "vamos", "iremos", "íbamos"],
+      "answer": "fuimos"
+    },
+    {
+      "id": "a2-2",
+      "band": "A2",
+      "prompt": "Este regalo es _____ ti.",
+      "options": ["para", "por", "de", "en"],
+      "answer": "para"
+    },
+    {
+      "id": "b1-1",
+      "band": "B1",
+      "prompt": "Cuando era niño, siempre _____ en el parque.",
+      "options": ["jugaba", "jugué", "jugaré", "juego"],
+      "answer": "jugaba"
+    },
+    {
+      "id": "b1-2",
+      "band": "B1",
+      "prompt": "Le _____ el libro a mi hermana ayer.",
+      "options": ["di", "dio", "diste", "dieron"],
+      "answer": "di"
+    },
+    {
+      "id": "b2-1",
+      "band": "B2",
+      "prompt": "Si tuviera más tiempo, _____ más libros.",
+      "options": ["leería", "leeré", "leo", "leí"],
+      "answer": "leería"
+    },
+    {
+      "id": "b2-2",
+      "band": "B2",
+      "prompt": "No me gusta que la gente _____ tarde a las reuniones.",
+      "options": ["llegue", "llega", "llegará", "llegaba"],
+      "answer": "llegue"
+    }
+  ],
+  "writing": {
+    "prompt_en": "In Spanish, write a short paragraph about what you did last weekend and what you plan to do next weekend. Use whatever Spanish you are comfortable with.",
+    "target_words": 50
+  },
+  "reading": {
+    "passage": "Marta vive en un pueblo pequeño cerca del mar. Cada mañana camina a la panadería para comprar pan fresco y habla un rato con la dueña, que la conoce desde niña. Los sábados coge el autobús a la ciudad para visitar a su hermano, que trabaja en un hospital. El mes que viene los dos van a viajar juntos a las montañas, porque Marta quiere aprender a esquiar antes de cumplir treinta años.",
+    "questions": [
+      "¿Dónde vive Marta?",
+      "¿Qué hace Marta cada mañana?",
+      "¿Qué van a hacer Marta y su hermano el mes que viene?"
+    ]
+  }
+}

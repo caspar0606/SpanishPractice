@@ -2,9 +2,8 @@ from typing import ClassVar, Optional
 
 from pydantic import BaseModel, Field, field_validator
 
-from src.domain.enums import DrillTypes
+from src.domain.enums import AgentNames, DrillTypes
 from src.domain.models.progress import ComputeStats
-from src.infrastructure.llm.contracts.shared import AgentNames
 
 
 class DrillItem(BaseModel):

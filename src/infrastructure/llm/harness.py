@@ -5,13 +5,12 @@ from langchain.chat_models import init_chat_model
 from langchain.agents import create_agent
 from langchain.messages import HumanMessage
 
-from src.domain.models.exercise import ExerciseContext
-from src.infrastructure.llm.contracts.shared import AgentInputs, AgentNames
+from src.domain.models.llm import AgentRequest
 from src.infrastructure.llm.utils import serialise_for_prompt
 
 
 
-def agent_run(agent_inputs: AgentInputs):
+def agent_run(agent_inputs: AgentRequest):
     model = init_chat_model(model = "gpt-5.4-mini")
 
     agent = create_agent(
@@ -23,11 +22,13 @@ def agent_run(agent_inputs: AgentInputs):
 
     messages = []
 
-    if agent_inputs.exercise_context.areas_of_focus is not None:
-        messages.append(HumanMessage(content=f"Lesson context:\n{serialise_for_prompt(agent_inputs.exercise_context.areas_of_focus)}"))
+    context = agent_inputs.exercise_context
 
-    if agent_inputs.exercise_context.exercise_config is not None:
-        messages.append(HumanMessage(content=f"Exercise config:\n{serialise_for_prompt(agent_inputs.exercise_context.exercise_config)}"))
+    if context is not None and context.areas_of_focus is not None:
+        messages.append(HumanMessage(content=f"Lesson context:\n{serialise_for_prompt(context.areas_of_focus)}"))
+
+    if context is not None and context.exercise_config is not None:
+        messages.append(HumanMessage(content=f"Exercise config:\n{serialise_for_prompt(context.exercise_config)}"))
 
     if agent_inputs.stimulus is not None:
         messages.append(HumanMessage(content=f"User stimulus:\n{serialise_for_prompt(agent_inputs.stimulus)}"))
@@ -58,7 +59,7 @@ def message_text(content: Any) -> str:
 
 
 T = TypeVar("T", bound=BaseModel)
-def response_format(agent_input: AgentInputs, schema: type[T]) -> T:
+def response_format(agent_input: AgentRequest, schema: type[T]) -> T:
 
     response = agent_run(agent_input)
     structured = response.get("structured_response")
@@ -69,21 +70,3 @@ def response_format(agent_input: AgentInputs, schema: type[T]) -> T:
 
     last = response["messages"][-1]
     return schema.model_validate_json(message_text(last.content))
-
-
-def agent_inputs(
-    name: AgentNames | None,
-    system_prompt: str,
-    exercise_context: ExerciseContext,
-    schema: Any | None = None,
-    input: Any | None = None,
-    stimulus: Any | None = None
-):
-    return AgentInputs(
-        name=name,
-        system_prompt=system_prompt,
-        exercise_context=exercise_context,
-        output_schema=schema,
-        stimulus=stimulus,
-        input_text=input
-    )

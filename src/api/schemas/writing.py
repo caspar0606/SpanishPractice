@@ -1,12 +1,12 @@
 from pydantic import BaseModel
 
-from src.domain.models.exercise import ExerciseContext
 from src.infrastructure.llm.contracts.writing import WritingSummary
 from src.infrastructure.llm.contracts.text_correction import TextCorrection
 
 class WritingGenerationRequest(BaseModel):
+    """The server rebuilds the exercise context from the stored exercise."""
+
     username: str
-    exercise_context: ExerciseContext
 
 class WritingGenerationResponse(BaseModel):
     prompt: str

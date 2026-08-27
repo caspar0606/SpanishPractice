@@ -7,11 +7,11 @@ from src.domain.models.progress import Progress, ProgressUpdates
 from src.domain.models.user import User
 from src.domain.rules.score import add_scores, combine_scores
 from src.domain.utils import initialise_progress
+from src.application import container
 from src.infrastructure.config.logging import generate_id
-from src.infrastructure.persistence.file_storage import load_user_state, save_user_state
 
 def return_progress(username: str):
-    user = load_user_state(username)
+    user = container.users().load(username)
 
     if user is None:
         raise ValueError(f"User '{username}' not found")
@@ -36,7 +36,7 @@ def save_user_progress(user: User, response: Any, feedback: Any, score: Any):
     user.exercise_history.append(finished_exercise)
     user.progress_history.append(update_progress(user, finished_exercise))
 
-    save_user_state(user)
+    container.users().save(user)
 
 
 def build_drill_progress_update(exercise_context, feedback) -> Progress:
