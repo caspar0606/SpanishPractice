@@ -13,9 +13,18 @@ def return_progress(username: str):
     user = load_user_state(username)
 
     if user is None:
-        raise ValueError()
+        raise ValueError(f"User '{username}' not found")
     
     return user.progress
+
+def return_progress_history(username: str) -> tuple[Progress, list[ProgressUpdates]]:
+    """Current totals plus the per-exercise updates recorded by save_user_progress."""
+    user = load_user_state(username)
+
+    if user is None:
+        raise ValueError(f"User '{username}' not found")
+
+    return user.progress, user.progress_history
 
 def save_user_progress(user: User, response: Any, feedback: Any, score: Any):
 

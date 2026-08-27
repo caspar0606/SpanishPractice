@@ -1308,9 +1308,10 @@ async function onProgressClick() {
   const btn = document.getElementById("btn-progress");
   try {
     const res = await withBusy(btn, "Loading…", () =>
-      api("POST", "/progress/generate", { username: u }),
+      api("GET", `/progress/${encodeURIComponent(u)}/history`),
     );
     renderProgress(res.progress);
+    renderProgressHistory(res.progress_history);
     showPanel("progress");
     setStatus("Progress loaded.", false);
   } catch (e) {
@@ -1344,6 +1345,84 @@ function renderProgress(progress) {
   root.appendChild(progressTable("Tenses", progress.tenses));
   root.appendChild(progressTable("Grammar", progress.grammar));
   root.appendChild(progressTable("Topics", progress.topics));
+}
+
+/** Totals across every category of one exercise's score. */
+function scoreTotals(score) {
+  let total = 0;
+  let correct = 0;
+  for (const category of ["tenses", "grammar", "topics"]) {
+    for (const stats of Object.values(score?.[category] ?? {})) {
+      total += stats?.total_attempts ?? 0;
+      correct += stats?.correct_attempts ?? 0;
+    }
+  }
+  return { total, correct };
+}
+
+/** Areas the exercise actually scored, so untouched ones stay out of the row. */
+function practisedAreas(score) {
+  const areas = [];
+  for (const category of ["tenses", "grammar", "topics"]) {
+    for (const [area, stats] of Object.entries(score?.[category] ?? {})) {
+      if ((stats?.total_attempts ?? 0) > 0) areas.push(humanizeKey(area));
+    }
+  }
+  return areas;
+}
+
+function renderProgressHistory(history) {
+  const root = document.getElementById("progress-root");
+  // Reuses progress-block / progress-table so it matches the tables above it.
+  const wrap = document.createElement("div");
+  wrap.className = "progress-block";
+  const h = document.createElement("h3");
+  h.textContent = "Recent exercises";
+  wrap.appendChild(h);
+
+  if (!Array.isArray(history) || history.length === 0) {
+    const empty = document.createElement("p");
+    empty.className = "passage";
+    empty.textContent = "No completed exercises yet. Finish one and it will show up here.";
+    wrap.appendChild(empty);
+    root.appendChild(wrap);
+    return;
+  }
+
+  const table = document.createElement("table");
+  table.className = "progress-table";
+  table.innerHTML =
+    "<thead><tr><th>When</th><th>Practised</th><th>Score</th></tr></thead>";
+  const tb = document.createElement("tbody");
+
+  // Newest first; the API returns them in the order they were completed.
+  for (const entry of [...history].reverse()) {
+    const { total, correct } = scoreTotals(entry.score);
+    const tr = document.createElement("tr");
+
+    const when = document.createElement("td");
+    const parsed = new Date(entry.time);
+    when.textContent = Number.isNaN(parsed.getTime())
+      ? String(entry.time ?? "")
+      : parsed.toLocaleDateString(undefined, { day: "numeric", month: "short" });
+    tr.appendChild(when);
+
+    const areas = document.createElement("td");
+    const practised = practisedAreas(entry.score);
+    areas.textContent = practised.length ? practised.join(", ") : "No areas scored";
+    tr.appendChild(areas);
+
+    const score = document.createElement("td");
+    score.textContent = total > 0 ? `${correct} / ${total}` : "n/a";
+    score.className = "progress-score-cell";
+    tr.appendChild(score);
+
+    tb.appendChild(tr);
+  }
+
+  table.appendChild(tb);
+  wrap.appendChild(table);
+  root.appendChild(wrap);
 }
 
 function progressTable(title, dict) {

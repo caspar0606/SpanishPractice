@@ -9,9 +9,6 @@ class CurrentProgressRequest(BaseModel):
 class CurrentProgressResponse(BaseModel):
     progress: Progress
 
-class HistoricalProgressRequest(BaseModel):
-    username: str
-
 class HistoricalProgressResponse(BaseModel):
     progress: Progress
     progress_history: list[ProgressUpdates]
