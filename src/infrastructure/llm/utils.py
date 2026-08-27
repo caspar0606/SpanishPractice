@@ -5,6 +5,8 @@ from typing import Any, Type, get_args, get_origin
 
 from pydantic import BaseModel
 
+from src.domain.enums import is_category_sentinel
+
 
 def _to_prompt_jsonable(value: Any) -> Any:
     """Convert nested values into something json.dumps can handle."""
@@ -47,22 +49,13 @@ def model_prompt_example_as_json(model: Type[BaseModel]) -> str:
 
     Priority:
     1) `Model.example_json()` if defined (model-owned, stays in sync with contract intent)
-    2) `model_config.json_schema_extra["example"]` if present
-    3) fallback placeholder example derived from field types
+    2) fallback placeholder example derived from field types
     """
     if hasattr(model, "example_json") and callable(getattr(model, "example_json")):
         ex = model.example_json()  # type: ignore[attr-defined]
         return json.dumps(ex, indent=2, ensure_ascii=False)
 
-    extra = getattr(model, "model_config", {}).get("json_schema_extra", {})
-    if isinstance(extra, dict) and "example" in extra:
-        return json.dumps(extra["example"], indent=2, ensure_ascii=False)
-
     return json.dumps(_fallback_example_dict(model), indent=2, ensure_ascii=False)
-
-
-def _is_sentinel_enum_member(member: Enum) -> bool:
-    return member.name in {"TENSES", "GRAMMAR", "TOPICS"} and str(member.value) in {"tenses", "grammar", "topics"}
 
 
 def _fallback_for_annotation(annotation: Any) -> Any:
@@ -78,7 +71,7 @@ def _fallback_for_annotation(annotation: Any) -> Any:
             return _fallback_example_dict(annotation)
         if issubclass(annotation, Enum):
             for m in annotation:
-                if not _is_sentinel_enum_member(m):
+                if not is_category_sentinel(m):
                     return m.value
             return next(iter(annotation)).value
         if annotation is str:
@@ -98,7 +91,7 @@ def _fallback_for_annotation(annotation: Any) -> Any:
         if isinstance(k_t, type) and issubclass(k_t, Enum):
             out: dict[str, Any] = {}
             for m in k_t:
-                if _is_sentinel_enum_member(m):
+                if is_category_sentinel(m):
                     continue
                 out[str(m.value)] = _fallback_for_annotation(v_t)
             return out

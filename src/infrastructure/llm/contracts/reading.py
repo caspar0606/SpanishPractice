@@ -1,6 +1,6 @@
 from typing import ClassVar
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, Field
 
 from src.infrastructure.llm.contracts.text_correction import TextCorrection
 
@@ -16,7 +16,6 @@ class ReadingGeneration(BaseModel):
             "¿Qué hicieron además de comprar fruta?",
         ],
     }
-    model_config = ConfigDict(json_schema_extra={"example": _EXAMPLE})
 
     passage: str
     questions: list[str] = Field(min_length=5, max_length=5)
@@ -39,7 +38,6 @@ class TextCorrections(BaseModel):
             }
         ]
     }
-    model_config = ConfigDict(json_schema_extra={"example": _EXAMPLE})
 
     corrections: list[TextCorrection]
 
@@ -59,7 +57,6 @@ class QuestionMarking(BaseModel):
         ],
         "general_feedback": "topic_score: 0.75. You understood the main ideas, but a couple answers lacked detail.",
     }
-    model_config = ConfigDict(json_schema_extra={"example": _EXAMPLE})
 
     individual_questions: list[str]
     general_feedback: str

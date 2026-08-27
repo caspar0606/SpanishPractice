@@ -6,7 +6,7 @@ from src.infrastructure.llm.contracts.writing import WritingSummary
 from src.infrastructure.llm.contracts.shared import AgentInputs, AgentNames
 from src.infrastructure.llm.contracts.text_correction import TextCorrection
 from src.infrastructure.llm.prompts.writing import WRITING_PROMPT_CONFIG
-from src.infrastructure.llm.harness import agent_inputs, agent_run, response_format
+from src.infrastructure.llm.harness import agent_inputs, agent_run, message_text, response_format
 from src.infrastructure.persistence.file_storage import save_user_state
 from src.infrastructure.persistence.user_storage import user_exercise_cache
 
@@ -53,7 +53,7 @@ def create_instructions(exercise_context: ExerciseContext):
     )
 
     response = agent_run(agent_input)
-    return response["messages"][-1].content
+    return message_text(response["messages"][-1].content)
 
 def progress_tagging(user_response: str, exercise_context: ExerciseContext):
 

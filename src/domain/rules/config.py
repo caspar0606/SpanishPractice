@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from src.domain.enums import AoFs, DifficultyLevels, DrillTypes
+from src.domain.enums import AoFs, DifficultyLevels, DrillTypes, ExerciseTypes
 
 
 QUESTION_NUMBER_CONFIG = {
@@ -60,5 +60,14 @@ FOCUS_CONFIG = {
     "focus_grammar": (AoFs.GRAMMAR, 1, "num_grammar"),
     "focus_topics": (AoFs.TOPICS, 2, "num_topics"),
 }
+
+
+def word_count_for(exercise_type: ExerciseTypes, difficulty: DifficultyLevels) -> int:
+    config = DIFFICULTY_CONFIG[difficulty]
+    if exercise_type is ExerciseTypes.READING:
+        return config.r_word_count
+    if exercise_type is ExerciseTypes.WRITING:
+        return config.w_word_count
+    return 0
 
 

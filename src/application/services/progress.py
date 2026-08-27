@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import Any
 
+from src.domain.enums import is_category_sentinel
 from src.domain.models.exercise import ExerciseStorage
 from src.domain.models.progress import Progress, ProgressUpdates
 from src.domain.models.user import User
@@ -13,7 +14,7 @@ def return_progress(username: str):
     user = load_user_state(username)
 
     if user is None:
-        raise ValueError()
+        raise ValueError(f"User '{username}' not found")
     
     return user.progress
 
@@ -21,6 +22,9 @@ def save_user_progress(user: User, response: Any, feedback: Any, score: Any):
 
     if user.current_exercise is None or user.current_exercise.prompt is None:
         raise ValueError(f"User current storage not found")
+
+    if user.current_exercise.end_time is not None or user.current_exercise.user_response is not None:
+        raise ValueError("Current exercise has already been submitted")
 
     user.current_exercise.user_response = response
     user.current_exercise.feedback = feedback
@@ -42,17 +46,17 @@ def build_drill_progress_update(exercise_context, feedback) -> Progress:
 
     if aofs.focus_tenses:
         for tense in aofs.focus_tenses:
-            if tense is not None:
+            if tense is not None and not is_category_sentinel(tense) and tense in prog.tenses:
                 add_scores(prog.tenses[tense], stats)
 
     if aofs.focus_topics:
         for topic in aofs.focus_topics:
-            if topic is not None:
+            if topic is not None and not is_category_sentinel(topic) and topic in prog.topics:
                 add_scores(prog.topics[topic], stats)
 
     if aofs.focus_grammar:
         for grammar in aofs.focus_grammar:
-            if grammar is not None:
+            if grammar is not None and not is_category_sentinel(grammar) and grammar in prog.grammar:
                 add_scores(prog.grammar[grammar], stats)
 
     return prog
@@ -67,6 +71,6 @@ def update_progress(user: User, exercise: ExerciseStorage):
         id=generate_id(),
         exercise_id=exercise.id,
         time=datetime.now(),
-        score=exercise.score,
-        new_progress=user.progress
+        score=exercise.score.model_copy(deep=True),
+        new_progress=user.progress.model_copy(deep=True),
     )

@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Any, ClassVar, Optional
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, field_validator
 
 from src.domain.enums import DifficultyLevels, ExerciseTypes, Grammar, Tenses, Topics
 from src.domain.models.progress import Progress
@@ -13,11 +13,17 @@ class AreasOfFocus(BaseModel):
         "focus_grammar": None,
         "focus_topics": ["travel"],
     }
-    model_config = ConfigDict(json_schema_extra={"example": _EXAMPLE})
 
     focus_tenses: Optional[list[Tenses]] = None
     focus_grammar: Optional[list[Grammar]] = None
     focus_topics: Optional[list[Topics]] = None
+
+    @field_validator("focus_tenses", "focus_grammar", "focus_topics", mode="before")
+    @classmethod
+    def _empty_list_to_none(cls, value: Any) -> Any:
+        if value == []:
+            return None
+        return value
 
     @classmethod
     def example_json(cls) -> dict:
@@ -25,7 +31,6 @@ class AreasOfFocus(BaseModel):
 
 class ExerciseConfig(BaseModel):
     _EXAMPLE: ClassVar[dict] = {"difficulty": "beginner", "word_count": 160}
-    model_config = ConfigDict(json_schema_extra={"example": _EXAMPLE})
 
     difficulty: DifficultyLevels
     word_count: int
@@ -47,7 +52,6 @@ class ExerciseContext(BaseModel):
         "areas_of_focus": AreasOfFocus._EXAMPLE,
         "exercise_config": ExerciseConfig._EXAMPLE,
     }
-    model_config = ConfigDict(json_schema_extra={"example": _EXAMPLE})
 
     areas_of_focus: AreasOfFocus
     exercise_config: ExerciseConfig 
@@ -67,5 +71,3 @@ class ExerciseStorage(BaseModel):
     user_response: Optional[Any] = None
     feedback: Optional[Any] = None
     score: Optional[Progress] = None
-
-

@@ -187,7 +187,8 @@ def create_drill_set(exercise_context: ExerciseContext, question_set: dict, dril
                                schema=DrillSet,
                                stimulus=f"number_of_questions: {question_set[drill_type]}")
     
-    return response_format(agent_input, DrillSet)
+    result = response_format(agent_input, DrillSet)
+    return result.model_copy(update={"drill_type": drill_type})
             
 
 
@@ -212,4 +213,5 @@ def mark_drill_set(user_response: list[str], drill_set: DrillSet,
                                input=user_response,
                                stimulus=[drill_set.model_dump_json()])
     
-    return response_format(agent_input, DrillMarkingSet)
+    result = response_format(agent_input, DrillMarkingSet)
+    return result.model_copy(update={"drill_type": drill_type})

@@ -3,14 +3,13 @@ from datetime import datetime
 
 from typing import ClassVar
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel
 
 from src.domain.enums import Grammar, Tenses, Topics
 
 
 class ComputeStats(BaseModel):
     _EXAMPLE: ClassVar[dict] = {"total_attempts": 3.0, "correct_attempts": 2.0}
-    model_config = ConfigDict(json_schema_extra={"example": _EXAMPLE})
 
     total_attempts: float = 0
     correct_attempts: float = 0
@@ -45,7 +44,6 @@ class Progress(BaseModel):
             "relationships": ComputeStats._EXAMPLE,
         },
     }
-    model_config = ConfigDict(json_schema_extra={"example": _EXAMPLE})
 
     tenses: dict[Tenses, ComputeStats]
     grammar: dict[Grammar, ComputeStats] 
@@ -61,5 +59,3 @@ class ProgressUpdates(BaseModel):
     time: datetime
     score: Progress
     new_progress: Progress
-
-

@@ -67,4 +67,20 @@ class Aspects(str, Enum):
 
 class Moods(str, Enum):
        SUBJUNCTIVE = "subjunctive"
-       INDICATIVE = "indicative" 
+       INDICATIVE = "indicative"
+
+
+CATEGORY_SENTINEL_NAMES = frozenset({"TENSES", "GRAMMAR", "TOPICS"})
+CATEGORY_SENTINEL_VALUES = frozenset({"tenses", "grammar", "topics"})
+
+
+def is_category_sentinel(member: Enum) -> bool:
+    """True for Tenses.TENSES / Grammar.GRAMMAR / Topics.TOPICS axis labels."""
+    return (
+        getattr(member, "name", None) in CATEGORY_SENTINEL_NAMES
+        and str(getattr(member, "value", member)) in CATEGORY_SENTINEL_VALUES
+    )
+
+
+def tracked_members(enum_cls: type[Enum]) -> list:
+    return [member for member in enum_cls if not is_category_sentinel(member)]

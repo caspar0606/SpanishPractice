@@ -41,12 +41,34 @@ def agent_run(agent_inputs: AgentInputs):
     return response
 
 
+def message_text(content: Any) -> str:
+    if isinstance(content, str):
+        return content
+    if isinstance(content, list):
+        parts: list[str] = []
+        for block in content:
+            if isinstance(block, str):
+                parts.append(block)
+            elif isinstance(block, dict):
+                parts.append(str(block.get("text") or ""))
+            else:
+                parts.append(str(getattr(block, "text", "") or ""))
+        return "".join(parts)
+    return str(content)
+
+
 T = TypeVar("T", bound=BaseModel)
 def response_format(agent_input: AgentInputs, schema: type[T]) -> T:
 
     response = agent_run(agent_input)
-    ai_message = response["messages"][-1].content
-    return schema.model_validate_json(ai_message)
+    structured = response.get("structured_response")
+    if isinstance(structured, schema):
+        return structured
+    if structured is not None:
+        return schema.model_validate(structured)
+
+    last = response["messages"][-1]
+    return schema.model_validate_json(message_text(last.content))
 
 
 def agent_inputs(

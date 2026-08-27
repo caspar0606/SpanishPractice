@@ -1,21 +1,19 @@
-from src.domain.models.progress import ComputeStats, Progress
-from src.domain.enums import Grammar, Tenses, Topics
-from src.domain.enums import Tenses
-from src.domain.utils import initialise_progress
-from src.infrastructure.persistence.file_storage import create_new_user_file, save_user_state, load_user_state
-from src.domain.models.session import User
-from src.domain.enums import Grammar, Topics, Topics
-from src.domain.enums import Tenses
-from dotenv import load_dotenv
 import os
 
-# Creates a new user with initialised progress and name
+from dotenv import load_dotenv
+
+from src.domain.models.user import User
+from src.domain.utils import initialise_progress, validate_username
+from src.infrastructure.persistence.file_storage import create_new_user_file, load_user_state, save_user_state
+
+
 def create_user(name: str) -> User:
     progress = initialise_progress()
     return User(name=name, progress=progress, first_time=True)
 
 
 def select_user(username: str, key: str, new: bool) -> User | None:
+    username = validate_username(username)
 
     load_dotenv()
     access_key = os.getenv("ACCESS_KEY")
@@ -28,7 +26,7 @@ def select_user(username: str, key: str, new: bool) -> User | None:
             raise ValueError("User Already Exists. Pick a different username.")
         save_user_state(user)
         return user
-    
+
     user = load_user_state(username)
 
     if user is None:

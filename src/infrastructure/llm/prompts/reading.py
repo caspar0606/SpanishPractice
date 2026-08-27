@@ -1,7 +1,7 @@
 from src.infrastructure.llm.utils import model_prompt_example_as_json, model_schema_as_json
 from src.domain.models.exercise import ExerciseContext
 from src.infrastructure.llm.contracts.reading import ReadingGeneration, TextCorrections, QuestionMarking
-from src.domain.enums import Tenses, Grammar, Topics
+from src.domain.enums import Tenses, Grammar, Topics, tracked_members
 from src.domain.models.progress import Progress
 
 r_generation_system_prompt =f"""
@@ -177,7 +177,7 @@ COUNTING RULES
 
 3. GRAMMAR
 Count only these grammar categories:
-{[grammar.value for grammar in Grammar]}
+{[grammar.value for grammar in tracked_members(Grammar)]}
 
 For grammar:
 - Count an attempt only when there is a clear opportunity or actual usage of that grammar concept in a response.

@@ -2,7 +2,7 @@ from src.infrastructure.llm.contracts.shared import AgentNames
 from src.domain.models.exercise import ExerciseContext
 from src.infrastructure.llm.utils import model_prompt_example_as_json, model_schema_as_json
 from src.domain.models.progress import Progress
-from src.domain.enums import Tenses, Grammar, Topics
+from src.domain.enums import Tenses, Grammar, Topics, AoFs, tracked_members
 from src.infrastructure.llm.contracts.text_correction import TextCorrection
 from src.infrastructure.llm.contracts.writing import WritingSummary
 
@@ -148,7 +148,7 @@ OUTPUT RULES
 - Every total_attempts and correct_attempts value must be an integer.
 
 STRICT VALIDATION REQUIREMENTS
-- Include all top-level sections: {Tenses.TENSES.value}, {Grammar.GRAMMAR.value}, {Topics.TOPICS.value}.
+- Include all top-level sections: {AoFs.TENSES.value}, {AoFs.GRAMMAR.value}, {AoFs.TOPICS.value}.
 - Include all enum keys exactly as written.
 - Do not use enum member names like "PRESENTE_DE_INDICATIVO"; use enum values like "presente_de_indicativo".
 - Do not return empty dictionaries.
@@ -158,9 +158,9 @@ STRICT VALIDATION REQUIREMENTS
 
 Before producing the final answer, internally check:
 1. Are all three top-level keys present?
-2. Are all {len([t for t in Tenses if t != Tenses.TENSES])} tense keys present?
-3. Are all {len([g for g in Grammar if g != Grammar.GRAMMAR])} grammar keys present?
-4. Are all {len([t for t in Topics if t != Topics.TOPICS])} topic keys present?
+2. Are all {len(tracked_members(Tenses))} tense keys present?
+3. Are all {len(tracked_members(Grammar))} grammar keys present?
+4. Are all {len(tracked_members(Topics))} topic keys present?
 5. Does every category contain both integer fields?
 6. Is the response pure JSON with no extra text?
 
