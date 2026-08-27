@@ -5,12 +5,6 @@
 
 const STORAGE_USER = "sp_username";
 
-const WORD_COUNTS = {
-  beginner: { w: 60, r: 100 },
-  novice: { w: 120, r: 250 },
-  intermediate: { w: 200, r: 400 },
-};
-
 const TENSE_OPTS = [
   ["presente_de_indicativo", "Presente de indicativo"],
   ["preterito_perfecto_simple", "Pretérito perfecto simple"],
@@ -292,17 +286,6 @@ async function api(method, path, body) {
   return data;
 }
 
-function exerciseContextFromExercise(ex) {
-  const d = ex.difficulty_level;
-  const isReading = ex.exercise_type === "reading";
-  const wc = WORD_COUNTS[d];
-  const word_count = isReading ? wc.r : wc.w;
-  return {
-    areas_of_focus: ex.areas_of_focus,
-    exercise_config: { difficulty: d, word_count },
-  };
-}
-
 function humanizeKey(key) {
   return String(key)
     .split("_")
@@ -549,27 +532,17 @@ async function runGenerateForCurrentExercise() {
   const u = getUsername();
   if (!ex || !u) return;
   showPracticeLoading("Building your exercise — this can take a moment…");
-  const ctx = exerciseContextFromExercise(ex);
   try {
     if (ex.exercise_type === "writing") {
-      const res = await api("POST", "/writing/generate", {
-        username: u,
-        exercise_context: ctx,
-      });
+      const res = await api("POST", "/writing/generate", { username: u });
       state.writingPrompt = res.prompt;
       renderWritingPractice();
     } else if (ex.exercise_type === "reading") {
-      const res = await api("POST", "/reading/generate", {
-        username: u,
-        exercise_context: ctx,
-      });
+      const res = await api("POST", "/reading/generate", { username: u });
       state.readingPrompt = res.prompt;
       renderReadingPractice();
     } else if (ex.exercise_type === "drills") {
-      const res = await api("POST", "/drills/generate", {
-        username: u,
-        exercise_context: ctx,
-      });
+      const res = await api("POST", "/drills/generate", { username: u });
       state.drills = res.prompt;
       renderDrillsPractice();
     } else {
@@ -618,7 +591,6 @@ async function onWritingSubmit(ev) {
     const res = await withBusy(submitBtn, "Getting feedback…", () =>
       api("POST", "/writing/submit", {
         username: getUsername(),
-        prompt: state.writingPrompt,
         user_response: text,
       }),
     );
