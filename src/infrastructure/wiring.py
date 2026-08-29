@@ -13,6 +13,7 @@ from src.domain.models.llm import AgentRequest
 from src.domain.models.user import User
 from src.infrastructure.audio.stt import OpenAiSttGateway
 from src.infrastructure.audio.tts import OpenAiTtsGateway
+from src.infrastructure.dictionary.merriam import MerriamWebsterGateway
 from src.infrastructure.llm.harness import agent_run, message_text, response_format
 from src.infrastructure.persistence.file_storage import (
     create_new_user_file,
@@ -66,3 +67,7 @@ def build_tts_gateway() -> OpenAiTtsGateway:
 
 def build_stt_gateway() -> OpenAiSttGateway:
     return OpenAiSttGateway()
+
+
+def build_dictionary_gateway() -> MerriamWebsterGateway:
+    return MerriamWebsterGateway()

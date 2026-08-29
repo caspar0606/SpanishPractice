@@ -425,6 +425,143 @@ function mediaUrl(path) {
   return `${apiBase()}${path.startsWith("/") ? path : `/${path}`}`;
 }
 
+const WORD_TOKEN = /([A-Za-zÁÉÍÓÚÜÑáéíóúüñ]+)/;
+const WORD_ONLY = /^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ]+$/;
+const translateCache = new Map();
+
+function translateHint() {
+  const p = document.createElement("p");
+  p.className = "hint";
+  p.textContent = "Tap a Spanish word for an English gloss.";
+  return p;
+}
+
+function renderClickableSpanish(text, className = "passage", tag = "p") {
+  const el = document.createElement(tag);
+  if (className) el.className = className;
+  const raw = text == null ? "" : String(text);
+  const parts = raw.split(WORD_TOKEN);
+  parts.forEach((part) => {
+    if (WORD_ONLY.test(part)) {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "word-hit";
+      btn.textContent = part;
+      btn.addEventListener("click", (ev) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        openWordPopover(btn, part);
+      });
+      el.appendChild(btn);
+    } else if (part) {
+      el.appendChild(document.createTextNode(part));
+    }
+  });
+  return el;
+}
+
+function wordPopoverEl() {
+  return document.getElementById("word-popover");
+}
+
+function closeWordPopover() {
+  const el = wordPopoverEl();
+  if (!el) return;
+  el.classList.add("hidden");
+  el.innerHTML = "";
+}
+
+function positionWordPopover(anchor) {
+  const el = wordPopoverEl();
+  if (!el || !anchor) return;
+  const rect = anchor.getBoundingClientRect();
+  const width = el.offsetWidth || 260;
+  let top = rect.bottom + window.scrollY + 6;
+  let left = rect.left + window.scrollX;
+  const maxLeft = window.scrollX + document.documentElement.clientWidth - width - 12;
+  if (left > maxLeft) left = Math.max(12, maxLeft);
+  el.style.top = `${top}px`;
+  el.style.left = `${left}px`;
+}
+
+async function fetchTranslation(word) {
+  const key = String(word).toLowerCase();
+  if (translateCache.has(key)) return translateCache.get(key);
+  const data = await api("GET", `/translate/word?q=${encodeURIComponent(word)}`);
+  translateCache.set(key, data);
+  return data;
+}
+
+function renderWordPopover(el, data) {
+  el.innerHTML = "";
+  const close = document.createElement("button");
+  close.type = "button";
+  close.className = "word-popover-close";
+  close.setAttribute("aria-label", "Close translation");
+  close.textContent = "×";
+  close.addEventListener("click", closeWordPopover);
+  el.appendChild(close);
+
+  if (!data?.found) {
+    const p = document.createElement("p");
+    p.className = "hint";
+    p.textContent = data?.suggestions?.length
+      ? "No exact match. Try:"
+      : `No gloss for “${data?.query || "that word"}”.`;
+    el.appendChild(p);
+    (data?.suggestions || []).slice(0, 6).forEach((suggestion) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "lesson-chip";
+      btn.textContent = suggestion;
+      btn.addEventListener("click", (ev) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        openWordPopover(el, suggestion);
+      });
+      el.appendChild(btn);
+    });
+    return;
+  }
+
+  (data.entries || []).forEach((entry) => {
+    const h = document.createElement("p");
+    h.className = "word-popover-head";
+    h.textContent = entry.headword || data.query;
+    el.appendChild(h);
+    if (entry.part_of_speech) {
+      const pos = document.createElement("p");
+      pos.className = "word-popover-pos";
+      pos.textContent = entry.part_of_speech;
+      el.appendChild(pos);
+    }
+    const ul = document.createElement("ul");
+    ul.className = "word-popover-senses";
+    (entry.glosses || []).forEach((gloss) => {
+      const li = document.createElement("li");
+      li.textContent = gloss;
+      ul.appendChild(li);
+    });
+    el.appendChild(ul);
+  });
+}
+
+async function openWordPopover(anchor, word) {
+  const el = wordPopoverEl();
+  if (!el) return;
+  el.classList.remove("hidden");
+  el.innerHTML = `<p class="hint">Looking up ${escapeHtml(word)}…</p>`;
+  positionWordPopover(anchor);
+  try {
+    const data = await fetchTranslation(word);
+    renderWordPopover(el, data);
+    positionWordPopover(anchor);
+  } catch (e) {
+    el.innerHTML = `<p class="hint">${escapeHtml(e.message)}</p>`;
+    positionWordPopover(anchor);
+  }
+}
+
 function humanizeKey(key) {
   return String(key)
     .split("_")
@@ -527,6 +664,7 @@ const PANELS = [
 ];
 
 function showPanel(id) {
+  closeWordPopover();
   for (const name of PANELS) {
     const el = document.getElementById(`panel-${name}`);
     if (el) el.classList.toggle("hidden", id !== name);
@@ -882,10 +1020,9 @@ function renderPlacementForm(form) {
   const readingTitle = document.createElement("p");
   readingTitle.className = "help-section-title";
   readingTitle.textContent = "Part 3 — Read and answer";
-  const passage = document.createElement("p");
-  passage.className = "passage";
-  passage.textContent = form.reading_passage;
+  const passage = renderClickableSpanish(form.reading_passage);
   readingSection.appendChild(readingTitle);
+  readingSection.appendChild(translateHint());
   readingSection.appendChild(passage);
 
   (form.reading_questions || []).forEach((question, idx) => {
@@ -1078,10 +1215,8 @@ function renderWritingPractice() {
   const prompt = state.writingPrompt;
   root.innerHTML = "";
   root.appendChild(focusChipRow());
-  const p = document.createElement("p");
-  p.className = "passage";
-  p.textContent = prompt;
-  root.appendChild(p);
+  root.appendChild(translateHint());
+  root.appendChild(renderClickableSpanish(prompt));
   const form = document.createElement("form");
   form.id = "form-writing";
   const lab = document.createElement("label");
@@ -1367,10 +1502,8 @@ function renderReadingPractice() {
   const pr = state.readingPrompt;
   root.innerHTML = "";
   root.appendChild(focusChipRow());
-  const art = document.createElement("p");
-  art.className = "passage";
-  art.textContent = pr.passage;
-  root.appendChild(art);
+  root.appendChild(translateHint());
+  root.appendChild(renderClickableSpanish(pr.passage));
   const form = document.createElement("form");
   form.id = "form-reading";
   pr.questions.forEach((q, i) => {
@@ -1378,7 +1511,10 @@ function renderReadingPractice() {
     wrap.className = "question-block";
     const lab = document.createElement("label");
     lab.htmlFor = `reading-q-${i}`;
-    lab.textContent = `Question ${i + 1}: ${q}`;
+    const prefix = document.createElement("span");
+    prefix.textContent = `Question ${i + 1}: `;
+    lab.appendChild(prefix);
+    lab.appendChild(renderClickableSpanish(q, "", "span"));
     const inp = document.createElement("input");
     inp.type = "text";
     inp.id = `reading-q-${i}`;
@@ -1869,9 +2005,7 @@ function renderLesson(lesson) {
   (lesson.examples || []).forEach((ex) => {
     const card = document.createElement("div");
     card.className = "lesson-example";
-    const es = document.createElement("p");
-    es.className = "lesson-example-es";
-    es.textContent = ex.es || "";
+    const es = renderClickableSpanish(ex.es || "", "lesson-example-es");
     card.appendChild(es);
     const en = document.createElement("p");
     en.className = "lesson-example-en";
@@ -2349,7 +2483,10 @@ function renderListeningPractice() {
     wrap.className = "question-block";
     const lab = document.createElement("label");
     lab.htmlFor = `listening-q-${i}`;
-    lab.textContent = `Question ${i + 1}: ${q}`;
+    const prefix = document.createElement("span");
+    prefix.textContent = `Question ${i + 1}: `;
+    lab.appendChild(prefix);
+    lab.appendChild(renderClickableSpanish(q, "", "span"));
     const inp = document.createElement("input");
     inp.type = "text";
     inp.id = `listening-q-${i}`;
@@ -2403,7 +2540,8 @@ function showResultsListening(res, questions = [], userResponses = []) {
     const hTrans = document.createElement("h3");
     hTrans.textContent = "Transcript";
     fb.appendChild(hTrans);
-    fb.appendChild(elBlock(res.transcript));
+    fb.appendChild(translateHint());
+    fb.appendChild(renderClickableSpanish(res.transcript));
   }
 
   const feedback = res.feedback ?? res.correction;
@@ -2447,11 +2585,8 @@ function renderSpeakingPractice() {
   note.className = "hint";
   note.textContent = "Record a short answer in Spanish. We mark grammar, not pronunciation.";
   root.appendChild(note);
-
-  const prompt = document.createElement("p");
-  prompt.className = "passage";
-  prompt.textContent = state.speakingPrompt || "";
-  root.appendChild(prompt);
+  root.appendChild(translateHint());
+  root.appendChild(renderClickableSpanish(state.speakingPrompt || ""));
 
   const controls = document.createElement("div");
   controls.className = "speaking-controls";
@@ -2903,10 +3038,17 @@ function init() {
   document.getElementById("walkthrough-overlay").addEventListener("click", (ev) => {
     if (ev.target && ev.target.id === "walkthrough-overlay") closeWalkthrough();
   });
+  document.addEventListener("click", (ev) => {
+    const pop = wordPopoverEl();
+    if (!pop || pop.classList.contains("hidden")) return;
+    if (pop.contains(ev.target) || ev.target.closest(".word-hit")) return;
+    closeWordPopover();
+  });
   document.addEventListener("keydown", (ev) => {
     if (ev.key !== "Escape") return;
     closeHelpPanel();
     closeWalkthrough();
+    closeWordPopover();
   });
 
   document.querySelectorAll('input[name="style"]').forEach((r) => {

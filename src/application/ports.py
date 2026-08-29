@@ -2,6 +2,7 @@ from typing import Protocol, TypeVar
 
 from pydantic import BaseModel
 
+from src.domain.models.dictionary import DictionaryLookup
 from src.domain.models.lesson import Lesson
 from src.domain.models.llm import AgentRequest
 from src.domain.models.user import User
@@ -57,3 +58,9 @@ class SttGateway(Protocol):
     """Speech to text."""
 
     def transcribe(self, audio_bytes: bytes, filename: str = "speech.webm") -> str: ...
+
+
+class DictionaryGateway(Protocol):
+    """Spanish–English dictionary lookups."""
+
+    def lookup(self, word: str) -> DictionaryLookup: ...

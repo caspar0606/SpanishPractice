@@ -2,6 +2,7 @@ from dataclasses import dataclass
 
 from src.application.ports import (
     ContentRepository,
+    DictionaryGateway,
     LlmGateway,
     SttGateway,
     TtsGateway,
@@ -16,6 +17,7 @@ class Deps:
     content: ContentRepository
     tts: TtsGateway
     stt: SttGateway
+    dictionary: DictionaryGateway
 
 
 _deps: Deps | None = None
@@ -53,3 +55,7 @@ def tts() -> TtsGateway:
 
 def stt() -> SttGateway:
     return get().stt
+
+
+def dictionary() -> DictionaryGateway:
+    return get().dictionary

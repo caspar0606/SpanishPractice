@@ -89,6 +89,30 @@ class FakeSttGateway:
         return self.transcript
 
 
+class FakeDictionaryGateway:
+    def __init__(self) -> None:
+        self.calls: list[str] = []
+        self.lookups: dict = {}
+
+    def lookup(self, word: str):
+        from src.domain.models.dictionary import DictionaryEntry, DictionaryLookup
+
+        self.calls.append(word)
+        if word in self.lookups:
+            return self.lookups[word]
+        return DictionaryLookup(
+            query=word,
+            found=True,
+            entries=[
+                DictionaryEntry(
+                    headword=word,
+                    part_of_speech="noun",
+                    glosses=["house", "home"],
+                ),
+            ],
+        )
+
+
 class FakeLlmGateway:
     """Returns canned responses so services run without network calls."""
 
@@ -136,7 +160,12 @@ def fake_stt() -> FakeSttGateway:
 
 
 @pytest.fixture
-def deps(fake_users, fake_llm, real_content, fake_tts, fake_stt):
+def fake_dictionary() -> FakeDictionaryGateway:
+    return FakeDictionaryGateway()
+
+
+@pytest.fixture
+def deps(fake_users, fake_llm, real_content, fake_tts, fake_stt, fake_dictionary):
     """Configure the container with fakes for the duration of one test."""
     bound = container.Deps(
         users=fake_users,
@@ -144,6 +173,7 @@ def deps(fake_users, fake_llm, real_content, fake_tts, fake_stt):
         content=real_content,
         tts=fake_tts,
         stt=fake_stt,
+        dictionary=fake_dictionary,
     )
     container.configure(bound)
     yield bound

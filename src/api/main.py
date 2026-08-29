@@ -20,6 +20,7 @@ from src.api.routers.onboarding import router as onboarding_router
 from src.api.routers.progress import router as progress_router
 from src.api.routers.reading import router as reading_router
 from src.api.routers.speaking import router as speaking_router
+from src.api.routers.translate import router as translate_router
 from src.api.routers.user import router as user_router
 from src.api.routers.vocab import router as vocab_router
 from src.api.routers.writing import router as writing_router
@@ -27,6 +28,7 @@ from src.application.container import Deps, configure
 from src.infrastructure.audio import cache as audio_cache
 from src.infrastructure.wiring import (
     build_content_repository,
+    build_dictionary_gateway,
     build_llm_gateway,
     build_stt_gateway,
     build_tts_gateway,
@@ -48,6 +50,7 @@ def configure_container() -> None:
             content=build_content_repository(),
             tts=build_tts_gateway(),
             stt=build_stt_gateway(),
+            dictionary=build_dictionary_gateway(),
         ),
     )
 
@@ -113,6 +116,7 @@ def create_app() -> FastAPI:
     app.include_router(learn_router, prefix="/learn", tags=["learn"])
     app.include_router(chat_router, prefix="/chat", tags=["chat"])
     app.include_router(vocab_router, prefix="/vocab", tags=["vocab"])
+    app.include_router(translate_router, prefix="/translate", tags=["translate"])
 
     @app.get("/health", tags=["health"])
     def health_check() -> dict[str, str]:
