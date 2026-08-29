@@ -544,10 +544,13 @@ function renderGlossInto(el, data, options = {}) {
     h.className = "word-popover-head";
     h.textContent = entry.headword || data.query;
     el.appendChild(h);
-    if (entry.part_of_speech) {
+    const langLabel =
+      entry.language === "en" ? "English" : entry.language === "es" ? "Spanish" : "";
+    const posBits = [langLabel, entry.part_of_speech].filter(Boolean);
+    if (posBits.length) {
       const pos = document.createElement("p");
       pos.className = "word-popover-pos";
-      pos.textContent = entry.part_of_speech;
+      pos.textContent = posBits.join(" · ");
       el.appendChild(pos);
     }
     if (!glosses.length) return;

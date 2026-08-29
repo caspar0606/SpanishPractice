@@ -22,7 +22,7 @@ class MerriamWebsterGateway:
     def lookup(self, word: str) -> DictionaryLookup:
         key = (word or "").strip()
         if not key:
-            raise ValueError("Pick a Spanish word first")
+            raise ValueError("Pick a word first")
         if key in self._cache:
             return self._cache[key]
         if not self._api_key:

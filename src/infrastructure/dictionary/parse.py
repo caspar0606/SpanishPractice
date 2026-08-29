@@ -1,6 +1,7 @@
 """Parse Merriam-Webster Spanish–English JSON into a learner-facing lookup."""
 
 import re
+import unicodedata
 
 from src.domain.models.dictionary import DictionaryEntry, DictionaryLookup
 from src.domain.rules.dictionary import (
@@ -12,6 +13,11 @@ from src.domain.rules.dictionary import (
 )
 
 _MARKUP = re.compile(r"\{([^}]*)\}")
+_LETTER_GLOSS = re.compile(
+    r"letra del alfabeto|letter of the .{0,24}alphabet",
+    re.I,
+)
+_PHRASE_MARK = re.compile(r"[\s-]")
 
 
 def strip_markup(text: str) -> str:
@@ -29,7 +35,7 @@ def strip_markup(text: str) -> str:
 
 
 def clean_gloss(text: str) -> str:
-    """Prefer the English side of MW synonym glosses such as 'lindo : pretty'."""
+    """Prefer the translation after a synonym colon such as 'lindo : pretty'."""
     gloss = strip_markup(text).replace("*", "")
     gloss = re.sub(r"\s+", " ", gloss).strip(" :;,")
     if " : " in gloss:
@@ -54,9 +60,7 @@ def parse_response(query: str, payload) -> DictionaryLookup:
         for item in items
         if (item.get("meta") or {}).get("id")
     }
-    spanish = [item for item in items if _lang(item) == "es"]
-    pool = spanish or items
-    ranked = [(_relevance(item, query), item) for item in pool]
+    ranked = [(_relevance(item, query), item) for item in items]
     ranked = [(score, item) for score, item in ranked if score > 0]
     ranked.sort(key=lambda pair: pair[0], reverse=True)
     if not ranked:
@@ -71,12 +75,16 @@ def parse_response(query: str, payload) -> DictionaryLookup:
         cutoff = 92
     else:
         cutoff = 50
-    chosen = [item for score, item in ranked if score >= cutoff][:3]
+    chosen = [item for score, item in ranked if score >= cutoff][:4]
     q = normalise_lookup(query)
     feminine = q.endswith(("a", "as", "os", "es"))
     chosen.sort(
         key=lambda item: (
-            0 if feminine and "adjective" in str(item.get("fl") or "").lower() else 1,
+            0
+            if feminine
+            and _lang(item) == "es"
+            and "adjective" in str(item.get("fl") or "").lower()
+            else 1,
             -_relevance(item, query),
         )
     )
@@ -96,9 +104,44 @@ def _lang(item: dict) -> str:
     return str(meta.get("lang") or "").lower()
 
 
-def _headword_of(item: dict) -> str:
+def _weakness(item: dict) -> int:
+    """Downrank abbreviations, prefixes, and letter-of-the-alphabet entries."""
+    fl = str(item.get("fl") or "").lower()
+    if "abbreviation" in fl or "prefix" in fl:
+        return 25
+    glosses = " ".join(str(g) for g in (item.get("shortdef") or []))
+    if _LETTER_GLOSS.search(glosses):
+        return 25
+    return 0
+
+
+def _raw_headword(item: dict) -> str:
     raw = str((item.get("hwi") or {}).get("hw") or item.get("meta", {}).get("id") or "")
-    return normalise_lookup(display_headword(raw.split(":")[0]))
+    return display_headword(raw.split(":")[0])
+
+
+def _headword_of(item: dict) -> str:
+    return normalise_lookup(_raw_headword(item))
+
+
+def _phrase_headword_key(item: dict) -> str:
+    chars: list[str] = []
+    started = False
+    for ch in _raw_headword(item):
+        if unicodedata.category(ch).startswith("L") or ch in "-'":
+            started = True
+            chars.append(ch.casefold())
+            continue
+        if ch.isspace() and started:
+            chars.append(" ")
+            continue
+        if started:
+            break
+    return re.sub(r"\s+", " ", "".join(chars)).strip()
+
+
+def _is_phrase_headword(item: dict) -> bool:
+    return bool(_PHRASE_MARK.search(_raw_headword(item)))
 
 
 def _alternate_headwords(item: dict) -> list[str]:
@@ -129,6 +172,12 @@ def _relevance(item: dict, query: str) -> int:
     q = normalise_lookup(query)
     if not q:
         return 0
+    if _is_phrase_headword(item):
+        phrase = _phrase_headword_key(item)
+        compact = re.sub(r"[\s-]+", "", phrase)
+        if phrase == q or compact == q:
+            return max(1, 100 - _weakness(item))
+        return 0
     hw = _headword_of(item)
     alternates = _alternate_headwords(item)
     stems = _single_word_stems(item)
@@ -136,19 +185,22 @@ def _relevance(item: dict, query: str) -> int:
     hw_fold = fold_accents(hw)
 
     if hw == q or q in alternates:
-        return 100
-    if q in stems:
-        return 95
-    if is_inflected_form(q, hw) or any(is_inflected_form(q, alt) for alt in alternates):
-        return 93
-    mapped = lemma_for(q)
-    if mapped and fold_accents(mapped) == hw_fold:
-        return 92
-    if hw_fold == q_fold or any(fold_accents(alt) == q_fold for alt in alternates):
-        return 50
-    if any(fold_accents(stem) == q_fold for stem in stems):
-        return 50
-    return 0
+        score = 100
+    elif q in stems:
+        score = 95
+    elif is_inflected_form(q, hw) or any(is_inflected_form(q, alt) for alt in alternates):
+        score = 93
+    else:
+        mapped = lemma_for(q)
+        if mapped and fold_accents(mapped) == hw_fold:
+            score = 92
+        elif hw_fold == q_fold or any(fold_accents(alt) == q_fold for alt in alternates):
+            score = 50
+        elif any(fold_accents(stem) == q_fold for stem in stems):
+            score = 50
+        else:
+            return 0
+    return max(1, score - _weakness(item))
 
 
 def _entry_from(item: dict, followed: list[dict] | None = None) -> DictionaryEntry:
@@ -165,7 +217,13 @@ def _entry_from(item: dict, followed: list[dict] | None = None) -> DictionaryEnt
             if glosses:
                 break
     glosses = _unique(glosses)[:4]
-    return DictionaryEntry(headword=headword, part_of_speech=pos, glosses=glosses)
+    lang = _lang(item)
+    return DictionaryEntry(
+        headword=headword,
+        part_of_speech=pos,
+        glosses=glosses,
+        language=lang if lang in {"en", "es"} else "",
+    )
 
 
 def _glosses_from(item: dict) -> list[str]:

@@ -1,4 +1,4 @@
-"""Spanish word lookup via the Merriam-Webster Spanish–English JSON API."""
+"""Bilingual word lookup via the Merriam-Webster Spanish–English JSON API."""
 
 from urllib.parse import unquote
 
@@ -53,11 +53,110 @@ def test_candidates_cover_accents_gender_and_irregulars():
     assert "casa" in lookup_candidates("casas")
 
 
-def test_parse_prefers_spanish_headword_entries():
+def test_parse_keeps_both_languages_for_homographs():
     result = parse_response("rodeo", RODEO_PAYLOAD)
     assert result.found is True
-    assert result.entries[0].part_of_speech == "masculine noun"
-    assert "roundup" in result.entries[0].glosses[0]
+    by_lang = {entry.language: entry for entry in result.entries}
+    assert set(by_lang) == {"en", "es"}
+    assert by_lang["es"].part_of_speech == "masculine noun"
+    assert "roundup" in by_lang["es"].glosses[0]
+
+
+def test_parse_returns_spanish_glosses_for_english_queries():
+    payload = [
+        {
+            "meta": {"id": "casa", "lang": "es", "stems": ["casa"]},
+            "hwi": {"hw": "casa"},
+            "fl": "feminine noun",
+            "shortdef": ["house"],
+        },
+        {
+            "meta": {"id": "house:2", "lang": "en", "stems": ["house", "houses"]},
+            "hwi": {"hw": "house"},
+            "fl": "noun",
+            "shortdef": ["home : casa", "cámara (del gobierno)"],
+        },
+    ]
+    result = parse_response("house", payload)
+    assert result.found is True
+    assert result.entries[0].headword == "house"
+    assert result.entries[0].language == "en"
+    assert result.entries[0].glosses[0] == "casa"
+
+
+def test_parse_keeps_english_colour_not_only_spanish_net():
+    payload = [
+        {
+            "meta": {"id": "red:1", "lang": "en", "stems": ["red"]},
+            "hwi": {"hw": "red"},
+            "fl": "adjective",
+            "shortdef": ["rojo, colorado"],
+        },
+        {
+            "meta": {"id": "red", "lang": "es", "stems": ["red"]},
+            "hwi": {"hw": "red"},
+            "fl": "feminine noun",
+            "shortdef": ["net, mesh"],
+        },
+    ]
+    result = parse_response("red", payload)
+    langs = {entry.language: entry for entry in result.entries}
+    assert set(langs) == {"en", "es"}
+    assert langs["en"].glosses[0].startswith("rojo")
+    assert langs["es"].glosses[0].startswith("net")
+
+
+def test_parse_prefers_pronoun_i_over_letter_names():
+    payload = [
+        {
+            "meta": {"id": "i", "lang": "en"},
+            "hwi": {"hw": "i"},
+            "fl": "noun",
+            "shortdef": ["novena letra del alfabeto inglés"],
+        },
+        {
+            "meta": {"id": "I", "lang": "en"},
+            "hwi": {"hw": "I"},
+            "fl": "pronoun",
+            "shortdef": ["yo"],
+        },
+        {
+            "meta": {"id": "i", "lang": "es"},
+            "hwi": {"hw": "i"},
+            "fl": "feminine noun",
+            "shortdef": ["tenth letter of the Spanish alphabet"],
+        },
+    ]
+    result = parse_response("I", payload)
+    assert result.entries[0].part_of_speech == "pronoun"
+    assert result.entries[0].glosses == ["yo"]
+
+
+def test_parse_drops_english_compound_neighbours():
+    payload = [
+        {
+            "meta": {"id": "red:1", "lang": "en", "stems": ["red"]},
+            "hwi": {"hw": "red"},
+            "fl": "adjective",
+            "shortdef": ["rojo, colorado"],
+        },
+        {
+            "meta": {"id": "red blood cell", "lang": "en", "stems": ["red", "red blood cell"]},
+            "hwi": {"hw": "red blood cell"},
+            "fl": "noun",
+            "shortdef": ["glóbulo rojo"],
+        },
+        {
+            "meta": {"id": "he-man", "lang": "en", "stems": ["he", "he-man"]},
+            "hwi": {"hw": "he-man"},
+            "fl": "noun",
+            "shortdef": ["macho, machote"],
+        },
+    ]
+    red = parse_response("red", payload)
+    assert [entry.headword for entry in red.entries] == ["red"]
+    he = parse_response("he", payload)
+    assert [entry.headword for entry in he.entries] == []
 
 
 def test_parse_suggestions_when_the_word_is_unknown():

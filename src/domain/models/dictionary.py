@@ -1,4 +1,4 @@
-"""A Spanish word looked up in an external dictionary."""
+"""A word looked up in an external bilingual dictionary."""
 
 from pydantic import BaseModel, Field
 
@@ -7,6 +7,7 @@ class DictionaryEntry(BaseModel):
     headword: str
     part_of_speech: str = ""
     glosses: list[str] = Field(default_factory=list)
+    language: str = ""
 
 
 class DictionaryLookup(BaseModel):
