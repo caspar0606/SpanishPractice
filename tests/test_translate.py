@@ -1,14 +1,17 @@
 """Spanish word lookup via the Merriam-Webster Spanish–English JSON API."""
 
+from urllib.parse import unquote
+
+import httpx
 import pytest
 from fastapi.testclient import TestClient
 
 from src.api.main import create_app
 from src.application import container
 from src.application.services import translate as translate_file
-from src.domain.rules.dictionary import normalise_lookup
+from src.domain.rules.dictionary import lookup_candidates, normalise_lookup
 from src.infrastructure.dictionary.merriam import MerriamWebsterGateway
-from src.infrastructure.dictionary.parse import parse_response, strip_markup
+from src.infrastructure.dictionary.parse import clean_gloss, parse_response, strip_markup
 
 
 RODEO_PAYLOAD = [
@@ -36,6 +39,20 @@ def test_strip_markup_expands_cross_references():
     assert strip_markup("{bc}{sx|desvío||} detour") == "desvío detour"
 
 
+def test_clean_gloss_keeps_english_side_of_synonym_colon():
+    assert clean_gloss("lindo : pretty, lovely") == "pretty, lovely"
+    assert clean_gloss("{bc}house") == "house"
+
+
+def test_candidates_cover_accents_gender_and_irregulars():
+    pequena = lookup_candidates("pequeña")
+    assert "pequeña" in pequena
+    assert "pequeño" in pequena
+    assert "pequeno" in pequena
+    assert "estar" in lookup_candidates("está")
+    assert "casa" in lookup_candidates("casas")
+
+
 def test_parse_prefers_spanish_headword_entries():
     result = parse_response("rodeo", RODEO_PAYLOAD)
     assert result.found is True
@@ -47,6 +64,149 @@ def test_parse_suggestions_when_the_word_is_unknown():
     result = parse_response("casaa", ["casa", "caso", "caza"])
     assert result.found is False
     assert result.suggestions[0] == "casa"
+
+
+def test_parse_drops_phrase_only_neighbours():
+    payload = [
+        {
+            "meta": {"id": "casa", "lang": "es", "stems": ["casa", "casa de cambio"]},
+            "hwi": {"hw": "ca*sa"},
+            "fl": "feminine noun",
+            "shortdef": ["house", "hogar : home"],
+        },
+        {
+            "meta": {"id": "amo", "lang": "es", "stems": ["amo", "ama de casa"]},
+            "hwi": {"hw": "amo"},
+            "fl": "noun",
+            "shortdef": ["master mistress"],
+        },
+        {
+            "meta": {"id": "gasto", "lang": "es", "stems": ["gasto", "gastos de la casa"]},
+            "hwi": {"hw": "gasto"},
+            "fl": "masculine noun",
+            "shortdef": ["expense"],
+        },
+    ]
+    result = parse_response("casa", payload)
+    assert [entry.headword for entry in result.entries] == ["casa"]
+    assert result.entries[0].glosses[0] == "house"
+    assert result.entries[0].glosses[1] == "home"
+
+
+def test_parse_keeps_gendered_adjective_not_a_greeting_phrase():
+    payload = [
+        {
+            "meta": {
+                "id": "bueno:1",
+                "lang": "es",
+                "stems": ["bueno", "buena", "buenas tardes"],
+            },
+            "hwi": {"hw": "bueno"},
+            "ahws": [{"hw": "buena", "hwc": "-na"}],
+            "fl": "adjective",
+            "shortdef": ["good"],
+        },
+        {
+            "meta": {"id": "tarde:2", "lang": "es", "stems": ["tarde", "¡buenas tardes!"]},
+            "hwi": {"hw": "tarde"},
+            "fl": "feminine noun",
+            "shortdef": ["afternoon"],
+        },
+    ]
+    result = parse_response("buenas", payload)
+    assert result.entries[0].headword == "bueno"
+    assert result.entries[0].glosses == ["good"]
+
+
+def test_parse_keeps_adjective_alongside_an_exact_noun_homograph():
+    payload = [
+        {
+            "meta": {"id": "blanca", "lang": "es", "stems": ["blanca"]},
+            "hwi": {"hw": "blanca"},
+            "fl": "feminine noun",
+            "shortdef": ["half note (in music)"],
+        },
+        {
+            "meta": {"id": "blanco:1", "lang": "es", "stems": ["blanco", "blanca"]},
+            "hwi": {"hw": "blanco"},
+            "ahws": [{"hw": "blanca"}],
+            "fl": "adjective",
+            "shortdef": ["white"],
+        },
+    ]
+    result = parse_response("blanca", payload)
+    assert [entry.part_of_speech for entry in result.entries] == ["adjective", "feminine noun"]
+    assert result.entries[0].glosses == ["white"]
+
+
+def test_parse_follows_cross_references_when_shortdef_is_empty():
+    payload = [
+        {
+            "meta": {"id": "hay", "lang": "es", "stems": ["hay"]},
+            "hwi": {"hw": "hay"},
+            "shortdef": [],
+            "xrs": [[{"xrt": "haber:1", "xref": "haber:1"}]],
+        },
+        {
+            "meta": {"id": "haber:1", "lang": "es", "stems": ["haber", "hay que"]},
+            "hwi": {"hw": "haber"},
+            "fl": "auxiliary verb",
+            "shortdef": ["have, has", "there is, there are"],
+        },
+    ]
+    result = parse_response("hay", payload)
+    assert result.found is True
+    assert [entry.headword for entry in result.entries] == ["hay"]
+    assert "there is, there are" in result.entries[0].glosses
+
+
+def test_parse_renders_contractions():
+    payload = [
+        {
+            "meta": {"id": "del", "lang": "es", "stems": ["del"]},
+            "hwi": {"hw": "del"},
+            "shortdef": [],
+            "cxs": [
+                {"cxl": "contraction of", "cxtis": [{"cxt": "de"}]},
+                {"cxl": "and", "cxtis": [{"cxt": "el"}]},
+            ],
+        }
+    ]
+    result = parse_response("del", payload)
+    assert result.found is True
+    assert "de" in result.entries[0].glosses[0]
+    assert "el" in result.entries[0].glosses[0]
+
+
+def test_gateway_retries_lemma_when_inflected_form_is_unknown():
+    calls: list[str] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        word = unquote(request.url.path.rsplit("/", 1)[-1])
+        calls.append(word)
+        if word == "casas":
+            return httpx.Response(200, json=["casa", "caso"])
+        if word == "casa":
+            return httpx.Response(
+                200,
+                json=[
+                    {
+                        "meta": {"id": "casa", "lang": "es", "stems": ["casa"]},
+                        "hwi": {"hw": "casa"},
+                        "fl": "feminine noun",
+                        "shortdef": ["house"],
+                    }
+                ],
+            )
+        return httpx.Response(200, json=[])
+
+    client = httpx.Client(transport=httpx.MockTransport(handler))
+    gateway = MerriamWebsterGateway(api_key="test-key", client=client)
+    result = gateway.lookup("casas")
+    assert result.found is True
+    assert result.entries[0].glosses == ["house"]
+    assert calls[0] == "casas"
+    assert "casa" in calls
 
 
 def test_lookup_uses_the_dictionary_port(deps, fake_dictionary):

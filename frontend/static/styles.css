@@ -1592,10 +1592,14 @@ pre.json-out {
 }
 
 .word-popover {
-  position: absolute;
+  position: fixed;
   z-index: 55;
-  max-width: 18rem;
+  max-width: min(18rem, calc(100vw - 1.5rem));
   min-width: 12rem;
+  max-height: min(22rem, calc(100vh - 1.5rem));
+  overflow-x: hidden;
+  overflow-y: auto;
+  overflow-wrap: anywhere;
   padding: 0.85rem 1rem 0.9rem;
   background: var(--surface);
   border: 1px solid var(--border);

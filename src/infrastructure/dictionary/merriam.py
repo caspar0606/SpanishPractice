@@ -5,6 +5,7 @@ from urllib.parse import quote
 import httpx
 
 from src.domain.models.dictionary import DictionaryLookup
+from src.domain.rules.dictionary import lookup_candidates
 from src.infrastructure.config.config import MERRIAM_WEBSTER_API_KEY
 from src.infrastructure.dictionary.parse import parse_response
 
@@ -29,10 +30,16 @@ class MerriamWebsterGateway:
                 "Dictionary isn't configured. Set MERRIAM_WEBSTER_API_KEY to a "
                 "Spanish-English Dictionary key from dictionaryapi.com.",
             )
-        payload = self._fetch(key)
-        result = parse_response(key, payload)
-        self._cache[key] = result
-        return result
+        last = DictionaryLookup(query=key, found=False)
+        for candidate in lookup_candidates(key):
+            payload = self._fetch(candidate)
+            result = parse_response(key, payload)
+            last = result
+            if result.found:
+                self._cache[key] = result
+                return result
+        self._cache[key] = last
+        return last
 
     def _fetch(self, word: str):
         url = _ENDPOINT.format(word=quote(word, safe=""))

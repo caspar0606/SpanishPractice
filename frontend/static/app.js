@@ -428,6 +428,7 @@ function mediaUrl(path) {
 const WORD_TOKEN = /([A-Za-zÁÉÍÓÚÜÑáéíóúüñ]+)/;
 const WORD_ONLY = /^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ]+$/;
 const translateCache = new Map();
+let lastWordAnchor = null;
 
 function translateHint() {
   const p = document.createElement("p");
@@ -476,12 +477,16 @@ function positionWordPopover(anchor) {
   if (!el || !anchor) return;
   const rect = anchor.getBoundingClientRect();
   const width = el.offsetWidth || 260;
-  let top = rect.bottom + window.scrollY + 6;
-  let left = rect.left + window.scrollX;
-  const maxLeft = window.scrollX + document.documentElement.clientWidth - width - 12;
-  if (left > maxLeft) left = Math.max(12, maxLeft);
-  el.style.top = `${top}px`;
-  el.style.left = `${left}px`;
+  const height = el.offsetHeight || 120;
+  let top = rect.bottom + 8;
+  if (top + height > window.innerHeight - 12) {
+    top = Math.max(12, rect.top - height - 8);
+  }
+  let left = rect.left;
+  left = Math.min(left, window.innerWidth - width - 12);
+  left = Math.max(12, left);
+  el.style.top = `${Math.round(top)}px`;
+  el.style.left = `${Math.round(left)}px`;
 }
 
 async function fetchTranslation(word) {
@@ -509,15 +514,22 @@ function renderWordPopover(el, data) {
       ? "No exact match. Try:"
       : `No gloss for “${data?.query || "that word"}”.`;
     el.appendChild(p);
-    (data?.suggestions || []).slice(0, 6).forEach((suggestion) => {
+    const seen = new Set();
+    const query = String(data?.query || "").toLowerCase();
+    (data?.suggestions || []).forEach((suggestion) => {
+      const label = String(suggestion || "").trim();
+      const key = label.toLowerCase();
+      if (!label || seen.has(key) || key === query) return;
+      seen.add(key);
+      if (seen.size > 6) return;
       const btn = document.createElement("button");
       btn.type = "button";
       btn.className = "lesson-chip";
-      btn.textContent = suggestion;
+      btn.textContent = label;
       btn.addEventListener("click", (ev) => {
         ev.preventDefault();
         ev.stopPropagation();
-        openWordPopover(el, suggestion);
+        openWordPopover(lastWordAnchor || el, label);
       });
       el.appendChild(btn);
     });
@@ -525,6 +537,7 @@ function renderWordPopover(el, data) {
   }
 
   (data.entries || []).forEach((entry) => {
+    const glosses = (entry.glosses || []).map((g) => String(g).trim()).filter(Boolean);
     const h = document.createElement("p");
     h.className = "word-popover-head";
     h.textContent = entry.headword || data.query;
@@ -535,9 +548,10 @@ function renderWordPopover(el, data) {
       pos.textContent = entry.part_of_speech;
       el.appendChild(pos);
     }
+    if (!glosses.length) return;
     const ul = document.createElement("ul");
     ul.className = "word-popover-senses";
-    (entry.glosses || []).forEach((gloss) => {
+    glosses.forEach((gloss) => {
       const li = document.createElement("li");
       li.textContent = gloss;
       ul.appendChild(li);
@@ -549,16 +563,18 @@ function renderWordPopover(el, data) {
 async function openWordPopover(anchor, word) {
   const el = wordPopoverEl();
   if (!el) return;
+  lastWordAnchor = anchor && anchor !== el ? anchor : lastWordAnchor;
+  const pin = lastWordAnchor || el;
   el.classList.remove("hidden");
   el.innerHTML = `<p class="hint">Looking up ${escapeHtml(word)}…</p>`;
-  positionWordPopover(anchor);
+  positionWordPopover(pin);
   try {
     const data = await fetchTranslation(word);
     renderWordPopover(el, data);
-    positionWordPopover(anchor);
+    positionWordPopover(pin);
   } catch (e) {
     el.innerHTML = `<p class="hint">${escapeHtml(e.message)}</p>`;
-    positionWordPopover(anchor);
+    positionWordPopover(pin);
   }
 }
 
