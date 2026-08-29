@@ -191,7 +191,7 @@ const WALKTHROUGH_STEPS = [
   },
   {
     title: "Step 2 — Keep learning",
-    text: "Learn, Ask, and Vocab stay open all day. They don’t use up today’s four. After the four are done, that’s the place to continue.",
+    text: "Look up a word, or open Learn, Ask, and Vocab anytime. They don’t use up today’s four. After the four are done, that’s the place to continue.",
   },
   {
     title: "Step 3 — Extra practice",
@@ -497,15 +497,17 @@ async function fetchTranslation(word) {
   return data;
 }
 
-function renderWordPopover(el, data) {
+function renderGlossInto(el, data, options = {}) {
   el.innerHTML = "";
-  const close = document.createElement("button");
-  close.type = "button";
-  close.className = "word-popover-close";
-  close.setAttribute("aria-label", "Close translation");
-  close.textContent = "×";
-  close.addEventListener("click", closeWordPopover);
-  el.appendChild(close);
+  if (options.showClose) {
+    const close = document.createElement("button");
+    close.type = "button";
+    close.className = "word-popover-close";
+    close.setAttribute("aria-label", "Close translation");
+    close.textContent = "×";
+    close.addEventListener("click", closeWordPopover);
+    el.appendChild(close);
+  }
 
   if (!data?.found) {
     const p = document.createElement("p");
@@ -529,7 +531,7 @@ function renderWordPopover(el, data) {
       btn.addEventListener("click", (ev) => {
         ev.preventDefault();
         ev.stopPropagation();
-        openWordPopover(lastWordAnchor || el, label);
+        if (typeof options.onSuggestion === "function") options.onSuggestion(label);
       });
       el.appendChild(btn);
     });
@@ -558,6 +560,39 @@ function renderWordPopover(el, data) {
     });
     el.appendChild(ul);
   });
+}
+
+function renderWordPopover(el, data) {
+  renderGlossInto(el, data, {
+    showClose: true,
+    onSuggestion: (label) => openWordPopover(lastWordAnchor || el, label),
+  });
+}
+
+async function lookupWord(word, input) {
+  const q = String(word || "").trim();
+  const out = document.getElementById("lookup-result");
+  if (!out) return;
+  if (!q) {
+    out.hidden = true;
+    out.innerHTML = "";
+    return;
+  }
+  out.hidden = false;
+  out.innerHTML = `<p class="hint">Looking up ${escapeHtml(q)}…</p>`;
+  if (input) input.value = q;
+  try {
+    const data = await fetchTranslation(q);
+    renderGlossInto(out, data, { onSuggestion: (label) => lookupWord(label, input) });
+  } catch (e) {
+    out.innerHTML = `<p class="hint">${escapeHtml(e.message)}</p>`;
+  }
+}
+
+async function onLookupSubmit(ev) {
+  ev.preventDefault();
+  const input = document.getElementById("lookup-word");
+  await lookupWord(input?.value || "", input);
 }
 
 async function openWordPopover(anchor, word) {
@@ -3064,6 +3099,13 @@ function onLogout() {
   if (chat) chat.innerHTML = "";
   const vocab = document.getElementById("vocab-root");
   if (vocab) vocab.innerHTML = "";
+  const lookup = document.getElementById("lookup-result");
+  if (lookup) {
+    lookup.hidden = true;
+    lookup.innerHTML = "";
+  }
+  const lookupInput = document.getElementById("lookup-word");
+  if (lookupInput) lookupInput.value = "";
   setWalkthroughAllowed(false);
   syncProgressUnlock(0);
   setStatus("Logged out.", false);
@@ -3091,6 +3133,7 @@ function init() {
   document.getElementById("btn-chat").addEventListener("click", onChatClick);
   document.getElementById("btn-vocab").addEventListener("click", onVocabClick);
   document.getElementById("form-chat").addEventListener("submit", onChatSubmit);
+  document.getElementById("form-lookup").addEventListener("submit", onLookupSubmit);
   document.getElementById("btn-back-exercise").addEventListener("click", onBackExercise);
   document.getElementById("btn-close-progress").addEventListener("click", goHome);
   document.getElementById("btn-close-learn").addEventListener("click", goHome);

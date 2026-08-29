@@ -1532,6 +1532,30 @@ pre.json-out {
   margin: 0;
 }
 
+.lookup-form {
+  display: flex;
+  gap: 0.55rem;
+  align-items: flex-end;
+  margin: 0.65rem 0 0.55rem;
+}
+
+.lookup-form input {
+  flex: 1;
+  margin: 0;
+}
+
+.lookup-result {
+  margin: 0 0 0.85rem;
+  padding: 0.75rem 0.9rem 0.8rem;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.lookup-result .word-popover-head:first-child {
+  margin-top: 0;
+}
+
 .vocab-toolbar {
   display: flex;
   flex-wrap: wrap;

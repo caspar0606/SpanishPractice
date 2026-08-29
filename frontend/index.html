@@ -237,8 +237,23 @@
         <section class="keep-learning" aria-labelledby="keep-learning-heading">
           <h3 id="keep-learning-heading" class="keep-learning-title">Keep learning</h3>
           <p class="hint">
-            Notes, questions, and vocab anytime — they don’t use up today’s practice.
+            Notes, questions, vocab, and a word lookup anytime — they don’t use up today’s practice.
           </p>
+          <form id="form-lookup" class="lookup-form">
+            <label for="lookup-word" class="sr-only">Look up a Spanish word</label>
+            <input
+              id="lookup-word"
+              name="word"
+              type="text"
+              autocomplete="off"
+              spellcheck="false"
+              placeholder="Look up a Spanish word"
+            />
+            <button type="submit" class="btn btn-primary">
+              <span class="btn-label">Look up</span>
+            </button>
+          </form>
+          <div id="lookup-result" class="lookup-result" hidden></div>
           <div id="extras-root" class="extras-grid"></div>
           <div class="actions home-actions">
             <button type="button" class="btn btn-secondary" id="btn-learn">
@@ -391,6 +406,7 @@
         <div class="help-section">
           <p class="help-section-title">Keep learning</p>
           <ul>
+            <li><strong>Look up</strong>: type a Spanish word for an English gloss. You can also tap words in exercises.</li>
             <li><strong>Learn</strong>: tense tables and grammar notes you can browse any time.</li>
             <li><strong>Ask</strong>: a grounded tutor that answers from those notes — not a conversation partner.</li>
             <li><strong>Vocab</strong>: words harvested from your exercises. Star, ignore, or review them.</li>
