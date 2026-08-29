@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Any, ClassVar, Optional
 
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, Field, field_validator
 
 from src.domain.enums import Band, ExerciseTypes, Grammar, LengthPreference, Tenses, Topics
 from src.domain.models.progress import Progress
@@ -70,6 +70,26 @@ class ExerciseContext(BaseModel):
     def example_json(cls) -> dict:
         return cls._EXAMPLE.copy()
 
+class AttemptMetrics(BaseModel):
+    """Observable facts about one submission, used to judge effort.
+
+    `items_total` is zero for prose exercises; it is only set for drills.
+    """
+
+    seconds_spent: float = 0.0
+    response_words: int = 0
+    target_words: int = 0
+    items_total: int = 0
+    items_answered: int = 0
+
+
+class GenuineVerdict(BaseModel):
+    """Whether an attempt counts as evidence of ability."""
+
+    genuine: bool
+    reasons: list[str] = Field(default_factory=list)
+
+
 class ExerciseStorage(BaseModel):
     id: str
     start_time: datetime
@@ -81,3 +101,5 @@ class ExerciseStorage(BaseModel):
     user_response: Optional[Any] = None
     feedback: Optional[Any] = None
     score: Optional[Progress] = None
+    metrics: Optional[AttemptMetrics] = None
+    genuine: Optional[bool] = None

@@ -1,9 +1,13 @@
 from src.application import container
 from src.application.exercise_selection import create_exercise_context
 from src.application.services.exercise_common import user_exercise_cache
-from src.application.services.progress import build_drill_progress_update, save_user_progress
+from src.application.services.progress import (
+    build_drill_progress_update,
+    item_metrics,
+    save_user_progress,
+)
 from src.domain.enums import DrillTypes
-from src.domain.models.exercise import ExerciseContext
+from src.domain.models.exercise import ExerciseContext, GenuineVerdict
 from src.domain.models.llm import agent_request
 from src.domain.rules.config import QUESTION_NUMBER_CONFIG
 from src.infrastructure.llm.contracts.drills import DrillMarkingSet, Drills, MarkedDrills, UserDrillResponses, DrillSet, \
@@ -41,16 +45,20 @@ def generate_drills(username: str) -> Drills:
 
 
 
-def submit_drills(username: str, responses: UserDrillResponses) -> MarkedDrills:
+def submit_drills(
+    username: str,
+    responses: UserDrillResponses,
+) -> tuple[MarkedDrills, GenuineVerdict]:
     """Marks user responses to drill exercises, updates user progress, and returns LLM feedback.
-    
-    Args: 
+
+    Args:
         username: Used to load user and current exercise objects.
         responses: Formatted user responses to drill exercises.
-        
-        
+
+
     Returns:
-        feedback including all marked drills, correct answers, user responses, and comments.
+        Feedback including all marked drills, correct answers, user responses, and
+        comments, plus whether the attempt counted towards the learner's level.
     """
     
     user, exercise = user_exercise_cache(username)
@@ -72,9 +80,33 @@ def submit_drills(username: str, responses: UserDrillResponses) -> MarkedDrills:
     feedback = mark_drill_sets(responses, drills_prompt, exercise_context)
     score = build_drill_progress_update(exercise_context, feedback)
 
-    save_user_progress(user, responses, feedback, score)
+    verdict = save_user_progress(
+        user,
+        responses,
+        feedback,
+        score,
+        metrics=item_metrics(
+            user.current_exercise,
+            answered=count_answered(responses),
+            total=count_questions(drills_prompt),
+        ),
+    )
 
-    return feedback
+    return feedback, verdict
+
+
+def count_questions(drills: Drills) -> int:
+    return sum(len(drill_set.drills or []) for drill_set in drills.drill_sets.values())
+
+
+def count_answered(responses: UserDrillResponses) -> int:
+    """Blank answers are skips, so they do not count as attempted."""
+    return sum(
+        1
+        for answers in responses.responses.values()
+        for answer in (answers or [])
+        if str(answer).strip()
+    )
 
 
 

@@ -128,3 +128,23 @@ def test_openapi_no_longer_advertises_difficulty(client):
     schema = client.get("/openapi.json").json()
     request_schema = schema["components"]["schemas"]["ExerciseRequest"]
     assert "difficulty" not in request_schema["properties"]
+
+
+def test_progress_overview_is_served_with_english_labels(client, fake_users):
+    fake_users.seed("apiuser", band=Band.A2)
+
+    res = client.post("/progress/generate", json={"username": "apiuser"})
+    assert res.status_code == 200, res.text
+
+    overview = res.json()["overview"]
+    assert overview["overall"]["band"] == Band.A2.value
+    assert overview["overall"]["gloss"]
+    assert overview["overall"]["attempts_until_review"] > 0
+
+    labels = [row["label"] for row in overview["tenses"]]
+    assert "Present tense" in labels
+    assert all("_" not in label for label in labels)
+
+    # A learner who has done nothing yet has no per-skill rows.
+    assert overview["skills"] == []
+    assert overview["genuine_attempts"] == 0

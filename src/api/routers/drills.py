@@ -23,6 +23,10 @@ def submit_drills(request: DrillUserRequest):
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e)) from e
 
+    marked_drills, verdict = result
+
     return DrillSummaryResponse(
-        marked_drills=result
+        marked_drills=marked_drills,
+        counted=verdict.genuine,
+        not_counted_reasons=verdict.reasons,
     )

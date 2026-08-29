@@ -23,8 +23,12 @@ def submit_text(request: WritingUserRequest):
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e)) from e
 
+    corrections, feedback, verdict = result
+
     return WritingSummaryResponse(
-        corrections=result[0],
-        feedback=result[1]
+        corrections=corrections,
+        feedback=feedback,
+        counted=verdict.genuine,
+        not_counted_reasons=verdict.reasons,
     )
 

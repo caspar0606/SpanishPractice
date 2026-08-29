@@ -3,7 +3,7 @@ from src.application.exercise_selection import create_exercise_context
 from src.application.services.exercise_common import user_exercise_cache
 from src.application.services.progress import save_user_progress
 from src.domain.enums import AgentNames
-from src.domain.models.exercise import ExerciseContext
+from src.domain.models.exercise import ExerciseContext, GenuineVerdict
 from src.domain.models.llm import agent_request
 from src.domain.models.progress import Progress
 from src.infrastructure.llm.contracts.text_correction import TextCorrection
@@ -26,7 +26,10 @@ def generate_instructions(username: str) -> str:
 
     return prompt
 
-def submit_response(response: str, username: str) -> tuple[TextCorrection, WritingSummary]:
+def submit_response(
+    response: str,
+    username: str,
+) -> tuple[TextCorrection, WritingSummary, GenuineVerdict]:
     user, exercise = user_exercise_cache(username)
 
     if (user.current_exercise is None) or not (isinstance(user.current_exercise.prompt, str)):
@@ -38,9 +41,9 @@ def submit_response(response: str, username: str) -> tuple[TextCorrection, Writi
     corrected = text_correction(response, exercise_context, user.current_exercise.prompt)
     summary = correction_summary(corrected, exercise_context, tags)
 
-    save_user_progress(user, response, [corrected, summary], tags)
+    verdict = save_user_progress(user, response, [corrected, summary], tags)
 
-    return corrected, summary
+    return corrected, summary, verdict
 
 
 

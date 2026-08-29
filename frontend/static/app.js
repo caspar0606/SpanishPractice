@@ -857,7 +857,7 @@ async function onWritingSubmit(ev) {
         user_response: text,
       }),
     );
-    setStatus("Feedback is ready below.", false);
+    announceSubmission(res, "Feedback is ready below.");
     showResultsWriting(res, text);
   } catch (e) {
     setStatus(e.message, true);
@@ -1152,7 +1152,7 @@ async function onReadingSubmit(ev) {
         user_response,
       }),
     );
-    setStatus("Feedback is ready below.", false);
+    announceSubmission(res, "Feedback is ready below.");
     showResultsReading(res, pr.questions, user_response);
   } catch (e) {
     setStatus(e.message, true);
@@ -1427,7 +1427,7 @@ async function onDrillsSubmit(ev) {
         user_response,
       }),
     );
-    setStatus("Results are ready below.", false);
+    announceSubmission(res, "Results are ready below.");
     showResultsDrills(res);
   } catch (e) {
     setStatus(e.message, true);
@@ -1547,9 +1547,9 @@ async function onProgressClick() {
     const res = await withBusy(btn, "Loading…", () =>
       api("POST", "/progress/generate", { username: u }),
     );
-    renderProgress(res.progress);
+    renderProgress(res.overview);
     showPanel("progress");
-    setStatus("Progress loaded.", false);
+    setStatus("");
   } catch (e) {
     setStatus(e.message, true);
   }
@@ -1560,6 +1560,26 @@ async function onProgressClick() {
  * @param {{ total_attempts?: number, correct_attempts?: number }} stats
  * @returns {number} percentage 0–100
  */
+/**
+ * Feedback always shows, but a rushed or near-empty attempt does not move the
+ * learner's level, so say so rather than leaving them to wonder.
+ * @param {{ counted?: boolean, not_counted_reasons?: string[] }} res
+ * @param {string} readyMessage
+ */
+function announceSubmission(res, readyMessage) {
+  if (res?.counted === false) {
+    const why = (res.not_counted_reasons || []).join(", and ");
+    setStatus(
+      why
+        ? `${readyMessage} This one won't count towards your progress because ${why}.`
+        : `${readyMessage} This one won't count towards your progress.`,
+      false,
+    );
+    return;
+  }
+  setStatus(readyMessage, false);
+}
+
 function calculateScorePercent(stats) {
   const total = Number(stats?.total_attempts) || 0;
   if (total === 0) return 0;
@@ -1575,36 +1595,134 @@ function formatProgressScore(stats) {
   return Number.isInteger(rounded) ? `${rounded}%` : `${rounded.toFixed(1)}%`;
 }
 
-function renderProgress(progress) {
+/**
+ * Progress reads top-down: overall level, then how each skill compares to it,
+ * then the individual concepts. Labels come from the server so they match the
+ * backend's wording.
+ * @param {object} overview
+ */
+function renderProgress(overview) {
   const root = document.getElementById("progress-root");
   root.innerHTML = "";
-  root.appendChild(progressTable("Tenses", progress.tenses));
-  root.appendChild(progressTable("Grammar", progress.grammar));
-  root.appendChild(progressTable("Topics", progress.topics));
+
+  if (!overview) {
+    root.innerHTML = '<p class="hint">No progress yet — finish an exercise to get started.</p>';
+    return;
+  }
+
+  root.appendChild(renderBandSummary(overview));
+  if (overview.skills?.length) root.appendChild(renderSkillBreakdown(overview.skills));
+  root.appendChild(conceptTable("Tenses", overview.tenses));
+  root.appendChild(conceptTable("Grammar", overview.grammar));
+  root.appendChild(conceptTable("Topics", overview.topics));
 }
 
-function progressTable(title, dict) {
+function renderBandSummary(overview) {
+  const overall = overview.overall || {};
+  const wrap = document.createElement("div");
+  wrap.className = "progress-block level-summary";
+
+  const heading = document.createElement("p");
+  heading.className = "level-summary-now";
+  heading.textContent = `Your level: ${overall.band} — ${overall.gloss}`;
+  wrap.appendChild(heading);
+
+  const detail = document.createElement("p");
+  detail.className = "level-summary-goal";
+  const counted = overall.genuine_attempts_at_band || 0;
+  const remaining = overall.attempts_until_review;
+  if (!overview.genuine_attempts) {
+    detail.textContent =
+      "Complete a few full exercises and we'll start tracking whether you're ready to move up.";
+  } else if (remaining > 0) {
+    detail.textContent = `${counted} exercise${counted === 1 ? "" : "s"} counted at this level. About ${remaining} more before we review it.`;
+  } else {
+    // Attempts are there, so accuracy is what's holding the level.
+    detail.textContent = `You're averaging ${overall.evidence_score}% across your skills. We look for around ${overall.target_accuracy}% to move you up.`;
+  }
+  wrap.appendChild(detail);
+
+  if (overview.total_attempts > overview.genuine_attempts) {
+    const skipped = document.createElement("p");
+    skipped.className = "progress-note";
+    const diff = overview.total_attempts - overview.genuine_attempts;
+    skipped.textContent = `${diff} attempt${diff === 1 ? " was" : "s were"} too short or too quick to count towards your progress.`;
+    wrap.appendChild(skipped);
+  }
+
+  return wrap;
+}
+
+const RELATIVE_LEVEL_CLASS = {
+  above: "pill-above",
+  at: "pill-at",
+  below: "pill-below",
+};
+
+function renderSkillBreakdown(skills) {
+  const wrap = document.createElement("div");
+  wrap.className = "progress-block";
+  const h = document.createElement("h3");
+  h.textContent = "By skill";
+  wrap.appendChild(h);
+
+  skills.forEach((row) => {
+    const item = document.createElement("div");
+    item.className = "skill-row";
+
+    const name = document.createElement("span");
+    name.className = "skill-row-name";
+    name.textContent = row.label;
+
+    const pill = document.createElement("span");
+    pill.className = `skill-pill ${RELATIVE_LEVEL_CLASS[row.relative_level] || "pill-at"}`;
+    pill.textContent = row.relative_label;
+
+    const meta = document.createElement("span");
+    meta.className = "skill-row-meta";
+    meta.textContent = row.genuine_attempts
+      ? `${row.accuracy}% over ${row.genuine_attempts} counted exercise${row.genuine_attempts === 1 ? "" : "s"}`
+      : "not enough full attempts yet";
+
+    item.appendChild(name);
+    item.appendChild(pill);
+    item.appendChild(meta);
+    wrap.appendChild(item);
+  });
+
+  return wrap;
+}
+
+function conceptTable(title, rows) {
   const wrap = document.createElement("div");
   wrap.className = "progress-block";
   const h = document.createElement("h3");
   h.textContent = title;
   wrap.appendChild(h);
+
   const table = document.createElement("table");
   table.className = "progress-table";
-  table.innerHTML =
-    "<thead><tr><th>Area</th><th>Score</th></tr></thead>";
+  table.innerHTML = "<thead><tr><th>Area</th><th>Score</th></tr></thead>";
   const tb = document.createElement("tbody");
-  for (const [k, v] of Object.entries(dict || {})) {
+
+  (rows || []).forEach((row) => {
     const tr = document.createElement("tr");
-    const td1 = document.createElement("td");
-    td1.textContent = humanizeKey(k);
-    const td2 = document.createElement("td");
-    td2.textContent = formatProgressScore(v);
-    td2.className = "progress-score-cell";
-    tr.appendChild(td1);
-    tr.appendChild(td2);
+    if (!row.practised) tr.className = "progress-row-untouched";
+
+    const name = document.createElement("td");
+    name.textContent = row.label;
+
+    const score = document.createElement("td");
+    score.className = "progress-score-cell";
+    score.textContent = row.practised
+      ? `${Math.round(row.score * 10) / 10}%`
+      : "not practised";
+
+    tr.appendChild(name);
+    tr.appendChild(score);
     tb.appendChild(tr);
-  }
+  });
+
   table.appendChild(tb);
   wrap.appendChild(table);
   return wrap;

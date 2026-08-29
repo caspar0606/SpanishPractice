@@ -17,6 +17,9 @@ class ReadingUserRequest(BaseModel):
 class ReadingSummaryResponse(BaseModel):
     corrections: TextCorrections
     feedback: QuestionMarking
+    # Whether this attempt counted towards the learner's level, and why not.
+    counted: bool = True
+    not_counted_reasons: list[str] = []
 
 
 

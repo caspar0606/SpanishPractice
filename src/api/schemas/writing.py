@@ -19,6 +19,9 @@ class WritingUserRequest(BaseModel):
 class WritingSummaryResponse(BaseModel):
     corrections: TextCorrection
     feedback: WritingSummary
+    # Whether this attempt counted towards the learner's level, and why not.
+    counted: bool = True
+    not_counted_reasons: list[str] = []
 
 
 

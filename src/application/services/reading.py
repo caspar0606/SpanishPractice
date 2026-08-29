@@ -4,9 +4,9 @@ from typing import Tuple
 from src.application import container
 from src.application.exercise_selection import create_exercise_context
 from src.application.services.exercise_common import user_exercise_cache
-from src.application.services.progress import save_user_progress
+from src.application.services.progress import item_metrics, save_user_progress
 from src.domain.enums import AgentNames
-from src.domain.models.exercise import ExerciseContext
+from src.domain.models.exercise import ExerciseContext, GenuineVerdict
 from src.domain.models.llm import agent_request
 from src.domain.models.progress import Progress
 from src.infrastructure.llm.contracts.reading import ReadingGeneration, QuestionMarking, TextCorrections
@@ -29,7 +29,10 @@ def generate_passage(username: str) -> ReadingGeneration:
 
     return prompt
 
-def submit_response(responses: list[str], username: str) -> Tuple[TextCorrections, QuestionMarking]:
+def submit_response(
+    responses: list[str],
+    username: str,
+) -> Tuple[TextCorrections, QuestionMarking, GenuineVerdict]:
     user, exercise = user_exercise_cache(username)
 
     if user.current_exercise is None or user.current_exercise.prompt is None:
@@ -50,9 +53,21 @@ def submit_response(responses: list[str], username: str) -> Tuple[TextCorrection
     corrections = text_correction(responses, exercise_context, user.current_exercise.prompt)
     feedback = question_marking(responses, reading_prompt, exercise_context)
 
-    save_user_progress(user, responses, [feedback, corrections], tags)
+    # Comprehension answers are short by nature, so effort is measured by how
+    # many questions were answered rather than against the passage length.
+    verdict = save_user_progress(
+        user,
+        responses,
+        [feedback, corrections],
+        tags,
+        metrics=item_metrics(
+            user.current_exercise,
+            answered=sum(1 for answer in responses if str(answer).strip()),
+            total=len(reading_prompt.questions),
+        ),
+    )
 
-    return corrections, feedback
+    return corrections, feedback, verdict
 
 
 def create_text(exercise_context: ExerciseContext):
