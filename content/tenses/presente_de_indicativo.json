@@ -1,0 +1,54 @@
+{
+  "key": "presente_de_indicativo",
+  "axis": "tense",
+  "title_en": "Present tense",
+  "when_to_use": [
+    "Use it for things that are true now, or that happen regularly.",
+    "It also covers near-future plans when the time is clear: 'Mañana viajo a Madrid.'",
+    "English 'I am eating' is often just the Spanish present: 'Como.'"
+  ],
+  "table": {
+    "hablar": {
+      "yo": "hablo",
+      "tú": "hablas",
+      "él/ella": "habla",
+      "nosotros": "hablamos",
+      "vosotros": "habláis",
+      "ellos/ellas": "hablan"
+    },
+    "comer": {
+      "yo": "como",
+      "tú": "comes",
+      "él/ella": "come",
+      "nosotros": "comemos",
+      "vosotros": "coméis",
+      "ellos/ellas": "comen"
+    },
+    "vivir": {
+      "yo": "vivo",
+      "tú": "vives",
+      "él/ella": "vive",
+      "nosotros": "vivimos",
+      "vosotros": "vivís",
+      "ellos/ellas": "viven"
+    }
+  },
+  "examples": [
+    {
+      "es": "Trabajo en un café los sábados.",
+      "en": "I work in a café on Saturdays.",
+      "note": "A regular habit — present tense, not 'I am working'."
+    },
+    {
+      "es": "Ella vive cerca de la estación.",
+      "en": "She lives near the station.",
+      "note": "A current fact."
+    },
+    {
+      "es": "Mañana salimos a las ocho.",
+      "en": "Tomorrow we leave at eight.",
+      "note": "A plan with a time marker, still present in Spanish."
+    }
+  ],
+  "common_mistake": "English speakers over-use estar + gerund ('estoy comiendo') where Spanish just uses the present ('como')."
+}

@@ -1,7 +1,9 @@
 from pydantic import BaseModel
 
-from src.domain.enums import ExerciseStyle, ExerciseTypes
+from src.domain.enums import ExerciseStyle, ExerciseTypes, LengthPreference
 from src.domain.models.exercise import AreasOfFocus, Exercise, ExerciseContext
+from src.domain.models.recommendation import Recommendation
+
 
 class ExerciseRequest(BaseModel):
     """Difficulty is derived from the learner's band, never sent by the client."""
@@ -10,9 +12,18 @@ class ExerciseRequest(BaseModel):
     type: ExerciseTypes
     style: ExerciseStyle
     preferences: AreasOfFocus | None = None
+    length: LengthPreference | None = None
 
 class ExerciseResponse(BaseModel):
     exercise: Exercise
+
+
+class RecommendRequest(BaseModel):
+    username: str
+
+
+class RecommendResponse(BaseModel):
+    cards: list[Recommendation]
 
 
 

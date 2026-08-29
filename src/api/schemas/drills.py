@@ -1,5 +1,6 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
+from src.api.schemas.learn import LessonCard
 from src.infrastructure.llm.contracts.drills import MarkedDrills, Drills, UserDrillResponses
 
 class DrillGenerationRequest(BaseModel):
@@ -19,4 +20,5 @@ class DrillSummaryResponse(BaseModel):
     # Whether this attempt counted towards the learner's level, and why not.
     counted: bool = True
     not_counted_reasons: list[str] = []
+    lessons: list[LessonCard] = Field(default_factory=list)
 

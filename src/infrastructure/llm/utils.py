@@ -30,7 +30,12 @@ def serialise_for_prompt(value) -> str:
         return ""
 
     if isinstance(value, BaseModel):
-        return json.dumps(value.model_dump(), indent=2, ensure_ascii=False)
+        payload = (
+            value.dump_for_prompt()
+            if hasattr(value, "dump_for_prompt")
+            else value.model_dump()
+        )
+        return json.dumps(payload, indent=2, ensure_ascii=False)
 
     if isinstance(value, (dict, list)):
         return json.dumps(_to_prompt_jsonable(value), indent=2, ensure_ascii=False)

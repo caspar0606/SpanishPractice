@@ -54,10 +54,8 @@ Only one of:
 will be non-null.
 word_count must be ignored.
 
-difficulty, which will be one of:
-- "beginner"   -> roughly A0/A1
-- "novice"     -> roughly A1/A2
-- "intermediate" -> roughly A2/B1
+Use exercise_config.level (0–8, where 0 is the very start and 8 is the highest)
+and level_hint. Ignore any leftover difficulty labels.
 
 3. Number of questions to generate, an integer
 
@@ -106,7 +104,7 @@ DIFFICULTY GUIDELINES
 
 The difficulty must strongly affect vocabulary, sentence length, and grammatical complexity.
 
-1. beginner (roughly A0/A1)
+1. levels 0–2
 - Use very common everyday vocabulary.
 - Prefer short, direct sentences.
 - Avoid idioms, rare words, figurative language, and long subordinate clauses.
@@ -121,7 +119,7 @@ The difficulty must strongly affect vocabulary, sentence length, and grammatical
 - Keep the answer short and obvious once the concept is understood.
 - Avoid stacked grammatical complexity.
 
-2. novice (roughly A1/A2)
+2. levels 3–5
 - Use common vocabulary with moderate variety.
 - Sentences may be slightly longer and more natural.
 - Some additional context is acceptable.
@@ -131,7 +129,7 @@ The difficulty must strongly affect vocabulary, sentence length, and grammatical
 - Still avoid obscure vocabulary or literary style.
 - Answers should remain clearly markable.
 
-3. intermediate (roughly A2/B1)
+3. levels 6–8
 - Use broader but still common vocabulary.
 - Sentences can be more natural and somewhat more complex.
 - You may include more varied subjects, contexts, and sentence structures.
@@ -209,10 +207,8 @@ Only one of:
 will be non-null.
 word_count must be ignored.
 
-difficulty, which will be one of:
-- "beginner"   -> roughly A0/A1
-- "novice"     -> roughly A1/A2
-- "intermediate" -> roughly A2/B1
+Use exercise_config.level (0–8, where 0 is the very start and 8 is the highest)
+and level_hint. Ignore any leftover difficulty labels.
 
 3. Number of questions to generate, an integer
 
@@ -270,7 +266,7 @@ C) If focus_topics is non-null:
 
 DIFFICULTY GUIDELINES
 
-1. beginner (roughly A0/A1)
+1. levels 0–2
 - Very common vocabulary only.
 - Short, simple prompts.
 - Very clear context.
@@ -278,13 +274,13 @@ DIFFICULTY GUIDELINES
 - Avoid long clauses or multiple time cues.
 - Prefer familiar daily-life contexts.
 
-2. novice (roughly A1/A2)
+2. levels 3–5
 - Common vocabulary with some moderate variety.
 - Sentences can be slightly longer.
 - Distractors can be a little more plausible, but still fair.
 - Context can be a little more natural and less rigid.
 
-3. intermediate (roughly A2/B1)
+3. levels 6–8
 - Broader common vocabulary.
 - More natural sentence contexts.
 - Distractors may be more subtle, but there must still be one clearly best answer.
@@ -362,10 +358,8 @@ Only one of:
 will be non-null.
 word_count must be ignored.
 
-difficulty, which will be one of:
-- "beginner"   -> roughly A0/A1
-- "novice"     -> roughly A1/A2
-- "intermediate" -> roughly A2/B1
+Use exercise_config.level (0–8, where 0 is the very start and 8 is the highest)
+and level_hint. Ignore any leftover difficulty labels.
 
 3. Number of questions to generate, an integer
 
@@ -415,21 +409,21 @@ C) If focus_topics is non-null:
 
 DIFFICULTY GUIDELINES
 
-1. beginner (roughly A0/A1)
+1. levels 0–2
 - Very short English prompts.
 - Very common vocabulary and simple sentence structure.
 - Prefer concrete statements and routine actions.
 - Avoid idioms, metaphor, abstract phrasing, and complicated clause structure.
 - Keep the Spanish answer short and standard.
 
-2. novice (roughly A1/A2)
+2. levels 3–5
 - Short to moderate length prompts.
 - Common vocabulary with some variety.
 - More natural daily situations are fine.
 - Still avoid idioms and very open-ended phrasing.
 - The Spanish answer should still be easy to judge.
 
-3. intermediate (roughly A2/B1)
+3. levels 6–8
 - Moderate length prompts.
 - Broader common vocabulary and more natural sentence structures.
 - Some mild complexity is acceptable.
@@ -506,10 +500,8 @@ Only one of:
 will be non-null.
 word_count must be ignored.
 
-difficulty, which will be one of:
-- "beginner"   -> roughly A0/A1
-- "novice"     -> roughly A1/A2
-- "intermediate" -> roughly A2/B1
+Use exercise_config.level (0–8, where 0 is the very start and 8 is the highest)
+and level_hint. Ignore any leftover difficulty labels.
 
 3. Number of questions to generate, an integer
 
@@ -562,7 +554,7 @@ C) If focus_topics is non-null:
 
 DIFFICULTY GUIDELINES
 
-1. beginner (roughly A0/A1)
+1. levels 0–2
 - Very short sentences.
 - Very common vocabulary.
 - Error should be obvious enough once the learner knows the concept.
@@ -570,13 +562,13 @@ DIFFICULTY GUIDELINES
 - Avoid subtle stylistic issues.
 - Prefer very standard, concrete contexts.
 
-2. novice (roughly A1/A2)
+2. levels 3–5
 - Common vocabulary with moderate variety.
 - Sentences can be a little longer.
 - The error can be slightly less obvious, but still fair.
 - Keep correction straightforward and easily markable.
 
-3. intermediate (roughly A2/B1)
+3. levels 6–8
 - Broader common vocabulary and more natural sentence structure.
 - Some added complexity is acceptable.
 - The error can be more realistic and a bit subtler.

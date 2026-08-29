@@ -38,7 +38,7 @@ class DifficultyLevels(str, Enum):
 
 
 class Band(str, Enum):
-        """CEFR-style proficiency band with half steps."""
+        """Internal proficiency band with half steps. Learners see 0–8, not these names."""
 
         A1 = "A1"
         A1_5 = "A1.5"
@@ -122,6 +122,27 @@ class DrillTypes(str, Enum):
 class ExerciseStyle(str, Enum):
     WEAKNESSES = "weaknesses"
     PREFERENCES = "preferences"
+
+
+class RecommendationKind(str, Enum):
+    """Why a recommender card was chosen. The UI shows these as eyebrows."""
+
+    NEEDED = "needed"
+    ROADMAP = "roadmap"
+    GOAL = "goal"
+    VOCAB = "vocab"
+
+
+class VocabStatus(str, Enum):
+    NEW = "new"
+    LEARNING = "learning"
+    KNOWN = "known"
+    IGNORED = "ignored"
+
+
+class ConceptAxis(str, Enum):
+    TENSE = "tense"
+    GRAMMAR = "grammar"
     
 class Times(str, Enum):
        PAST = "past"
@@ -156,6 +177,11 @@ class AgentNames(str, Enum):
     DRILLS_TRANSLATION_MARKING = "drills_translation_marking"
     DRILLS_SENTENCE_COMPLETION_MARKING = "drills_sentence_completion_marking"
     PLACEMENT_ASSESSOR = "placement_assessor"
+    CHAT_TUTOR = "chat_tutor"
+    VOCAB_EXTRACTOR = "vocab_extractor"
+    LISTENING_GENERATOR = "listening_generator"
+    SPEAKING_INSTRUCTIONS = "speaking_instructions"
+    SPEAKING_CORRECTOR = "speaking_corrector"
 
 
 CATEGORY_SENTINEL_NAMES = frozenset({"TENSES", "GRAMMAR", "TOPICS"})

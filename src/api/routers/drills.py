@@ -1,6 +1,8 @@
 from fastapi import APIRouter, HTTPException
 
 from src.application.services import drills as drills_file
+from src.application.services import learn as learn_file
+from src.api.schemas.learn import LessonCard
 from src.api.schemas.drills import DrillGenerationRequest, DrillGenerationResponse, DrillSummaryResponse, DrillUserRequest
 
 router = APIRouter()
@@ -29,4 +31,5 @@ def submit_drills(request: DrillUserRequest):
         marked_drills=marked_drills,
         counted=verdict.genuine,
         not_counted_reasons=verdict.reasons,
+        lessons=[LessonCard(**row) for row in learn_file.related_for_user(request.username)],
     )

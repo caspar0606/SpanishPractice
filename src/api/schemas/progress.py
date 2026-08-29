@@ -31,6 +31,7 @@ class SkillRow(BaseModel):
 
 class BandSummary(BaseModel):
     band: Band
+    level: int
     gloss: str
     genuine_attempts_at_band: int
     attempts_until_review: int

@@ -1,0 +1,24 @@
+{
+  "key": "verb_subject_conjugation",
+  "axis": "grammar",
+  "title_en": "Matching verbs to their subject",
+  "rule": "The verb ending must match who is doing the action. Spanish often drops the subject pronoun because the ending already says yo, tú, or ellos. A mismatch ('nosotros come') is immediately noticeable.",
+  "examples": [
+    {
+      "es": "Tú hablas muy rápido.",
+      "en": "You speak very fast.",
+      "note": "tú takes -as in the present of hablar."
+    },
+    {
+      "es": "Nosotros no comemos carne.",
+      "en": "We don't eat meat.",
+      "note": "nosotros takes -emos on -er verbs in the present."
+    },
+    {
+      "es": "Ellos vivieron en Cádiz.",
+      "en": "They lived in Cádiz.",
+      "note": "Past finished action, ellos — vivieron, not vivió."
+    }
+  ],
+  "common_mistake": "Keeping the yo form for everyone ('yo como, tú como') because English 'eat' does not change much."
+}

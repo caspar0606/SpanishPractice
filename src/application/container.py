@@ -1,6 +1,12 @@
 from dataclasses import dataclass
 
-from src.application.ports import ContentRepository, LlmGateway, UserRepository
+from src.application.ports import (
+    ContentRepository,
+    LlmGateway,
+    SttGateway,
+    TtsGateway,
+    UserRepository,
+)
 
 
 @dataclass(frozen=True)
@@ -8,6 +14,8 @@ class Deps:
     users: UserRepository
     llm: LlmGateway
     content: ContentRepository
+    tts: TtsGateway
+    stt: SttGateway
 
 
 _deps: Deps | None = None
@@ -37,3 +45,11 @@ def llm() -> LlmGateway:
 
 def content() -> ContentRepository:
     return get().content
+
+
+def tts() -> TtsGateway:
+    return get().tts
+
+
+def stt() -> SttGateway:
+    return get().stt

@@ -1,0 +1,24 @@
+{
+  "key": "plurality_agreement",
+  "axis": "grammar",
+  "title_en": "Singular and plural agreement",
+  "rule": "The article, adjective, and verb must match whether the noun is one or more: el gato negro duerme / los gatos negros duermen. Add -s after a vowel and -es after a consonant (el mes → los meses).",
+  "examples": [
+    {
+      "es": "Las ventanas están abiertas.",
+      "en": "The windows are open.",
+      "note": "Plural noun, so las, están, abiertas."
+    },
+    {
+      "es": "Mis padres viven en León.",
+      "en": "My parents live in León.",
+      "note": "padres is plural, so viven not vive."
+    },
+    {
+      "es": "Hay tres estaciones cerca.",
+      "en": "There are three stations nearby.",
+      "note": "estación → estaciones (-es after a consonant)."
+    }
+  ],
+  "common_mistake": "Leaving the adjective singular ('casas blanco') or forgetting that the verb also has to change with the subject."
+}

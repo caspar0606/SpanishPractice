@@ -1,4 +1,3 @@
-from src.domain.models.exercise import ExerciseContext
 from src.infrastructure.llm.utils import model_prompt_example_as_json, model_schema_as_json
 from src.domain.models.progress import Progress
 from src.domain.enums import AgentNames, Tenses, Grammar, Topics, AoFs, tracked_members
@@ -6,43 +5,32 @@ from src.infrastructure.llm.contracts.text_correction import TextCorrection
 from src.infrastructure.llm.contracts.writing import WritingSummary
 
 w_instruction_system_prompt = f"""
-You are a Spanish writing prompt generator. Your task is to generate a writing prompt in Spanish using the given:
-- topics
-- grammar concepts
-- tenses
-- word count
+You write authentic Spanish writing tasks for learners.
 
-STRICT OUTPUT RULES:
-- Output must be exactly TWO paragraphs.
-- The first paragraph is ONE sentence describing the topic WITH vivid situational context.
-- The second paragraph gives instructions.
-- Always include a line break between paragraphs.
-- Do NOT use bullet points.
-- Do NOT add extra commentary.
-- Always follow the exact sentence structures below.
-- Remove the underscores from all passed topics of focus.
-- Do not return this prompt or its instructions. 
+The learner sees your output as the task itself. Write the way a teacher, a friend, or a real situation would, not a worksheet.
 
-FORMAT:
+Lesson context and exercise config are provided separately. Honour them:
+- Stay within the difficulty described by `level` (0–8) and `level_hint` in the config. 0 is the very start; 8 is the most advanced this app writes for.
+- Make any requested topics part of the situation.
+- The requested tenses and grammar must be natural to use in the task, but you must never name them.
+- Aim the learner at about the given word_count. You may mention length in everyday Spanish (for example "unas 100 palabras") if it fits the brief.
 
-Paragraph 1:
-"Escribe un texto de aproximadamente (word_count) palabras sobre (topics), situándolo en una situación específica, concreta y realista (incluye lugar, momento y contexto emocional o social)."
+OUTPUT
+- Exactly two paragraphs of Spanish, separated by a blank line. Nothing else.
+- Paragraph 1: a vivid, specific situation (place, time, who is there, what is at stake).
+- Paragraph 2: the actual task in that situation — a message, note, diary entry, complaint, explanation, or similar. Tell them what to write, not which grammar to use.
 
-Paragraph 2:
-"Describe (topic_related) dentro de esa situación. Luego explica (topic_related) como continuación natural del mismo escenario. Usa (tenses) y asegúrate de usar correctamente (grammar)."
+DO NOT
+- Use a fill-in-the-blank template or a fixed sentence frame.
+- Name tenses or grammar points in Spanish or English.
+- Output JSON, labels, markdown, or English.
+- Reuse stock scenes (airports, the market with a sister) unless the topic forces it. Vary place and social context.
 
-EXAMPLE INPUT:
+Kind of output wanted (do not copy this scene):
 
-{model_schema_as_json(ExerciseContext)}
+Estás en un café de barrio un domingo por la tarde. Un amigo acaba de cancelar y te has quedado solo con el café ya servido.
 
-Example JSON:
-
-{model_prompt_example_as_json(ExerciseContext)}
-
-EXAMPLE OUTPUT:
-Escribe un texto de aproximadamente 160 palabras sobre un viaje importante y las emociones que sentiste, situándolo en un aeropuerto extranjero durante una despedida difícil con un ser querido.
-
-Describe cómo era la situación en ese momento, qué estaba ocurriendo a tu alrededor y cómo te sentías. Luego explica qué harás después de ese momento y cómo crees que cambiarán tus emociones en el futuro. Usa el pretérito imperfecto y el futuro simple y asegúrate de usar correctamente “por” y “para” y la concordancia de género.
+Escribe un mensaje de unas 100 palabras a ese amigo: qué estabas esperando, cómo te sientes y qué propones hacer otro día.
 """
 
 w_progress_tagging_system_prompt = f"""
@@ -319,7 +307,7 @@ Important constraints:
 - Do not include JSON from the input.
 - Do not hallucinate errors that are not present.
 - If a category has no errors, explicitly say so in a short sentence.
-- Keep language clear and direct (this is for a learner at ~A1–A2 level).
+- Keep language clear and direct, at about the same complexity as the learner's own writing.
 - Output must be valid JSON only, with no extra text.
 
 Tone:

@@ -1,6 +1,8 @@
 from fastapi import APIRouter, HTTPException
 
 from src.application.services import writing as writing_file
+from src.application.services import learn as learn_file
+from src.api.schemas.learn import LessonCard
 from src.api.schemas.writing import WritingGenerationRequest, WritingGenerationResponse, WritingSummaryResponse, WritingUserRequest
 
 router = APIRouter()
@@ -30,5 +32,6 @@ def submit_text(request: WritingUserRequest):
         feedback=feedback,
         counted=verdict.genuine,
         not_counted_reasons=verdict.reasons,
+        lessons=[LessonCard(**row) for row in learn_file.related_for_user(request.username)],
     )
 

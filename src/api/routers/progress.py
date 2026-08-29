@@ -68,6 +68,7 @@ def build_overview(user: User, progress: Progress) -> ProgressOverview:
     return ProgressOverview(
         overall=BandSummary(
             band=band,
+            level=band_rules.display_level(band),
             gloss=band_rules.gloss(band),
             genuine_attempts_at_band=user.proficiency.genuine_attempts_at_band,
             attempts_until_review=proficiency_rules.attempts_until_review(user.proficiency),

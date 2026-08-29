@@ -1,0 +1,24 @@
+{
+  "key": "por_para_usage",
+  "axis": "grammar",
+  "title_en": "Choosing between por and para",
+  "rule": "Para points at a destination, deadline, recipient, or purpose ('in order to'). Por covers cause, duration, exchange, movement through a place, and 'on behalf of'. If you can swap in 'in order to' or 'by Friday', para is usually right; if you can swap in 'because of' or 'for three hours', por is.",
+  "examples": [
+    {
+      "es": "Este regalo es para Ana.",
+      "en": "This gift is for Ana.",
+      "note": "Recipient — para."
+    },
+    {
+      "es": "Caminamos por el parque una hora.",
+      "en": "We walked through the park for an hour.",
+      "note": "Movement through a place, plus duration — por."
+    },
+    {
+      "es": "Estudio para aprobar el examen.",
+      "en": "I study in order to pass the exam.",
+      "note": "Purpose — para + infinitive."
+    }
+  ],
+  "common_mistake": "Translating every English 'for' as para. Duration ('for two years') and cause ('for that reason') take por."
+}

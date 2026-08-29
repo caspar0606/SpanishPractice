@@ -70,6 +70,25 @@ class FakeUserRepository:
         return user
 
 
+class FakeTtsGateway:
+    def __init__(self) -> None:
+        self.calls: list[str] = []
+
+    def synthesise(self, text: str, voice: str = "nova") -> str:
+        self.calls.append(text)
+        return "test-clip"
+
+
+class FakeSttGateway:
+    def __init__(self) -> None:
+        self.calls: list[str] = []
+        self.transcript = "Hola, estoy bien."
+
+    def transcribe(self, audio_bytes: bytes, filename: str = "speech.webm") -> str:
+        self.calls.append(filename)
+        return self.transcript
+
+
 class FakeLlmGateway:
     """Returns canned responses so services run without network calls."""
 
@@ -107,9 +126,25 @@ def real_content() -> JsonContentRepository:
 
 
 @pytest.fixture
-def deps(fake_users, fake_llm, real_content):
+def fake_tts() -> FakeTtsGateway:
+    return FakeTtsGateway()
+
+
+@pytest.fixture
+def fake_stt() -> FakeSttGateway:
+    return FakeSttGateway()
+
+
+@pytest.fixture
+def deps(fake_users, fake_llm, real_content, fake_tts, fake_stt):
     """Configure the container with fakes for the duration of one test."""
-    bound = container.Deps(users=fake_users, llm=fake_llm, content=real_content)
+    bound = container.Deps(
+        users=fake_users,
+        llm=fake_llm,
+        content=real_content,
+        tts=fake_tts,
+        stt=fake_stt,
+    )
     container.configure(bound)
     yield bound
     container._deps = None

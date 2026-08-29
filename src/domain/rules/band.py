@@ -27,6 +27,18 @@ BAND_ORDER: tuple[Band, ...] = (
     Band.B2,
 )
 
+# Learner-facing 0–8 scale. Internal Band values stay A1…B2 for storage.
+# 0 and 1 are reserved (complete beginner / first phrases); the app starts at 2.
+DISPLAY_LEVEL: dict[Band, int] = {
+    Band.A1: 2,
+    Band.A1_5: 3,
+    Band.A2: 4,
+    Band.A2_5: 5,
+    Band.B1: 6,
+    Band.B1_5: 7,
+    Band.B2: 8,
+}
+
 
 class BandConfig(BaseModel):
     gloss: str
@@ -55,7 +67,7 @@ _B1_GRAMMAR = _A2_5_GRAMMAR + [Grammar.INDIRECT_DIRECT_PRONOUN_USAGE]
 BAND_CONFIG: dict[Band, BandConfig] = {
     Band.A1: BandConfig(
         gloss="first words and phrases",
-        cefr_hint="A1: very simple vocabulary, short present-tense sentences, concrete ideas.",
+        cefr_hint="Level 2 of 8: very simple vocabulary, short present-tense sentences, concrete ideas.",
         w_word_count=50,
         r_word_count=90,
         l_word_count=60,
@@ -67,7 +79,7 @@ BAND_CONFIG: dict[Band, BandConfig] = {
     ),
     Band.A1_5: BandConfig(
         gloss="getting by with the basics",
-        cefr_hint="A1+: simple everyday vocabulary, short sentences, mostly present tense.",
+        cefr_hint="Level 3 of 8: simple everyday vocabulary, short sentences, mostly present tense.",
         w_word_count=70,
         r_word_count=120,
         l_word_count=80,
@@ -79,7 +91,7 @@ BAND_CONFIG: dict[Band, BandConfig] = {
     ),
     Band.A2: BandConfig(
         gloss="basic conversational Spanish",
-        cefr_hint="A2: common vocabulary, simple past and present, mostly simple sentences.",
+        cefr_hint="Level 4 of 8: common vocabulary, simple past and present, mostly simple sentences.",
         w_word_count=100,
         r_word_count=180,
         l_word_count=110,
@@ -91,7 +103,7 @@ BAND_CONFIG: dict[Band, BandConfig] = {
     ),
     Band.A2_5: BandConfig(
         gloss="confident with the basics",
-        cefr_hint="A2+: common vocabulary with some variety, past, present and future.",
+        cefr_hint="Level 5 of 8: common vocabulary with some variety, past, present and future.",
         w_word_count=130,
         r_word_count=240,
         l_word_count=140,
@@ -103,7 +115,7 @@ BAND_CONFIG: dict[Band, BandConfig] = {
     ),
     Band.B1: BandConfig(
         gloss="solid conversational Spanish",
-        cefr_hint="B1: clear structure, richer but still common vocabulary, all core tenses.",
+        cefr_hint="Level 6 of 8: clear structure, richer but still common vocabulary, all core tenses.",
         w_word_count=170,
         r_word_count=320,
         l_word_count=180,
@@ -115,7 +127,7 @@ BAND_CONFIG: dict[Band, BandConfig] = {
     ),
     Band.B1_5: BandConfig(
         gloss="comfortable in most everyday situations",
-        cefr_hint="B1+: longer connected text, natural phrasing, all core tenses used well.",
+        cefr_hint="Level 7 of 8: longer connected text, natural phrasing, all core tenses used well.",
         w_word_count=210,
         r_word_count=400,
         l_word_count=220,
@@ -127,7 +139,7 @@ BAND_CONFIG: dict[Band, BandConfig] = {
     ),
     Band.B2: BandConfig(
         gloss="upper intermediate",
-        cefr_hint="B2: extended, well-organised text with nuanced vocabulary and complex sentences.",
+        cefr_hint="Level 8 of 8: extended, well-organised text with nuanced vocabulary and complex sentences.",
         w_word_count=260,
         r_word_count=480,
         l_word_count=260,
@@ -186,6 +198,11 @@ def cefr_hint(band: Band) -> str:
 
 def gloss(band: Band) -> str:
     return BAND_CONFIG[band].gloss
+
+
+def display_level(band: Band) -> int:
+    """Loose 0–8 number shown to learners. Not an official CEFR grade."""
+    return DISPLAY_LEVEL[band]
 
 
 def rank(band: Band) -> int:

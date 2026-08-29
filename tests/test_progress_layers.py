@@ -204,6 +204,7 @@ def test_overview_exposes_all_three_layers_with_english_labels(deps, fake_users)
     overview = build_overview(stored, stored.progress)
 
     assert overview.overall.band is Band.A2
+    assert overview.overall.level == 4
     assert overview.overall.gloss
     assert overview.overall.attempts_until_review == proficiency_rules.PROMOTION_MIN_ATTEMPTS - 1
 

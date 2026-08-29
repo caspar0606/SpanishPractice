@@ -2,6 +2,7 @@ from src.application import container
 from src.application.exercise_selection import create_exercise_context
 from src.application.services.exercise_common import user_exercise_cache
 from src.application.services.progress import save_user_progress
+from src.application.services import vocab as vocab_file
 from src.domain.enums import AgentNames
 from src.domain.models.exercise import ExerciseContext, GenuineVerdict
 from src.domain.models.llm import agent_request
@@ -42,6 +43,8 @@ def submit_response(
     summary = correction_summary(corrected, exercise_context, tags)
 
     verdict = save_user_progress(user, response, [corrected, summary], tags)
+    if verdict.genuine:
+        vocab_file.harvest(username, response)
 
     return corrected, summary, verdict
 

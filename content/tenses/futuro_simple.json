@@ -1,0 +1,54 @@
+{
+  "key": "futuro_simple",
+  "axis": "tense",
+  "title_en": "Future tense (will)",
+  "when_to_use": [
+    "Use it for predictions and promises: 'Lloverá mañana.' / 'Te llamaré.'",
+    "It can also mean 'I wonder / probably': '¿Dónde estará Ana?'",
+    "Near plans often stay in the present: 'Mañana viajamos.' Save this tense for will-type future."
+  ],
+  "table": {
+    "hablar": {
+      "yo": "hablaré",
+      "tú": "hablarás",
+      "él/ella": "hablará",
+      "nosotros": "hablaremos",
+      "vosotros": "hablaréis",
+      "ellos/ellas": "hablarán"
+    },
+    "comer": {
+      "yo": "comeré",
+      "tú": "comerás",
+      "él/ella": "comerá",
+      "nosotros": "comeremos",
+      "vosotros": "comeréis",
+      "ellos/ellas": "comerán"
+    },
+    "vivir": {
+      "yo": "viviré",
+      "tú": "vivirás",
+      "él/ella": "vivirá",
+      "nosotros": "viviremos",
+      "vosotros": "viviréis",
+      "ellos/ellas": "vivirán"
+    }
+  },
+  "examples": [
+    {
+      "es": "El año que viene viviré en Valencia.",
+      "en": "Next year I will live in Valencia.",
+      "note": "A future situation, not a booked near plan."
+    },
+    {
+      "es": "Te escribiré cuando llegue.",
+      "en": "I will write to you when I arrive.",
+      "note": "A promise."
+    },
+    {
+      "es": "Mañana hará frío.",
+      "en": "Tomorrow it will be cold.",
+      "note": "A prediction."
+    }
+  ],
+  "common_mistake": "Don't force this tense onto every future idea. 'Tomorrow I'm going' is often present or ir a + infinitive: 'Mañana voy' / 'Mañana voy a ir'."
+}

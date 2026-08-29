@@ -9,8 +9,8 @@ You will receive:
 - the English writing task the learner was given, and their Spanish response
 - a Spanish reading passage, the questions asked, and the learner's answers
 
-Judge only what the samples show. Do not guess a CEFR level and do not mention
-levels in your notes; the application decides the level from your two signals.
+Judge only what the samples show. Do not guess a numbered level and do not mention
+levels in your notes; the application decides the starting level from your two signals.
 
 writing_signal, from 0 to 1:
 - 0.0 to 0.15: no usable Spanish, or the response is in English

@@ -3,6 +3,7 @@ from typing import Tuple
 
 from src.application import container
 from src.application.exercise_selection import create_exercise_context
+from src.application.services import vocab as vocab_file
 from src.application.services.exercise_common import user_exercise_cache
 from src.application.services.progress import item_metrics, save_user_progress
 from src.domain.enums import AgentNames
@@ -66,6 +67,9 @@ def submit_response(
             total=len(reading_prompt.questions),
         ),
     )
+
+    if verdict.genuine and reading_prompt.passage:
+        vocab_file.harvest(username, reading_prompt.passage)
 
     return corrections, feedback, verdict
 

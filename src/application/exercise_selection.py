@@ -53,6 +53,7 @@ def build_exercise_config(
 ) -> ExerciseConfig:
     return ExerciseConfig(
         band=band,
+        level=band_rules.display_level(band),
         length=length,
         word_count=band_rules.word_count_for(exercise_type, band, length),
         question_count=0,
@@ -65,6 +66,7 @@ def generate_exercise(
     type: ExerciseTypes,
     style: ExerciseStyle,
     preferences: AreasOfFocus | None,
+    length: LengthPreference | None = None,
 ) -> Exercise:
     user = container.users().load(username)
 
@@ -75,7 +77,7 @@ def generate_exercise(
         raise ValueError("Complete onboarding and the placement test first")
 
     band = user_band(user)
-    length = user_length(user)
+    length = length or user_length(user)
 
     if style is ExerciseStyle.PREFERENCES:
         if preferences is None:

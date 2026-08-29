@@ -38,6 +38,12 @@ def test_login_reports_the_goals_step_for_a_new_user(client):
     assert res.json()["step"] == "goals"
 
 
+def test_login_still_works_if_the_env_key_has_quotes_or_spaces(client, monkeypatch):
+    monkeypatch.setenv("ACCESS_KEY", "  'test-key'  ")
+    res = _login(client)
+    assert res.status_code == 200, res.text
+
+
 def test_exercise_request_rejects_a_client_difficulty(client, fake_users):
     """Difficulty is server-owned, so an extra field must not change anything."""
     fake_users.seed("apiuser", band=Band.A1)
@@ -110,11 +116,18 @@ def test_full_onboarding_over_http(client, fake_users, fake_llm):
     assert submitted.status_code == 200, submitted.text
     body = submitted.json()
     assert body["assigned_band"] in {band.value for band in Band}
+    assert body["assigned_level"] in range(0, 9)
+    assert "A1" not in body["gloss"] and "B1" not in body["gloss"]
+    assert body["plan"]["target_level"] == 6
     assert body["plan"]["target_band"] == "B1"
 
     status = client.get("/onboarding/status", params={"username": "apiuser"})
     assert status.status_code == 200
     assert status.json()["step"] == "ready"
+
+    recs = client.post("/exercise/recommend", json={"username": "apiuser"})
+    assert recs.status_code == 200, recs.text
+    assert len(recs.json()["cards"]) == 3
 
     # Now that placement is done, exercises unlock.
     started = client.post(
@@ -148,3 +161,45 @@ def test_progress_overview_is_served_with_english_labels(client, fake_users):
     # A learner who has done nothing yet has no per-skill rows.
     assert overview["skills"] == []
     assert overview["genuine_attempts"] == 0
+
+
+def test_recommend_returns_three_english_cards(client, fake_users):
+    fake_users.seed("apiuser", band=Band.A2)
+
+    res = client.post("/exercise/recommend", json={"username": "apiuser"})
+    assert res.status_code == 200, res.text
+
+    cards = res.json()["cards"]
+    assert len(cards) == 3
+    assert [card["kind"] for card in cards] == ["needed", "roadmap", "goal"]
+    assert cards[1]["focus"]["focus_tenses"] == ["futuro_simple"]
+    assert cards[2]["focus"]["focus_topics"] == ["travel"]
+    assert all(card["reason_en"] for card in cards)
+    assert all("_" not in card["title_en"] for card in cards)
+
+
+def test_a_recommend_card_starts_the_existing_generate_pipeline(client, fake_users):
+    fake_users.seed("apiuser", band=Band.A2)
+    cards = client.post("/exercise/recommend", json={"username": "apiuser"}).json()["cards"]
+    needed = cards[0]
+
+    res = client.post(
+        "/exercise/generate",
+        json={
+            "username": "apiuser",
+            "type": needed["type"],
+            "style": needed["style"],
+            "preferences": needed["focus"],
+        },
+    )
+    assert res.status_code == 200, res.text
+    exercise = res.json()["exercise"]
+    assert exercise["exercise_type"] == needed["type"]
+    assert exercise["areas_of_focus"]["focus_tenses"] == needed["focus"]["focus_tenses"]
+
+
+def test_recommend_requires_placement(client, fake_users):
+    fake_users.seed("apiuser", band=Band.A2, placed=False)
+    res = client.post("/exercise/recommend", json={"username": "apiuser"})
+    assert res.status_code == 400
+    assert "placement" in res.json()["detail"].lower()

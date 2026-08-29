@@ -7,7 +7,7 @@ progress. Served from the backend so the wording cannot drift from the enums.
 
 from enum import Enum
 
-from src.domain.enums import Grammar, RelativeLevel, Skill, Tenses, Topics
+from src.domain.enums import Grammar, RecommendationKind, RelativeLevel, Skill, Tenses, Topics
 
 TENSE_LABELS: dict[Tenses, str] = {
     Tenses.PRESENTE_DE_INDICATIVO: "Present tense",
@@ -43,6 +43,13 @@ SKILL_LABELS: dict[Skill, str] = {
     Skill.DRILLS: "Grammar drills",
 }
 
+KIND_LABELS: dict[RecommendationKind, str] = {
+    RecommendationKind.NEEDED: "What you need",
+    RecommendationKind.ROADMAP: "Next on the roadmap",
+    RecommendationKind.GOAL: "For your goal",
+    RecommendationKind.VOCAB: "Vocab review",
+}
+
 RELATIVE_LEVEL_LABELS: dict[RelativeLevel, str] = {
     RelativeLevel.BELOW: "Behind your overall level",
     RelativeLevel.AT: "In line with your overall level",
@@ -54,6 +61,7 @@ _ALL: dict[Enum, str] = {
     **GRAMMAR_LABELS,
     **TOPIC_LABELS,
     **SKILL_LABELS,
+    **KIND_LABELS,
     **RELATIVE_LEVEL_LABELS,
 }
 

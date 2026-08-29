@@ -2,6 +2,7 @@ from typing import Protocol, TypeVar
 
 from pydantic import BaseModel
 
+from src.domain.models.lesson import Lesson
 from src.domain.models.llm import AgentRequest
 from src.domain.models.user import User
 
@@ -36,3 +37,23 @@ class ContentRepository(Protocol):
     """Read-only access to the curated JSON content under `content/`."""
 
     def placement_bank(self) -> dict: ...
+
+    def curriculum(self) -> dict: ...
+
+    def lessons(self) -> list[Lesson]: ...
+
+    def lesson(self, key: str) -> Lesson | None: ...
+
+    def search_lessons(self, query: str, limit: int = 4) -> list[Lesson]: ...
+
+
+class TtsGateway(Protocol):
+    """Text to speech. Returns a clip id the API can serve as audio."""
+
+    def synthesise(self, text: str, voice: str = "nova") -> str: ...
+
+
+class SttGateway(Protocol):
+    """Speech to text."""
+
+    def transcribe(self, audio_bytes: bytes, filename: str = "speech.webm") -> str: ...

@@ -1,6 +1,8 @@
 from fastapi import APIRouter, HTTPException
 
 from src.application.services import reading as reading_file
+from src.application.services import learn as learn_file
+from src.api.schemas.learn import LessonCard
 from src.api.schemas.reading import ReadingGenerationRequest, ReadingGenerationResponse, ReadingUserRequest, ReadingSummaryResponse
 
 router = APIRouter()
@@ -30,4 +32,5 @@ def submit_responses(request: ReadingUserRequest):
         feedback=feedback,
         counted=verdict.genuine,
         not_counted_reasons=verdict.reasons,
+        lessons=[LessonCard(**row) for row in learn_file.related_for_user(request.username)],
     )

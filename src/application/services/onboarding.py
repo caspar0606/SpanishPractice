@@ -45,11 +45,14 @@ def plan_summary(user: User) -> dict:
     if user.goals is None:
         return {
             "current_band": band.value,
+            "current_level": band_rules.display_level(band),
             "current_gloss": band_rules.gloss(band),
             "target_band": None,
+            "target_level": None,
             "target_gloss": None,
             "half_steps_remaining": None,
             "estimated_weeks": None,
+            "completed_exercises": len(user.exercise_history),
         }
 
     target = user.goals.desired_band
@@ -63,9 +66,12 @@ def plan_summary(user: User) -> dict:
 
     return {
         "current_band": band.value,
+        "current_level": band_rules.display_level(band),
         "current_gloss": band_rules.gloss(band),
         "target_band": target.value,
+        "target_level": band_rules.display_level(target),
         "target_gloss": band_rules.gloss(target),
         "half_steps_remaining": remaining,
         "estimated_weeks": weeks or None,
+        "completed_exercises": len(user.exercise_history),
     }

@@ -9,11 +9,14 @@ from src.domain.models.user import User
 
 class PlanSummary(BaseModel):
     current_band: str
+    current_level: int
     current_gloss: str
     target_band: Optional[str] = None
+    target_level: Optional[int] = None
     target_gloss: Optional[str] = None
     half_steps_remaining: Optional[int] = None
     estimated_weeks: Optional[int] = None
+    completed_exercises: int = 0
 
 
 class OnboardingStatusResponse(BaseModel):
@@ -44,6 +47,7 @@ class PlacementSubmitRequest(BaseModel):
 
 class PlacementSubmitResponse(BaseModel):
     assigned_band: str
+    assigned_level: int
     gloss: str
     mcq_correct: int
     mcq_total: int

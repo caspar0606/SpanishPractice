@@ -19,11 +19,25 @@ def test_every_band_has_config():
 
 
 def test_gloss_does_not_repeat_the_band_name():
-    """The UI renders "{band} — {gloss}", so the gloss must stand alone."""
+    """The UI renders "{level} — {gloss}", so the gloss must stand alone."""
     for band in Band:
         gloss = band_rules.gloss(band)
         assert band.value not in gloss
         assert "—" not in gloss
+
+
+def test_display_level_maps_internal_bands_to_0_8():
+    assert [band_rules.display_level(band) for band in band_rules.BAND_ORDER] == [
+        2, 3, 4, 5, 6, 7, 8,
+    ]
+
+
+def test_level_hint_does_not_name_cefr_grades():
+    for band in Band:
+        hint = band_rules.cefr_hint(band)
+        assert band.value not in hint
+        assert "CEFR" not in hint
+        assert hint.startswith("Level ")
 
 
 def test_word_counts_increase_with_band():

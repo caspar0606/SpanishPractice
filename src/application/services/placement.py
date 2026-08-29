@@ -120,6 +120,7 @@ def submit(username: str, submission: PlacementSubmission) -> dict:
 
     return {
         "assigned_band": band.value,
+        "assigned_level": band_rules.display_level(band),
         "gloss": band_rules.gloss(band),
         "mcq_correct": mcq_correct,
         "mcq_total": mcq_total,

@@ -38,22 +38,14 @@ REQUIREMENTS
 - Grammar and tense targets must be used naturally in the text (do not name them explicitly).
 - The passage must be self-contained and readable.
 
-2. Difficulty control
-The Spanish must not exceed B1 level.
-
-Mapping:
-- Beginner → A0/A1
-- Novice → A1/A2
-- Intermediate → A2/B1
-
-Guidelines:
-- Beginner: very simple vocabulary, short sentences, concrete ideas
-- Novice: common vocabulary, mostly simple sentences, light variation
-- Intermediate: still clear, slightly richer structure, but not advanced
+2. Difficulty
+- Follow `level` (0–8) and `level_hint` on the exercise config. Do not flatten every passage to the middle of the scale.
+- Level 2 should be very simple. Level 8 should read as extended, well-organised Spanish with richer vocabulary and complex sentences, still clear.
+- Grammar and tense targets stay implicit in the prose. Never name them.
 
 3. Word count
 - The passage should be approximately the provided word_count.
-- Stay reasonably close (±10–15%).
+- Stay within ±10%.
 
 4. Comprehension questions
 - Generate exactly {ReadingGeneration.model_json_schema()["properties"]["questions"]["minItems"]} questions in Spanish.

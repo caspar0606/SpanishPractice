@@ -11,17 +11,25 @@ from fastapi.staticfiles import StaticFiles
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 load_dotenv(_PROJECT_ROOT / ".env")
 
+from src.api.routers.chat import router as chat_router
 from src.api.routers.drills import router as drills_router
 from src.api.routers.exercise_selection import router as exercise_router
+from src.api.routers.learn import router as learn_router
+from src.api.routers.listening import router as listening_router
 from src.api.routers.onboarding import router as onboarding_router
 from src.api.routers.progress import router as progress_router
 from src.api.routers.reading import router as reading_router
+from src.api.routers.speaking import router as speaking_router
 from src.api.routers.user import router as user_router
+from src.api.routers.vocab import router as vocab_router
 from src.api.routers.writing import router as writing_router
 from src.application.container import Deps, configure
+from src.infrastructure.audio import cache as audio_cache
 from src.infrastructure.wiring import (
     build_content_repository,
     build_llm_gateway,
+    build_stt_gateway,
+    build_tts_gateway,
     build_user_repository,
 )
 
@@ -38,6 +46,8 @@ def configure_container() -> None:
             users=build_user_repository(),
             llm=build_llm_gateway(),
             content=build_content_repository(),
+            tts=build_tts_gateway(),
+            stt=build_stt_gateway(),
         ),
     )
 
@@ -98,10 +108,24 @@ def create_app() -> FastAPI:
     app.include_router(writing_router, prefix="/writing", tags=["writing"])
     app.include_router(reading_router, prefix="/reading", tags=["reading"])
     app.include_router(drills_router, prefix="/drills", tags=["drills"])
+    app.include_router(listening_router, prefix="/listening", tags=["listening"])
+    app.include_router(speaking_router, prefix="/speaking", tags=["speaking"])
+    app.include_router(learn_router, prefix="/learn", tags=["learn"])
+    app.include_router(chat_router, prefix="/chat", tags=["chat"])
+    app.include_router(vocab_router, prefix="/vocab", tags=["vocab"])
 
     @app.get("/health", tags=["health"])
     def health_check() -> dict[str, str]:
         return {"status": "ok"}
+
+    @app.get("/audio/{clip_id}", tags=["audio"])
+    def serve_audio(clip_id: str) -> FileResponse:
+        path = audio_cache.get(clip_id)
+        if path is None:
+            from fastapi import HTTPException
+
+            raise HTTPException(status_code=404, detail="Audio clip not found")
+        return FileResponse(path, media_type="audio/mpeg")
 
     @app.get("/health/cors", tags=["health"])
     def cors_health() -> dict:

@@ -57,6 +57,7 @@ def test_goals_then_placement_then_ready(deps, fake_users, fake_llm):
     )
 
     assert result["assigned_band"] in {band.value for band in Band}
+    assert result["assigned_level"] in range(0, 9)
     assert result["mcq_total"] == len(form.mcq)
 
     placed = fake_users.saved["newbie"]
@@ -100,6 +101,7 @@ def test_empty_placement_submission_places_at_the_floor(deps, fake_users, fake_l
     result = placement.submit("newbie", PlacementSubmission())
 
     assert result["assigned_band"] == Band.A1.value
+    assert result["assigned_level"] == 2
     assert fake_llm.structured_calls == []
 
 
@@ -119,7 +121,12 @@ def test_band_drives_exercise_difficulty_not_the_client(deps, fake_users):
 
     assert easy.band is Band.A1 and hard.band is Band.B1
     assert easy_config.word_count < hard_config.word_count
+    assert easy_config.level == 2 and hard_config.level == 6
     assert easy_config.cefr_hint and hard_config.cefr_hint
+    prompt_dump = easy_config.dump_for_prompt()
+    assert "band" not in prompt_dump
+    assert prompt_dump["level"] == 2
+    assert "A1" not in prompt_dump["level_hint"]
 
 
 def test_weak_areas_stay_within_the_band(deps, fake_users):
@@ -150,12 +157,28 @@ def test_length_preference_reaches_the_exercise_config(deps, fake_users):
     assert short.word_count < long_.word_count
 
 
+def test_generate_can_override_length_for_one_exercise(deps, fake_users):
+    fake_users.seed("learner", band=Band.A2, length=LengthPreference.STANDARD)
+    exercise_selection.generate_exercise(
+        "learner",
+        ExerciseTypes.WRITING,
+        ExerciseStyle.WEAKNESSES,
+        None,
+        LengthPreference.SHORT,
+    )
+    config = fake_users.saved["learner"].current_exercise.exercise_config
+    assert config.length is LengthPreference.SHORT
+
+
 def test_plan_summary_estimates_time_to_target(deps, fake_users):
     user = fake_users.seed("planner", band=Band.A2)
     plan = onboarding.plan_summary(user)
 
     assert plan["current_band"] == Band.A2.value
+    assert plan["current_level"] == 4
     assert plan["target_band"] == Band.B1.value
+    assert plan["target_level"] == 6
+    assert plan["completed_exercises"] == 0
     assert plan["half_steps_remaining"] == 2
     assert plan["estimated_weeks"] > 0
     assert plan["current_gloss"]
