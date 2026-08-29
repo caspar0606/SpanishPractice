@@ -131,6 +131,8 @@ class RecommendationKind(str, Enum):
     ROADMAP = "roadmap"
     GOAL = "goal"
     VOCAB = "vocab"
+    DAILY = "daily"
+    EXTRA = "extra"
 
 
 class VocabStatus(str, Enum):

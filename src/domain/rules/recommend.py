@@ -3,6 +3,8 @@
 Kept in the domain so the application service is only orchestration.
 """
 
+from datetime import date
+
 from src.domain.enums import (
     ConceptAxis,
     Direction,
@@ -61,6 +63,13 @@ _MINUTES: dict[ExerciseTypes, dict[LengthPreference, int]] = {
 }
 
 STREAK_TO_AVOID = 3
+
+DAILY_TYPES: tuple[ExerciseTypes, ...] = (
+    ExerciseTypes.WRITING,
+    ExerciseTypes.READING,
+    ExerciseTypes.LISTENING,
+    ExerciseTypes.SPEAKING,
+)
 
 
 def topic_for_direction(direction: Direction | None) -> Topics:
@@ -155,3 +164,15 @@ def focus_for_concept(concept: ConceptRef) -> AreasOfFocus:
 
 def focus_for_topic(topic: Topics) -> AreasOfFocus:
     return AreasOfFocus(focus_topics=[topic])
+
+
+def completed_daily_types(history: list[ExerciseStorage], day: date) -> set[ExerciseTypes]:
+    """Skills already submitted on this calendar day."""
+    done: set[ExerciseTypes] = set()
+    for exercise in history:
+        when = exercise.end_time
+        if when is None or exercise.type not in DAILY_TYPES:
+            continue
+        if when.date() == day:
+            done.add(exercise.type)
+    return done

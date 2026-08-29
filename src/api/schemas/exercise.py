@@ -1,8 +1,10 @@
+from datetime import date
+
 from pydantic import BaseModel
 
 from src.domain.enums import ExerciseStyle, ExerciseTypes, LengthPreference
 from src.domain.models.exercise import AreasOfFocus, Exercise, ExerciseContext
-from src.domain.models.recommendation import Recommendation
+from src.domain.models.recommendation import DailySlot, Recommendation
 
 
 class ExerciseRequest(BaseModel):
@@ -20,10 +22,15 @@ class ExerciseResponse(BaseModel):
 
 class RecommendRequest(BaseModel):
     username: str
+    day: date | None = None
 
 
 class RecommendResponse(BaseModel):
-    cards: list[Recommendation]
+    remaining: int
+    complete: bool
+    daily: list[DailySlot]
+    extras: list[Recommendation] = []
+    cards: list[Recommendation] = []
 
 
 

@@ -31,8 +31,14 @@ def generate_exercise_endpoint(request: ExerciseRequest):
 @router.post("/recommend", response_model=RecommendResponse)
 def recommend_endpoint(request: RecommendRequest):
     try:
-        cards = recommender_file.recommend(request.username)
+        plan = recommender_file.recommend(request.username, request.day)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e)) from e
 
-    return RecommendResponse(cards=cards)
+    return RecommendResponse(
+        remaining=plan.remaining,
+        complete=plan.complete,
+        daily=plan.daily,
+        extras=plan.extras,
+        cards=recommender_file.startable_cards(plan),
+    )

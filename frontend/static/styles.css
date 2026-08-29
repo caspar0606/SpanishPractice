@@ -1241,6 +1241,36 @@ pre.json-out {
   margin: 0 0 1.35rem;
 }
 
+.daily-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem;
+  margin: 0 0 1.35rem;
+}
+
+.extras-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+  margin: 0 0 0.85rem;
+}
+
+.extras-grid:empty {
+  display: none;
+}
+
+.keep-learning {
+  margin-top: 0.4rem;
+  padding-top: 1.1rem;
+  border-top: 1px solid var(--border);
+}
+
+.keep-learning-title {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  margin: 0 0 0.35rem;
+}
+
 .recommend-card {
   display: flex;
   flex-direction: column;
@@ -1262,6 +1292,19 @@ pre.json-out {
   border-color: var(--teal-muted);
   background: rgba(129, 244, 191, 0.1);
   outline: none;
+}
+
+.recommend-card:disabled,
+.recommend-card[data-kind="done"] {
+  cursor: default;
+  opacity: 0.72;
+  background: rgba(129, 244, 191, 0.06);
+}
+
+.recommend-card:disabled:hover,
+.recommend-card[data-kind="done"]:hover {
+  border-color: var(--border);
+  background: rgba(129, 244, 191, 0.06);
 }
 
 .recommend-card-kind {
@@ -1689,7 +1732,8 @@ pre.json-out {
 }
 
 @media (max-width: 720px) {
-  .recommend-grid {
+  .recommend-grid,
+  .daily-grid {
     grid-template-columns: 1fr;
   }
 }

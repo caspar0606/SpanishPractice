@@ -48,6 +48,8 @@ KIND_LABELS: dict[RecommendationKind, str] = {
     RecommendationKind.ROADMAP: "Next on the roadmap",
     RecommendationKind.GOAL: "For your goal",
     RecommendationKind.VOCAB: "Vocab review",
+    RecommendationKind.DAILY: "Today",
+    RecommendationKind.EXTRA: "Extra practice",
 }
 
 RELATIVE_LEVEL_LABELS: dict[RelativeLevel, str] = {

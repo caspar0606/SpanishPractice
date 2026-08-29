@@ -127,7 +127,9 @@ def test_full_onboarding_over_http(client, fake_users, fake_llm):
 
     recs = client.post("/exercise/recommend", json={"username": "apiuser"})
     assert recs.status_code == 200, recs.text
-    assert len(recs.json()["cards"]) == 3
+    body = recs.json()
+    assert len(body["daily"]) == 4
+    assert len(body["cards"]) == 4
 
     # Now that placement is done, exercises unlock.
     started = client.post(
@@ -163,39 +165,44 @@ def test_progress_overview_is_served_with_english_labels(client, fake_users):
     assert overview["genuine_attempts"] == 0
 
 
-def test_recommend_returns_three_english_cards(client, fake_users):
+def test_recommend_returns_four_daily_slots(client, fake_users):
     fake_users.seed("apiuser", band=Band.A2)
 
     res = client.post("/exercise/recommend", json={"username": "apiuser"})
     assert res.status_code == 200, res.text
 
-    cards = res.json()["cards"]
-    assert len(cards) == 3
-    assert [card["kind"] for card in cards] == ["needed", "roadmap", "goal"]
-    assert cards[1]["focus"]["focus_tenses"] == ["futuro_simple"]
-    assert cards[2]["focus"]["focus_topics"] == ["travel"]
-    assert all(card["reason_en"] for card in cards)
-    assert all("_" not in card["title_en"] for card in cards)
+    body = res.json()
+    daily = body["daily"]
+    assert len(daily) == 4
+    assert [slot["type"] for slot in daily] == ["writing", "reading", "listening", "speaking"]
+    assert daily[1]["focus"]["focus_tenses"] == ["futuro_simple"]
+    assert daily[2]["focus"]["focus_topics"] == ["travel"]
+    assert all(slot["reason_en"] for slot in daily)
+    assert body["remaining"] == 4
+    assert body["complete"] is False
+    cards = body["cards"]
+    assert len(cards) == 4
+    assert cards[0]["type"] == "writing"
 
 
 def test_a_recommend_card_starts_the_existing_generate_pipeline(client, fake_users):
     fake_users.seed("apiuser", band=Band.A2)
     cards = client.post("/exercise/recommend", json={"username": "apiuser"}).json()["cards"]
-    needed = cards[0]
+    writing = cards[0]
 
     res = client.post(
         "/exercise/generate",
         json={
             "username": "apiuser",
-            "type": needed["type"],
-            "style": needed["style"],
-            "preferences": needed["focus"],
+            "type": writing["type"],
+            "style": writing["style"],
+            "preferences": writing["focus"],
         },
     )
     assert res.status_code == 200, res.text
     exercise = res.json()["exercise"]
-    assert exercise["exercise_type"] == needed["type"]
-    assert exercise["areas_of_focus"]["focus_tenses"] == needed["focus"]["focus_tenses"]
+    assert exercise["exercise_type"] == writing["type"]
+    assert exercise["areas_of_focus"]["focus_tenses"] == writing["focus"]["focus_tenses"]
 
 
 def test_recommend_requires_placement(client, fake_users):

@@ -186,16 +186,16 @@ function setStatus(message, isError) {
 
 const WALKTHROUGH_STEPS = [
   {
-    title: "Step 1 — Pick a card",
-    text: "Three cards suggest what to do next: something you need, the next step on the roadmap, and something aimed at your goal. Tap one to start.",
+    title: "Step 1 — Today’s four",
+    text: "Each day, do one writing, reading, listening, and speaking session. Tap a card to start. A ticked card is done until tomorrow.",
   },
   {
-    title: "Step 2 — Or choose something else",
-    text: "Open Something else to pick Writing, Reading, Listening, Speaking, or Drills yourself, and to choose weak areas or your own focus.",
+    title: "Step 2 — Keep learning",
+    text: "Learn, Ask, and Vocab stay open all day. They don’t use up today’s four. After the four are done, that’s the place to continue.",
   },
   {
-    title: "Step 3 — Drills, if you picked them",
-    text: "Skip this if you tapped a card or chose Writing or Reading. For Drills, first pick Tenses or Grammar — drills can only target one of those. Then either let us pick your weak points, or tick the specific ones yourself.",
+    title: "Step 3 — Extra practice",
+    text: "Want another round, or drills? Open Extra practice and pick the type yourself. That’s on top of the daily four, not instead of them.",
   },
   {
     title: "Step 4 — Submit and review",
@@ -776,7 +776,7 @@ async function routeToStep(step) {
     return;
   }
   setWalkthroughAllowed(true);
-  setStatus("Here are three things to try next.", false);
+  setStatus("Today’s practice is ready.", false);
   showPanel("exercise");
   await refreshLevelSummary();
   await loadRecommendations();
@@ -800,35 +800,99 @@ async function refreshLevelSummary() {
 }
 
 async function loadRecommendations() {
-  const root = document.getElementById("recommend-root");
+  const root = document.getElementById("daily-root");
   const u = getUsername();
   if (!root || !u) return;
-  root.innerHTML = '<p class="hint">Choosing three things to try next…</p>';
+  root.innerHTML = '<p class="hint">Setting up today…</p>';
   try {
-    const res = await api("POST", "/exercise/recommend", { username: u });
-    state.recommendations = res.cards || [];
-    renderRecommendations(state.recommendations);
+    const res = await api("POST", "/exercise/recommend", { username: u, day: localDate() });
+    state.recommendations = res;
+    renderHomePlan(res);
   } catch (e) {
     root.innerHTML = "";
     const p = document.createElement("p");
     p.className = "hint";
-    p.textContent = "We couldn't load suggestions. Open Something else to pick an exercise yourself.";
+    p.textContent = "We couldn't load today. Open Extra practice to pick an exercise yourself.";
     root.appendChild(p);
   }
 }
 
-function renderRecommendations(cards) {
-  const root = document.getElementById("recommend-root");
+function localDate() {
+  const now = new Date();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  return `${now.getFullYear()}-${month}-${day}`;
+}
+
+function renderHomePlan(plan) {
+  const root = document.getElementById("daily-root");
+  const extrasRoot = document.getElementById("extras-root");
+  const lead = document.getElementById("daily-lead");
   if (!root) return;
   root.innerHTML = "";
-  if (!cards || !cards.length) {
+  if (lead) {
+    if (plan?.complete) {
+      lead.textContent =
+        "Today’s writing, reading, listening, and speaking are done. Keep learning below whenever you like.";
+    } else if (plan?.remaining === 4) {
+      lead.textContent =
+        "One writing, reading, listening, and speaking session today. Learning stays open underneath.";
+    } else {
+      const left = Number(plan?.remaining) || 0;
+      lead.textContent = `${left} left today. Learning stays open underneath.`;
+    }
+  }
+  const slots = plan?.daily || [];
+  if (!slots.length) {
     const p = document.createElement("p");
     p.className = "hint";
-    p.textContent = "Open Something else to pick an exercise.";
+    p.textContent = "Open Extra practice to pick an exercise.";
     root.appendChild(p);
-    return;
+  } else {
+    slots.forEach((slot) => root.appendChild(dailySlotCard(slot)));
   }
-  cards.forEach((card) => root.appendChild(recommendCard(card)));
+  if (extrasRoot) {
+    extrasRoot.innerHTML = "";
+    (plan?.extras || []).forEach((card) => extrasRoot.appendChild(recommendCard(card)));
+  }
+}
+
+function dailySlotCard(slot) {
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = "recommend-card daily-card";
+  btn.setAttribute("data-kind", slot.done ? "done" : "daily");
+  if (slot.done) {
+    btn.disabled = true;
+    btn.setAttribute("aria-disabled", "true");
+  }
+
+  const eyebrow = document.createElement("span");
+  eyebrow.className = "recommend-card-kind";
+  eyebrow.textContent = slot.kind_label || (slot.done ? "Done" : "Today");
+
+  const title = document.createElement("span");
+  title.className = "recommend-card-title";
+  title.textContent = slot.title_en || slot.type || "";
+
+  const reason = document.createElement("span");
+  reason.className = "recommend-card-reason";
+  reason.textContent = slot.reason_en || "";
+
+  btn.appendChild(eyebrow);
+  btn.appendChild(title);
+  btn.appendChild(reason);
+  const minutes = Number(slot.estimated_minutes) || 0;
+  if (minutes && !slot.done) {
+    const meta = document.createElement("span");
+    meta.className = "recommend-card-meta";
+    meta.textContent = `About ${minutes} min`;
+    btn.appendChild(meta);
+  }
+  if (!slot.done) {
+    btn.addEventListener("click", () => startFromCard(slot, btn));
+  }
+  return btn;
 }
 
 function recommendCard(card) {
@@ -2426,7 +2490,7 @@ function renderVocabReview(items) {
         done.appendChild(elBlock(`${right} / ${payload.length} remembered.`));
         root.appendChild(done);
         if (heading) heading.textContent = "Practice";
-        setStatus("Vocab review saved. Back to suggestions when you're ready.", false);
+        setStatus("Vocab review saved. Back to today when you're ready.", false);
       })
       .catch((e) => setStatus(e.message, true));
   }
@@ -2972,7 +3036,7 @@ function onBackExercise() {
   if (heading) heading.textContent = "Practice";
   updateFocusWidgetFromExercise(null);
   document.getElementById("practice-root").innerHTML = "";
-  setStatus("Here are three things to try next.", false);
+  setStatus("Back to today.", false);
   goHome();
 }
 
@@ -2990,8 +3054,10 @@ function onLogout() {
   updateFocusWidgetFromExercise(null);
   document.getElementById("practice-root").innerHTML = "";
   document.getElementById("progress-root").innerHTML = "";
-  const rec = document.getElementById("recommend-root");
+  const rec = document.getElementById("daily-root");
   if (rec) rec.innerHTML = "";
+  const extras = document.getElementById("extras-root");
+  if (extras) extras.innerHTML = "";
   const learn = document.getElementById("learn-root");
   if (learn) learn.innerHTML = "";
   const chat = document.getElementById("chat-root");

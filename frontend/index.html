@@ -18,7 +18,7 @@
         <span class="site-mark" aria-hidden="true">ES</span>
         <div>
           <p class="site-brand">Spanish Practice</p>
-          <p class="site-tagline">Build momentum with writing, reading, listening, and speaking</p>
+          <p class="site-tagline">A little writing, reading, listening, and speaking each day</p>
         </div>
         <div class="header-actions">
           <button type="button" class="btn btn-ghost" id="btn-help">
@@ -143,10 +143,11 @@
       </section>
 
       <section id="panel-exercise" class="panel card hidden" aria-labelledby="exercise-heading">
-        <h2 id="exercise-heading" class="panel-title">What to do next</h2>
+        <h2 id="exercise-heading" class="panel-title">Today</h2>
         <p class="user-pill" id="exercise-user-label" hidden></p>
         <div id="level-summary" class="level-summary" hidden></div>
-        <div id="recommend-root" class="recommend-grid" aria-live="polite"></div>
+        <p id="daily-lead" class="panel-lead">One writing, reading, listening, and speaking session today. Learning stays open underneath.</p>
+        <div id="daily-root" class="daily-grid" aria-live="polite"></div>
         <div class="length-row">
           <label for="ex-length">Length</label>
           <select id="ex-length" name="length">
@@ -156,7 +157,7 @@
           </select>
         </div>
         <details id="something-else" class="something-else">
-          <summary>Something else</summary>
+          <summary>Extra practice</summary>
         <form id="form-exercise">
           <label for="ex-type">Type</label>
           <select id="ex-type" name="type" required>
@@ -233,7 +234,13 @@
           </div>
         </form>
         </details>
-        <div class="actions home-actions">
+        <section class="keep-learning" aria-labelledby="keep-learning-heading">
+          <h3 id="keep-learning-heading" class="keep-learning-title">Keep learning</h3>
+          <p class="hint">
+            Notes, questions, and vocab anytime — they don’t use up today’s practice.
+          </p>
+          <div id="extras-root" class="extras-grid"></div>
+          <div class="actions home-actions">
             <button type="button" class="btn btn-secondary" id="btn-learn">
               <span class="btn-label">Learn</span>
             </button>
@@ -249,7 +256,8 @@
             <button type="button" class="btn btn-ghost" id="btn-logout">
               <span class="btn-label">Log out</span>
             </button>
-        </div>
+          </div>
+        </section>
       </section>
 
       <section id="panel-practice" class="panel card hidden" aria-labelledby="practice-heading">
@@ -257,7 +265,7 @@
         <div id="practice-root"></div>
         <div class="toolbar">
           <button type="button" class="btn btn-secondary" id="btn-back-exercise">
-            <span class="btn-label">Back to suggestions</span>
+            <span class="btn-label">Back to today</span>
           </button>
         </div>
       </section>
@@ -359,16 +367,16 @@
         </button>
 
         <div class="help-section">
-          <p class="help-section-title">1) What to do next</p>
+          <p class="help-section-title">1) Today</p>
           <ul>
-            <li>Three cards suggest a next exercise: something you need, the next step on the roadmap, and something aimed at your goal.</li>
-            <li>Tap a card to start. Use <strong>Something else</strong> if you want to pick the type and focus yourself.</li>
-            <li>A <strong>Vocab review</strong> card opens a short word quiz instead of a full exercise.</li>
+            <li>Do one <strong>writing</strong>, <strong>reading</strong>, <strong>listening</strong>, and <strong>speaking</strong> session each day.</li>
+            <li>A ticked card is done until tomorrow. <strong>Extra practice</strong> is if you want another round.</li>
+            <li>A <strong>Vocab review</strong> under Keep learning is a short word quiz, not one of the four.</li>
           </ul>
         </div>
 
         <div class="help-section">
-          <p class="help-section-title">2) Something else</p>
+          <p class="help-section-title">2) Extra practice</p>
           <ul>
             <li><strong>Writing</strong>: write a short response and get corrections.</li>
             <li><strong>Reading</strong>: answer comprehension questions and get feedback.</li>
@@ -381,18 +389,19 @@
         </div>
 
         <div class="help-section">
-          <p class="help-section-title">Learn, Ask, Vocab</p>
+          <p class="help-section-title">Keep learning</p>
           <ul>
             <li><strong>Learn</strong>: tense tables and grammar notes you can browse any time.</li>
             <li><strong>Ask</strong>: a grounded tutor that answers from those notes — not a conversation partner.</li>
             <li><strong>Vocab</strong>: words harvested from your exercises. Star, ignore, or review them.</li>
+            <li>These stay available after today’s four are done.</li>
           </ul>
         </div>
 
         <div class="help-section">
           <p class="help-section-title">Drills</p>
           <ul>
-            <li>Only used if you open <strong>Something else</strong> and choose Drills — tapping a card skips this.</li>
+            <li>Only used if you open <strong>Extra practice</strong> and choose Drills — tapping a daily card skips this.</li>
             <li>First pick <strong>Tenses</strong> or <strong>Grammar</strong>. Drills cannot mix both.</li>
             <li><strong>Use my progress</strong> then picks your weak points. <strong>I'll choose</strong> lets you tick the specific ones.</li>
           </ul>
