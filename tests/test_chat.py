@@ -29,3 +29,29 @@ def test_chat_rejects_a_blank_question(deps, fake_users):
         assert False, "expected ValueError"
     except ValueError:
         pass
+
+
+def test_lesson_excerpts_stay_as_dicts_on_the_agent_request():
+    """Ask passes JSON excerpts. They must not be coerced into bare BaseModel."""
+    from src.domain.enums import AgentNames
+    from src.domain.models.llm import agent_request
+    from src.infrastructure.llm.utils import serialise_for_prompt
+
+    excerpts = [
+        {
+            "key": "presente_de_indicativo",
+            "title_en": "Present tense",
+            "when_to_use": ["habits"],
+            "table": {"yo": {"present": "hablo"}},
+        }
+    ]
+    request = agent_request(
+        name=AgentNames.CHAT_TUTOR,
+        system_prompt="tutor",
+        stimulus=excerpts,
+        input="When do I use the present?",
+    )
+    assert isinstance(request.stimulus, list)
+    assert request.stimulus[0]["key"] == "presente_de_indicativo"
+    dumped = serialise_for_prompt(request.stimulus)
+    assert "hablo" in dumped

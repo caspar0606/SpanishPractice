@@ -6,12 +6,13 @@ from src.domain.enums import AgentNames
 from src.domain.models.exercise import ExerciseContext
 
 LLMStimulus = Union[
+    str,
+    list[str],
+    dict[str, Any],
+    list[dict[str, Any]],
     # structured objects (e.g. ReadingGeneration, TextCorrection, Progress)
     BaseModel,
     list[BaseModel],
-    # simple prompt text
-    str,
-    list[str],
 ]
 LLMInput = Union[str, list[str]]
 
