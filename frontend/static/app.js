@@ -153,6 +153,8 @@ const state = {
 };
 
 const PERSON_ORDER = ["yo", "tú", "él/ella", "nosotros", "vosotros", "ellos/ellas"];
+const REGULAR_VERBS = ["hablar", "comer", "vivir"];
+const IRREGULAR_CHUNK = 5;
 
 const STORAGE_TUTORIAL_DISMISSED = "sp_tutorial_dismissed";
 
@@ -190,12 +192,12 @@ const WALKTHROUGH_STEPS = [
     text: "Each day, do one writing, reading, listening, and speaking session. Tap a card to start. A ticked card is done until tomorrow.",
   },
   {
-    title: "Step 2 — Keep learning",
-    text: "Look up a word, or open Learn, Ask, and Vocab anytime. They don’t use up today’s four. After the four are done, that’s the place to continue.",
+    title: "Step 2 — The bar at the bottom",
+    text: "Lookup, Learn, Ask, and Vocab sit in the bar under today’s four. They don’t use up the daily sessions. After the four are done, that’s the place to continue.",
   },
   {
     title: "Step 3 — Extra practice",
-    text: "Want another round, or drills? Open Extra practice and pick the type yourself. That’s on top of the daily four, not instead of them.",
+    text: "Want another round, or drills? Open More for Extra practice and length. That’s on top of the daily four, not instead of them.",
   },
   {
     title: "Step 4 — Submit and review",
@@ -203,7 +205,7 @@ const WALKTHROUGH_STEPS = [
   },
   {
     title: "Step 5 — Focus & progress",
-    text: "Use the Focus tab to see what was selected for this exercise. After you have finished a few exercises, My progress appears on the home screen.",
+    text: "Use the Focus tab to see what was selected for this exercise. After you have finished a few exercises, My progress appears under More.",
   },
 ];
 
@@ -668,6 +670,40 @@ function labelFromOpts(opts, key) {
   return hit ? hit[1] : humanizeKeyTitle(key);
 }
 
+/**
+ * Two-pane practice layout: stimulus stays put; answers scroll beside it
+ * (or under a sticky strip on a phone).
+ * @param {HTMLElement} root
+ * @param {{ stimulusLabel: string, responseLabel: string, stimulus: (Node | null | undefined)[], response: (Node | null | undefined)[] }} opts
+ */
+function mountStudio(root, opts) {
+  const studio = document.createElement("div");
+  studio.className = "studio";
+
+  const stim = document.createElement("aside");
+  stim.className = "studio-stimulus";
+  stim.setAttribute("aria-label", opts.stimulusLabel);
+  const stimCap = document.createElement("p");
+  stimCap.className = "studio-caption";
+  stimCap.textContent = opts.stimulusLabel;
+  stim.appendChild(stimCap);
+  (opts.stimulus || []).forEach((node) => {
+    if (node) stim.appendChild(node);
+  });
+
+  const resp = document.createElement("div");
+  resp.className = "studio-response";
+  resp.setAttribute("aria-label", opts.responseLabel);
+  (opts.response || []).forEach((node) => {
+    if (node) resp.appendChild(node);
+  });
+
+  studio.appendChild(stim);
+  studio.appendChild(resp);
+  root.appendChild(studio);
+  return studio;
+}
+
 function focusChipRow() {
   const wrap = document.createElement("div");
   wrap.className = "focus-chip-row";
@@ -719,21 +755,49 @@ const PANELS = [
 
 function showPanel(id) {
   closeWordPopover();
+  if (id !== "exercise") closeHomeSheets();
   for (const name of PANELS) {
     const el = document.getElementById(`panel-${name}`);
     if (el) el.classList.toggle("hidden", id !== name);
   }
 }
 
-function updateExerciseUserLabel() {
-  const u = getUsername();
-  const el = document.getElementById("exercise-user-label");
-  if (u) {
-    el.hidden = false;
-    el.textContent = `Signed in as ${u}`;
-  } else {
-    el.hidden = true;
+function homeSheetEls() {
+  return {
+    lookup: document.getElementById("home-lookup"),
+    more: document.getElementById("home-more"),
+    lookupBtn: document.getElementById("btn-lookup"),
+    moreBtn: document.getElementById("btn-more"),
+  };
+}
+
+function closeHomeSheets() {
+  const { lookup, more, lookupBtn, moreBtn } = homeSheetEls();
+  if (lookup) lookup.hidden = true;
+  if (more) more.hidden = true;
+  if (lookupBtn) lookupBtn.setAttribute("aria-expanded", "false");
+  if (moreBtn) moreBtn.setAttribute("aria-expanded", "false");
+}
+
+function toggleHomeSheet(which) {
+  const { lookup, more, lookupBtn, moreBtn } = homeSheetEls();
+  const target = which === "lookup" ? lookup : more;
+  const btn = which === "lookup" ? lookupBtn : moreBtn;
+  if (!target) return;
+  const willOpen = target.hidden;
+  closeHomeSheets();
+  if (!willOpen) return;
+  target.hidden = false;
+  if (btn) btn.setAttribute("aria-expanded", "true");
+  if (which === "lookup") {
+    const input = document.getElementById("lookup-word");
+    if (input) input.focus();
   }
+  target.scrollIntoView({ block: "nearest", behavior: "smooth" });
+}
+
+function updateExerciseUserLabel() {
+  renderLevelSummary(state.plan);
 }
 
 function syncPreferencePanels() {
@@ -823,8 +887,7 @@ async function routeToStep(step) {
 
 async function refreshLevelSummary() {
   const u = getUsername();
-  const el = document.getElementById("level-summary");
-  if (!u || !el) return;
+  if (!u) return;
   try {
     const res = await api("GET", `/onboarding/status?username=${encodeURIComponent(u)}`);
     state.plan = res.plan;
@@ -833,7 +896,7 @@ async function refreshLevelSummary() {
     const sel = document.getElementById("ex-length");
     if (length && sel) sel.value = length;
   } catch {
-    el.hidden = true;
+    renderLevelSummary(null);
   }
 }
 
@@ -850,7 +913,7 @@ async function loadRecommendations() {
     root.innerHTML = "";
     const p = document.createElement("p");
     p.className = "hint";
-    p.textContent = "We couldn't load today. Open Extra practice to pick an exercise yourself.";
+    p.textContent = "We couldn't load today. Open More to pick an exercise yourself.";
     root.appendChild(p);
   }
 }
@@ -870,21 +933,22 @@ function renderHomePlan(plan) {
   root.innerHTML = "";
   if (lead) {
     if (plan?.complete) {
-      lead.textContent =
-        "Today’s writing, reading, listening, and speaking are done. Keep learning below whenever you like.";
+      lead.hidden = false;
+      lead.textContent = "Today’s four are done.";
     } else if (plan?.remaining === 4) {
-      lead.textContent =
-        "One writing, reading, listening, and speaking session today. Learning stays open underneath.";
+      lead.hidden = true;
+      lead.textContent = "";
     } else {
       const left = Number(plan?.remaining) || 0;
-      lead.textContent = `${left} left today. Learning stays open underneath.`;
+      lead.hidden = !left;
+      lead.textContent = left ? `${left} left today` : "";
     }
   }
   const slots = plan?.daily || [];
   if (!slots.length) {
     const p = document.createElement("p");
     p.className = "hint";
-    p.textContent = "Open Extra practice to pick an exercise.";
+    p.textContent = "Open More to pick an exercise.";
     root.appendChild(p);
   } else {
     slots.forEach((slot) => root.appendChild(dailySlotCard(slot)));
@@ -1007,37 +1071,20 @@ async function startExercise(body, btn) {
 }
 
 function renderLevelSummary(plan) {
-  const el = document.getElementById("level-summary");
+  const el = document.getElementById("exercise-user-label");
   if (!el) return;
   syncProgressUnlock(plan?.completed_exercises);
+  const u = getUsername();
   const level = plan?.current_level ?? displayLevel(plan?.current_band);
-  if (!plan || (level === "" && !plan.current_gloss)) {
+  const levelBit = levelWithGloss(level, plan?.current_gloss);
+  if (!u && !levelBit) {
     el.hidden = true;
+    el.textContent = "";
     return;
   }
-  el.innerHTML = "";
-
-  const now = document.createElement("p");
-  now.className = "level-summary-now";
-  now.textContent = `Your level: ${levelWithGloss(level, plan.current_gloss)}`;
-  el.appendChild(now);
-
-  const goalLevel = plan.target_level ?? displayLevel(plan.target_band);
-  if (plan.target_band || goalLevel !== "") {
-    const next = document.createElement("p");
-    next.className = "level-summary-goal";
-    const duration = humanizeDuration(plan.estimated_weeks);
-    if (plan.half_steps_remaining === 0) {
-      next.textContent = `You've reached your goal of ${goalLevel}. Keep practising to hold it.`;
-    } else if (duration) {
-      next.textContent = `Goal: ${levelWithGloss(goalLevel, plan.target_gloss)}. At your current pace that's ${duration} of steady practice.`;
-    } else {
-      next.textContent = `Goal: ${levelWithGloss(goalLevel, plan.target_gloss)}.`;
-    }
-    el.appendChild(next);
-  }
-
   el.hidden = false;
+  if (u && levelBit) el.textContent = `${u} · ${levelBit}`;
+  else el.textContent = u || levelBit;
 }
 
 async function onGoalsSubmit(ev) {
@@ -1333,8 +1380,6 @@ function renderWritingPractice() {
   const prompt = state.writingPrompt;
   root.innerHTML = "";
   root.appendChild(focusChipRow());
-  root.appendChild(translateHint());
-  root.appendChild(renderClickableSpanish(prompt));
   const form = document.createElement("form");
   form.id = "form-writing";
   const lab = document.createElement("label");
@@ -1351,7 +1396,12 @@ function renderWritingPractice() {
   btn.innerHTML = '<span class="btn-label">Submit for feedback</span>';
   form.appendChild(btn);
   form.addEventListener("submit", onWritingSubmit);
-  root.appendChild(form);
+  mountStudio(root, {
+    stimulusLabel: "Prompt",
+    responseLabel: "Your text",
+    stimulus: [translateHint(), renderClickableSpanish(prompt)],
+    response: [form],
+  });
 }
 
 async function onWritingSubmit(ev) {
@@ -1620,8 +1670,6 @@ function renderReadingPractice() {
   const pr = state.readingPrompt;
   root.innerHTML = "";
   root.appendChild(focusChipRow());
-  root.appendChild(translateHint());
-  root.appendChild(renderClickableSpanish(pr.passage));
   const form = document.createElement("form");
   form.id = "form-reading";
   pr.questions.forEach((q, i) => {
@@ -1647,7 +1695,12 @@ function renderReadingPractice() {
   btn.innerHTML = '<span class="btn-label">Submit answers</span>';
   form.appendChild(btn);
   form.addEventListener("submit", onReadingSubmit);
-  root.appendChild(form);
+  mountStudio(root, {
+    stimulusLabel: "Passage",
+    responseLabel: "Questions",
+    stimulus: [translateHint(), renderClickableSpanish(pr.passage)],
+    response: [form],
+  });
 }
 
 async function onReadingSubmit(ev) {
@@ -2149,7 +2202,22 @@ function renderLesson(lesson) {
 }
 
 function renderConjugationTable(table) {
-  const verbs = Object.keys(table);
+  const regulars = REGULAR_VERBS.filter((verb) => table[verb]);
+  const irregulars = Object.keys(table).filter((verb) => !REGULAR_VERBS.includes(verb));
+  const root = document.createElement("div");
+  root.className = "conj-tables";
+  if (regulars.length) {
+    root.appendChild(buildConjugationTable(table, regulars, "Regular patterns"));
+  }
+  for (let i = 0; i < irregulars.length; i += IRREGULAR_CHUNK) {
+    const slice = irregulars.slice(i, i + IRREGULAR_CHUNK);
+    const caption = i === 0 ? "Common irregulars" : "";
+    root.appendChild(buildConjugationTable(table, slice, caption));
+  }
+  return root;
+}
+
+function buildConjugationTable(table, verbs, caption) {
   const personSet = new Set();
   verbs.forEach((verb) => {
     Object.keys(table[verb] || {}).forEach((p) => personSet.add(p));
@@ -2161,6 +2229,12 @@ function renderConjugationTable(table) {
 
   const wrap = document.createElement("div");
   wrap.className = "conj-table-wrap";
+  if (caption) {
+    const label = document.createElement("p");
+    label.className = "conj-table-caption";
+    label.textContent = caption;
+    wrap.appendChild(label);
+  }
   const tbl = document.createElement("table");
   tbl.className = "conj-table";
   const thead = document.createElement("thead");
@@ -2586,13 +2660,11 @@ function renderListeningPractice() {
   const note = document.createElement("p");
   note.className = "hint";
   note.textContent = "Play the dialogue, then answer. The transcript appears after you submit.";
-  root.appendChild(note);
 
   const player = document.createElement("audio");
   player.controls = true;
   player.className = "audio-player";
   player.src = mediaUrl(prompt.audio_url || `/audio/${prompt.clip_id}`);
-  root.appendChild(player);
 
   const form = document.createElement("form");
   form.id = "form-listening";
@@ -2619,7 +2691,12 @@ function renderListeningPractice() {
   btn.innerHTML = '<span class="btn-label">Submit answers</span>';
   form.appendChild(btn);
   form.addEventListener("submit", onListeningSubmit);
-  root.appendChild(form);
+  mountStudio(root, {
+    stimulusLabel: "Audio",
+    responseLabel: "Questions",
+    stimulus: [note, player],
+    response: [form],
+  });
 }
 
 async function onListeningSubmit(ev) {
@@ -2702,9 +2779,6 @@ function renderSpeakingPractice() {
   const note = document.createElement("p");
   note.className = "hint";
   note.textContent = "Record a short answer in Spanish. We mark grammar, not pronunciation.";
-  root.appendChild(note);
-  root.appendChild(translateHint());
-  root.appendChild(renderClickableSpanish(state.speakingPrompt || ""));
 
   const controls = document.createElement("div");
   controls.className = "speaking-controls";
@@ -2717,7 +2791,6 @@ function renderSpeakingPractice() {
   statusLine.id = "speaking-status";
   controls.appendChild(recordBtn);
   controls.appendChild(statusLine);
-  root.appendChild(controls);
 
   const form = document.createElement("form");
   form.id = "form-speaking";
@@ -2735,7 +2808,12 @@ function renderSpeakingPractice() {
   form.appendChild(ta);
   form.appendChild(submit);
   form.addEventListener("submit", onSpeakingSubmit);
-  root.appendChild(form);
+  mountStudio(root, {
+    stimulusLabel: "Prompt",
+    responseLabel: "Your answer",
+    stimulus: [note, translateHint(), renderClickableSpanish(state.speakingPrompt || "")],
+    response: [controls, form],
+  });
 
   let recorder = null;
   let chunks = [];
@@ -3132,6 +3210,8 @@ function init() {
   document.getElementById("btn-goals-logout").addEventListener("click", onLogout);
   document.getElementById("btn-placement-logout").addEventListener("click", onLogout);
   document.getElementById("btn-progress").addEventListener("click", onProgressClick);
+  document.getElementById("btn-lookup").addEventListener("click", () => toggleHomeSheet("lookup"));
+  document.getElementById("btn-more").addEventListener("click", () => toggleHomeSheet("more"));
   document.getElementById("btn-learn").addEventListener("click", onLearnClick);
   document.getElementById("btn-chat").addEventListener("click", onChatClick);
   document.getElementById("btn-vocab").addEventListener("click", onVocabClick);
@@ -3174,6 +3254,7 @@ function init() {
   });
   document.addEventListener("keydown", (ev) => {
     if (ev.key !== "Escape") return;
+    closeHomeSheets();
     closeHelpPanel();
     closeWalkthrough();
     closeWordPopover();

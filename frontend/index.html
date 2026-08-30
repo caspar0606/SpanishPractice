@@ -142,103 +142,15 @@
         </form>
       </section>
 
-      <section id="panel-exercise" class="panel card hidden" aria-labelledby="exercise-heading">
-        <h2 id="exercise-heading" class="panel-title">Today</h2>
-        <p class="user-pill" id="exercise-user-label" hidden></p>
-        <div id="level-summary" class="level-summary" hidden></div>
-        <p id="daily-lead" class="panel-lead">One writing, reading, listening, and speaking session today. Learning stays open underneath.</p>
+      <section id="panel-exercise" class="panel card hidden home-panel" aria-labelledby="exercise-heading">
+        <header class="home-head">
+          <h2 id="exercise-heading" class="sr-only">Today</h2>
+          <p class="home-identity" id="exercise-user-label" hidden></p>
+          <p id="daily-lead" class="home-lead" hidden></p>
+        </header>
         <div id="daily-root" class="daily-grid" aria-live="polite"></div>
-        <div class="length-row">
-          <label for="ex-length">Length</label>
-          <select id="ex-length" name="length">
-            <option value="short">Short</option>
-            <option value="standard" selected>Standard</option>
-            <option value="long">Long</option>
-          </select>
-        </div>
-        <details id="something-else" class="something-else">
-          <summary>Extra practice</summary>
-        <form id="form-exercise">
-          <label for="ex-type">Type</label>
-          <select id="ex-type" name="type" required>
-            <option value="writing">Writing</option>
-            <option value="reading">Reading</option>
-            <option value="listening">Listening</option>
-            <option value="speaking">Speaking</option>
-            <option value="drills">Drills</option>
-          </select>
 
-          <fieldset class="fieldset-plain">
-            <legend class="sr-only">Focus style</legend>
-            <span class="fake-label">How should we pick focus areas?</span>
-            <div class="row row-tight">
-              <label class="choice-inline"
-                ><input type="radio" name="style" value="weaknesses" checked />
-                Use my progress (weak areas)</label
-              >
-              <label class="choice-inline"
-                ><input type="radio" name="style" value="preferences" /> I’ll
-                choose</label
-              >
-            </div>
-          </fieldset>
-
-          <div id="preferences-box" class="preferences-shell hidden">
-            <div id="preferences-standard">
-              <p class="hint">
-                Choose any combination of tenses, grammar, and topics.
-              </p>
-              <label class="sub-label">Tenses</label>
-              <div id="pref-tenses" class="check-grid"></div>
-              <label class="sub-label">Grammar</label>
-              <div id="pref-grammar" class="check-grid"></div>
-              <label class="sub-label">Topics</label>
-              <div id="pref-topics" class="check-grid"></div>
-            </div>
-
-            <div id="preferences-drills-only" class="hidden">
-              <p class="hint" id="drills-hint-weak">
-                For drills with <strong>weak areas</strong>, choose whether to focus on
-                <strong>tenses</strong> or <strong>grammar</strong>. You won’t pick
-                subtopics here.
-              </p>
-              <p class="hint hidden" id="drills-hint-prefs">
-                For drills with <strong>preferences</strong>, choose either
-                <strong>tenses</strong> or <strong>grammar</strong>, then pick one or
-                more subtopics below.
-              </p>
-              <span class="fake-label">Focus on</span>
-              <div class="row row-tight drill-axis-row">
-                <label class="choice-inline"
-                  ><input
-                    type="radio"
-                    name="drill-pref-axis"
-                    value="tenses"
-                    checked
-                  />
-                  Tenses</label
-                >
-                <label class="choice-inline"
-                  ><input type="radio" name="drill-pref-axis" value="grammar" />
-                  Grammar</label
-                >
-              </div>
-              <div id="drill-pref-grid-wrap" class="check-grid"></div>
-            </div>
-          </div>
-
-          <div class="actions">
-            <button type="submit" class="btn btn-primary">
-              <span class="btn-label">Start exercise</span>
-            </button>
-          </div>
-        </form>
-        </details>
-        <section class="keep-learning" aria-labelledby="keep-learning-heading">
-          <h3 id="keep-learning-heading" class="keep-learning-title">Keep learning</h3>
-          <p class="hint">
-            Notes, questions, vocab, and a word lookup anytime — they don’t use up today’s practice.
-          </p>
+        <div id="home-lookup" class="home-sheet" hidden>
           <form id="form-lookup" class="lookup-form">
             <label for="lookup-word" class="sr-only">Look up a word</label>
             <input
@@ -254,17 +166,96 @@
             </button>
           </form>
           <div id="lookup-result" class="lookup-result" hidden></div>
+        </div>
+
+        <div id="home-more" class="home-sheet" hidden>
+          <div class="length-row">
+            <label for="ex-length">Length</label>
+            <select id="ex-length" name="length">
+              <option value="short">Short</option>
+              <option value="standard" selected>Standard</option>
+              <option value="long">Long</option>
+            </select>
+          </div>
           <div id="extras-root" class="extras-grid"></div>
+          <h3 class="home-more-title">Extra practice</h3>
+          <p class="hint">On top of today’s four, not instead of them.</p>
+          <form id="form-exercise">
+            <label for="ex-type">Type</label>
+            <select id="ex-type" name="type" required>
+              <option value="writing">Writing</option>
+              <option value="reading">Reading</option>
+              <option value="listening">Listening</option>
+              <option value="speaking">Speaking</option>
+              <option value="drills">Drills</option>
+            </select>
+
+            <fieldset class="fieldset-plain">
+              <legend class="sr-only">Focus style</legend>
+              <span class="fake-label">How should we pick focus areas?</span>
+              <div class="row row-tight">
+                <label class="choice-inline"
+                  ><input type="radio" name="style" value="weaknesses" checked />
+                  Use my progress (weak areas)</label
+                >
+                <label class="choice-inline"
+                  ><input type="radio" name="style" value="preferences" /> I’ll
+                  choose</label
+                >
+              </div>
+            </fieldset>
+
+            <div id="preferences-box" class="preferences-shell hidden">
+              <div id="preferences-standard">
+                <p class="hint">
+                  Choose any combination of tenses, grammar, and topics.
+                </p>
+                <label class="sub-label">Tenses</label>
+                <div id="pref-tenses" class="check-grid"></div>
+                <label class="sub-label">Grammar</label>
+                <div id="pref-grammar" class="check-grid"></div>
+                <label class="sub-label">Topics</label>
+                <div id="pref-topics" class="check-grid"></div>
+              </div>
+
+              <div id="preferences-drills-only" class="hidden">
+                <p class="hint" id="drills-hint-weak">
+                  For drills with <strong>weak areas</strong>, choose whether to focus on
+                  <strong>tenses</strong> or <strong>grammar</strong>. You won’t pick
+                  subtopics here.
+                </p>
+                <p class="hint hidden" id="drills-hint-prefs">
+                  For drills with <strong>preferences</strong>, choose either
+                  <strong>tenses</strong> or <strong>grammar</strong>, then pick one or
+                  more subtopics below.
+                </p>
+                <span class="fake-label">Focus on</span>
+                <div class="row row-tight drill-axis-row">
+                  <label class="choice-inline"
+                    ><input
+                      type="radio"
+                      name="drill-pref-axis"
+                      value="tenses"
+                      checked
+                    />
+                    Tenses</label
+                  >
+                  <label class="choice-inline"
+                    ><input type="radio" name="drill-pref-axis" value="grammar" />
+                    Grammar</label
+                  >
+                </div>
+                <div id="drill-pref-grid-wrap" class="check-grid"></div>
+              </div>
+            </div>
+
+            <div class="actions">
+              <button type="submit" class="btn btn-primary">
+                <span class="btn-label">Start exercise</span>
+              </button>
+            </div>
+          </form>
           <div class="actions home-actions">
-            <button type="button" class="btn btn-secondary" id="btn-learn">
-              <span class="btn-label">Learn</span>
-            </button>
-            <button type="button" class="btn btn-secondary" id="btn-chat">
-              <span class="btn-label">Ask</span>
-            </button>
-            <button type="button" class="btn btn-secondary" id="btn-vocab">
-              <span class="btn-label">Vocab</span>
-            </button>
             <button type="button" class="btn btn-secondary" id="btn-progress" hidden>
               <span class="btn-label">My progress</span>
             </button>
@@ -272,7 +263,29 @@
               <span class="btn-label">Log out</span>
             </button>
           </div>
-        </section>
+        </div>
+
+        <nav class="home-rail" aria-label="Lookup, learn, and more">
+          <button type="button" class="home-rail-btn" id="btn-lookup" aria-expanded="false" aria-controls="home-lookup">
+            Lookup
+          </button>
+          <span class="home-rail-sep" aria-hidden="true">·</span>
+          <button type="button" class="home-rail-btn" id="btn-learn">
+            Learn
+          </button>
+          <span class="home-rail-sep" aria-hidden="true">·</span>
+          <button type="button" class="home-rail-btn" id="btn-chat">
+            Ask
+          </button>
+          <span class="home-rail-sep" aria-hidden="true">·</span>
+          <button type="button" class="home-rail-btn" id="btn-vocab">
+            Vocab
+          </button>
+          <span class="home-rail-sep" aria-hidden="true">·</span>
+          <button type="button" class="home-rail-btn" id="btn-more" aria-expanded="false" aria-controls="home-more">
+            More
+          </button>
+        </nav>
       </section>
 
       <section id="panel-practice" class="panel card hidden" aria-labelledby="practice-heading">
@@ -385,13 +398,13 @@
           <p class="help-section-title">1) Today</p>
           <ul>
             <li>Do one <strong>writing</strong>, <strong>reading</strong>, <strong>listening</strong>, and <strong>speaking</strong> session each day.</li>
-            <li>A ticked card is done until tomorrow. <strong>Extra practice</strong> is if you want another round.</li>
-            <li>A <strong>Vocab review</strong> under Keep learning is a short word quiz, not one of the four.</li>
+            <li>A ticked card is done until tomorrow. <strong>More</strong> has Extra practice if you want another round.</li>
+            <li>A <strong>Vocab review</strong> under More is a short word quiz, not one of the four.</li>
           </ul>
         </div>
 
         <div class="help-section">
-          <p class="help-section-title">2) Extra practice</p>
+          <p class="help-section-title">2) Extra practice (under More)</p>
           <ul>
             <li><strong>Writing</strong>: write a short response and get corrections.</li>
             <li><strong>Reading</strong>: answer comprehension questions and get feedback.</li>
@@ -404,12 +417,13 @@
         </div>
 
         <div class="help-section">
-          <p class="help-section-title">Keep learning</p>
+          <p class="help-section-title">The bar at the bottom</p>
           <ul>
-            <li><strong>Look up</strong>: type a Spanish or English word. Spanish words get an English gloss; English words get Spanish. You can also tap words in exercises.</li>
+            <li><strong>Lookup</strong>: type a Spanish or English word. Spanish words get an English gloss; English words get Spanish. You can also tap words in exercises.</li>
             <li><strong>Learn</strong>: tense tables and grammar notes you can browse any time.</li>
             <li><strong>Ask</strong>: a grounded tutor that answers from those notes — not a conversation partner.</li>
             <li><strong>Vocab</strong>: words harvested from your exercises. Star, ignore, or review them.</li>
+            <li><strong>More</strong>: length, Extra practice, and log out.</li>
             <li>These stay available after today’s four are done.</li>
           </ul>
         </div>
@@ -417,7 +431,7 @@
         <div class="help-section">
           <p class="help-section-title">Drills</p>
           <ul>
-            <li>Only used if you open <strong>Extra practice</strong> and choose Drills — tapping a daily card skips this.</li>
+            <li>Only used if you open <strong>More</strong> and choose Drills — tapping a daily card skips this.</li>
             <li>First pick <strong>Tenses</strong> or <strong>Grammar</strong>. Drills cannot mix both.</li>
             <li><strong>Use my progress</strong> then picks your weak points. <strong>I'll choose</strong> lets you tick the specific ones.</li>
           </ul>
@@ -427,8 +441,9 @@
           <p class="help-section-title">During practice</p>
           <ul>
             <li>Use the <strong>Focus</strong> tab to see what this exercise targets.</li>
+            <li>The prompt, passage, or audio stays on the left (or stuck to the top on a phone) while you answer.</li>
             <li>Tap a Spanish word in a prompt, passage, or transcript for an English gloss.</li>
-            <li>After a few exercises, <strong>My progress</strong> appears so you can see how you are doing.</li>
+            <li>After a few exercises, <strong>My progress</strong> appears under More so you can see how you are doing.</li>
           </ul>
         </div>
       </div>
