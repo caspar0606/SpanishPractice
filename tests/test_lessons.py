@@ -24,3 +24,25 @@ def test_por_para_search():
     repo = JsonContentRepository()
     hits = repo.search_lessons("para or por")
     assert any(item.key == "por_para_usage" for item in hits)
+
+
+def test_tense_tables_include_common_irregulars():
+    repo = JsonContentRepository()
+    present = repo.lesson("presente_de_indicativo")
+    preterite = repo.lesson("preterito_perfecto_simple")
+    assert present is not None and preterite is not None
+    assert present.table["hablar"]["yo"] == "hablo"
+    assert present.table["ser"]["yo"] == "soy"
+    assert present.table["tener"]["yo"] == "tengo"
+    assert present.table["hacer"]["yo"] == "hago"
+    assert preterite.table["ser"]["yo"] == "fui"
+    assert preterite.table["ir"]["yo"] == "fui"
+    assert preterite.table["tener"]["yo"] == "tuve"
+    assert preterite.table["hacer"]["él/ella"] == "hizo"
+
+
+def test_search_finds_preterite_from_an_irregular_form():
+    repo = JsonContentRepository()
+    hits = repo.search_lessons("tuve")
+    assert hits
+    assert hits[0].key == "preterito_perfecto_simple"

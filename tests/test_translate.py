@@ -53,6 +53,21 @@ def test_candidates_cover_accents_gender_and_irregulars():
     assert "casa" in lookup_candidates("casas")
 
 
+def test_irregular_tables_map_forms_to_infinitives():
+    from src.infrastructure.dictionary.merriam import _lookup_candidates
+    from src.infrastructure.persistence.json_content import irregular_form_lemmas
+
+    lemmas = irregular_form_lemmas()
+    assert "tener" in lemmas["tuve"]
+    assert "ser" in lemmas["fui"]
+    assert "ir" in lemmas["fui"]
+    assert "haber" in lemmas["hay"]
+    assert "hacer" in lemmas["hizo"]
+    assert "tener" in _lookup_candidates("tuve")
+    assert "ser" in _lookup_candidates("fui")
+    assert "ir" in _lookup_candidates("fui")
+
+
 def test_parse_keeps_both_languages_for_homographs():
     result = parse_response("rodeo", RODEO_PAYLOAD)
     assert result.found is True
@@ -306,6 +321,37 @@ def test_gateway_retries_lemma_when_inflected_form_is_unknown():
     assert result.entries[0].glosses == ["house"]
     assert calls[0] == "casas"
     assert "casa" in calls
+
+
+def test_gateway_retries_irregular_preterite_to_the_infinitive():
+    calls: list[str] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        word = unquote(request.url.path.rsplit("/", 1)[-1])
+        calls.append(word)
+        if word == "tuve":
+            return httpx.Response(200, json=["tener", "tubo"])
+        if word == "tener":
+            return httpx.Response(
+                200,
+                json=[
+                    {
+                        "meta": {"id": "tener", "lang": "es", "stems": ["tener"]},
+                        "hwi": {"hw": "tener"},
+                        "fl": "transitive verb",
+                        "shortdef": ["to have"],
+                    }
+                ],
+            )
+        return httpx.Response(200, json=[])
+
+    client = httpx.Client(transport=httpx.MockTransport(handler))
+    gateway = MerriamWebsterGateway(api_key="test-key", client=client)
+    result = gateway.lookup("tuve")
+    assert result.found is True
+    assert result.entries[0].headword == "tener"
+    assert calls[0] == "tuve"
+    assert "tener" in calls
 
 
 def test_lookup_uses_the_dictionary_port(deps, fake_dictionary):

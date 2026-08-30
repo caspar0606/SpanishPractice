@@ -1,0 +1,1351 @@
+{
+  "verbs": {
+    "ser": {
+      "presente_de_indicativo": {
+        "yo": "soy",
+        "tú": "eres",
+        "él/ella": "es",
+        "nosotros": "somos",
+        "vosotros": "sois",
+        "ellos/ellas": "son"
+      },
+      "preterito_perfecto_simple": {
+        "yo": "fui",
+        "tú": "fuiste",
+        "él/ella": "fue",
+        "nosotros": "fuimos",
+        "vosotros": "fuisteis",
+        "ellos/ellas": "fueron"
+      },
+      "preterito_imperfecto": {
+        "yo": "era",
+        "tú": "eras",
+        "él/ella": "era",
+        "nosotros": "éramos",
+        "vosotros": "erais",
+        "ellos/ellas": "eran"
+      },
+      "futuro_simple": {
+        "yo": "seré",
+        "tú": "serás",
+        "él/ella": "será",
+        "nosotros": "seremos",
+        "vosotros": "seréis",
+        "ellos/ellas": "serán"
+      },
+      "condicional_simple": {
+        "yo": "sería",
+        "tú": "serías",
+        "él/ella": "sería",
+        "nosotros": "seríamos",
+        "vosotros": "seríais",
+        "ellos/ellas": "serían"
+      }
+    },
+    "estar": {
+      "presente_de_indicativo": {
+        "yo": "estoy",
+        "tú": "estás",
+        "él/ella": "está",
+        "nosotros": "estamos",
+        "vosotros": "estáis",
+        "ellos/ellas": "están"
+      },
+      "preterito_perfecto_simple": {
+        "yo": "estuve",
+        "tú": "estuviste",
+        "él/ella": "estuvo",
+        "nosotros": "estuvimos",
+        "vosotros": "estuvisteis",
+        "ellos/ellas": "estuvieron"
+      },
+      "preterito_imperfecto": {
+        "yo": "estaba",
+        "tú": "estabas",
+        "él/ella": "estaba",
+        "nosotros": "estábamos",
+        "vosotros": "estabais",
+        "ellos/ellas": "estaban"
+      },
+      "futuro_simple": {
+        "yo": "estaré",
+        "tú": "estarás",
+        "él/ella": "estará",
+        "nosotros": "estaremos",
+        "vosotros": "estaréis",
+        "ellos/ellas": "estarán"
+      },
+      "condicional_simple": {
+        "yo": "estaría",
+        "tú": "estarías",
+        "él/ella": "estaría",
+        "nosotros": "estaríamos",
+        "vosotros": "estaríais",
+        "ellos/ellas": "estarían"
+      }
+    },
+    "ir": {
+      "presente_de_indicativo": {
+        "yo": "voy",
+        "tú": "vas",
+        "él/ella": "va",
+        "nosotros": "vamos",
+        "vosotros": "vais",
+        "ellos/ellas": "van"
+      },
+      "preterito_perfecto_simple": {
+        "yo": "fui",
+        "tú": "fuiste",
+        "él/ella": "fue",
+        "nosotros": "fuimos",
+        "vosotros": "fuisteis",
+        "ellos/ellas": "fueron"
+      },
+      "preterito_imperfecto": {
+        "yo": "iba",
+        "tú": "ibas",
+        "él/ella": "iba",
+        "nosotros": "íbamos",
+        "vosotros": "ibais",
+        "ellos/ellas": "iban"
+      },
+      "futuro_simple": {
+        "yo": "iré",
+        "tú": "irás",
+        "él/ella": "irá",
+        "nosotros": "iremos",
+        "vosotros": "iréis",
+        "ellos/ellas": "irán"
+      },
+      "condicional_simple": {
+        "yo": "iría",
+        "tú": "irías",
+        "él/ella": "iría",
+        "nosotros": "iríamos",
+        "vosotros": "iríais",
+        "ellos/ellas": "irían"
+      }
+    },
+    "haber": {
+      "presente_de_indicativo": {
+        "yo": "he",
+        "tú": "has",
+        "él/ella": "ha",
+        "nosotros": "hemos",
+        "vosotros": "habéis",
+        "ellos/ellas": "han"
+      },
+      "preterito_perfecto_simple": {
+        "yo": "hube",
+        "tú": "hubiste",
+        "él/ella": "hubo",
+        "nosotros": "hubimos",
+        "vosotros": "hubisteis",
+        "ellos/ellas": "hubieron"
+      },
+      "preterito_imperfecto": {
+        "yo": "había",
+        "tú": "habías",
+        "él/ella": "había",
+        "nosotros": "habíamos",
+        "vosotros": "habíais",
+        "ellos/ellas": "habían"
+      },
+      "futuro_simple": {
+        "yo": "habré",
+        "tú": "habrás",
+        "él/ella": "habrá",
+        "nosotros": "habremos",
+        "vosotros": "habréis",
+        "ellos/ellas": "habrán"
+      },
+      "condicional_simple": {
+        "yo": "habría",
+        "tú": "habrías",
+        "él/ella": "habría",
+        "nosotros": "habríamos",
+        "vosotros": "habríais",
+        "ellos/ellas": "habrían"
+      }
+    },
+    "tener": {
+      "presente_de_indicativo": {
+        "yo": "tengo",
+        "tú": "tienes",
+        "él/ella": "tiene",
+        "nosotros": "tenemos",
+        "vosotros": "tenéis",
+        "ellos/ellas": "tienen"
+      },
+      "preterito_perfecto_simple": {
+        "yo": "tuve",
+        "tú": "tuviste",
+        "él/ella": "tuvo",
+        "nosotros": "tuvimos",
+        "vosotros": "tuvisteis",
+        "ellos/ellas": "tuvieron"
+      },
+      "preterito_imperfecto": {
+        "yo": "tenía",
+        "tú": "tenías",
+        "él/ella": "tenía",
+        "nosotros": "teníamos",
+        "vosotros": "teníais",
+        "ellos/ellas": "tenían"
+      },
+      "futuro_simple": {
+        "yo": "tendré",
+        "tú": "tendrás",
+        "él/ella": "tendrá",
+        "nosotros": "tendremos",
+        "vosotros": "tendréis",
+        "ellos/ellas": "tendrán"
+      },
+      "condicional_simple": {
+        "yo": "tendría",
+        "tú": "tendrías",
+        "él/ella": "tendría",
+        "nosotros": "tendríamos",
+        "vosotros": "tendríais",
+        "ellos/ellas": "tendrían"
+      }
+    },
+    "hacer": {
+      "presente_de_indicativo": {
+        "yo": "hago",
+        "tú": "haces",
+        "él/ella": "hace",
+        "nosotros": "hacemos",
+        "vosotros": "hacéis",
+        "ellos/ellas": "hacen"
+      },
+      "preterito_perfecto_simple": {
+        "yo": "hice",
+        "tú": "hiciste",
+        "él/ella": "hizo",
+        "nosotros": "hicimos",
+        "vosotros": "hicisteis",
+        "ellos/ellas": "hicieron"
+      },
+      "preterito_imperfecto": {
+        "yo": "hacía",
+        "tú": "hacías",
+        "él/ella": "hacía",
+        "nosotros": "hacíamos",
+        "vosotros": "hacíais",
+        "ellos/ellas": "hacían"
+      },
+      "futuro_simple": {
+        "yo": "haré",
+        "tú": "harás",
+        "él/ella": "hará",
+        "nosotros": "haremos",
+        "vosotros": "haréis",
+        "ellos/ellas": "harán"
+      },
+      "condicional_simple": {
+        "yo": "haría",
+        "tú": "harías",
+        "él/ella": "haría",
+        "nosotros": "haríamos",
+        "vosotros": "haríais",
+        "ellos/ellas": "harían"
+      }
+    },
+    "poder": {
+      "presente_de_indicativo": {
+        "yo": "puedo",
+        "tú": "puedes",
+        "él/ella": "puede",
+        "nosotros": "podemos",
+        "vosotros": "podéis",
+        "ellos/ellas": "pueden"
+      },
+      "preterito_perfecto_simple": {
+        "yo": "pude",
+        "tú": "pudiste",
+        "él/ella": "pudo",
+        "nosotros": "pudimos",
+        "vosotros": "pudisteis",
+        "ellos/ellas": "pudieron"
+      },
+      "preterito_imperfecto": {
+        "yo": "podía",
+        "tú": "podías",
+        "él/ella": "podía",
+        "nosotros": "podíamos",
+        "vosotros": "podíais",
+        "ellos/ellas": "podían"
+      },
+      "futuro_simple": {
+        "yo": "podré",
+        "tú": "podrás",
+        "él/ella": "podrá",
+        "nosotros": "podremos",
+        "vosotros": "podréis",
+        "ellos/ellas": "podrán"
+      },
+      "condicional_simple": {
+        "yo": "podría",
+        "tú": "podrías",
+        "él/ella": "podría",
+        "nosotros": "podríamos",
+        "vosotros": "podríais",
+        "ellos/ellas": "podrían"
+      }
+    },
+    "decir": {
+      "presente_de_indicativo": {
+        "yo": "digo",
+        "tú": "dices",
+        "él/ella": "dice",
+        "nosotros": "decimos",
+        "vosotros": "decís",
+        "ellos/ellas": "dicen"
+      },
+      "preterito_perfecto_simple": {
+        "yo": "dije",
+        "tú": "dijiste",
+        "él/ella": "dijo",
+        "nosotros": "dijimos",
+        "vosotros": "dijisteis",
+        "ellos/ellas": "dijeron"
+      },
+      "preterito_imperfecto": {
+        "yo": "decía",
+        "tú": "decías",
+        "él/ella": "decía",
+        "nosotros": "decíamos",
+        "vosotros": "decíais",
+        "ellos/ellas": "decían"
+      },
+      "futuro_simple": {
+        "yo": "diré",
+        "tú": "dirás",
+        "él/ella": "dirá",
+        "nosotros": "diremos",
+        "vosotros": "diréis",
+        "ellos/ellas": "dirán"
+      },
+      "condicional_simple": {
+        "yo": "diría",
+        "tú": "dirías",
+        "él/ella": "diría",
+        "nosotros": "diríamos",
+        "vosotros": "diríais",
+        "ellos/ellas": "dirían"
+      }
+    },
+    "dar": {
+      "presente_de_indicativo": {
+        "yo": "doy",
+        "tú": "das",
+        "él/ella": "da",
+        "nosotros": "damos",
+        "vosotros": "dais",
+        "ellos/ellas": "dan"
+      },
+      "preterito_perfecto_simple": {
+        "yo": "di",
+        "tú": "diste",
+        "él/ella": "dio",
+        "nosotros": "dimos",
+        "vosotros": "disteis",
+        "ellos/ellas": "dieron"
+      },
+      "preterito_imperfecto": {
+        "yo": "daba",
+        "tú": "dabas",
+        "él/ella": "daba",
+        "nosotros": "dábamos",
+        "vosotros": "dabais",
+        "ellos/ellas": "daban"
+      },
+      "futuro_simple": {
+        "yo": "daré",
+        "tú": "darás",
+        "él/ella": "dará",
+        "nosotros": "daremos",
+        "vosotros": "daréis",
+        "ellos/ellas": "darán"
+      },
+      "condicional_simple": {
+        "yo": "daría",
+        "tú": "darías",
+        "él/ella": "daría",
+        "nosotros": "daríamos",
+        "vosotros": "daríais",
+        "ellos/ellas": "darían"
+      }
+    },
+    "ver": {
+      "presente_de_indicativo": {
+        "yo": "veo",
+        "tú": "ves",
+        "él/ella": "ve",
+        "nosotros": "vemos",
+        "vosotros": "veis",
+        "ellos/ellas": "ven"
+      },
+      "preterito_perfecto_simple": {
+        "yo": "vi",
+        "tú": "viste",
+        "él/ella": "vio",
+        "nosotros": "vimos",
+        "vosotros": "visteis",
+        "ellos/ellas": "vieron"
+      },
+      "preterito_imperfecto": {
+        "yo": "veía",
+        "tú": "veías",
+        "él/ella": "veía",
+        "nosotros": "veíamos",
+        "vosotros": "veíais",
+        "ellos/ellas": "veían"
+      },
+      "futuro_simple": {
+        "yo": "veré",
+        "tú": "verás",
+        "él/ella": "verá",
+        "nosotros": "veremos",
+        "vosotros": "veréis",
+        "ellos/ellas": "verán"
+      },
+      "condicional_simple": {
+        "yo": "vería",
+        "tú": "verías",
+        "él/ella": "vería",
+        "nosotros": "veríamos",
+        "vosotros": "veríais",
+        "ellos/ellas": "verían"
+      }
+    },
+    "saber": {
+      "presente_de_indicativo": {
+        "yo": "sé",
+        "tú": "sabes",
+        "él/ella": "sabe",
+        "nosotros": "sabemos",
+        "vosotros": "sabéis",
+        "ellos/ellas": "saben"
+      },
+      "preterito_perfecto_simple": {
+        "yo": "supe",
+        "tú": "supiste",
+        "él/ella": "supo",
+        "nosotros": "supimos",
+        "vosotros": "supisteis",
+        "ellos/ellas": "supieron"
+      },
+      "preterito_imperfecto": {
+        "yo": "sabía",
+        "tú": "sabías",
+        "él/ella": "sabía",
+        "nosotros": "sabíamos",
+        "vosotros": "sabíais",
+        "ellos/ellas": "sabían"
+      },
+      "futuro_simple": {
+        "yo": "sabré",
+        "tú": "sabrás",
+        "él/ella": "sabrá",
+        "nosotros": "sabremos",
+        "vosotros": "sabréis",
+        "ellos/ellas": "sabrán"
+      },
+      "condicional_simple": {
+        "yo": "sabría",
+        "tú": "sabrías",
+        "él/ella": "sabría",
+        "nosotros": "sabríamos",
+        "vosotros": "sabríais",
+        "ellos/ellas": "sabrían"
+      }
+    },
+    "querer": {
+      "presente_de_indicativo": {
+        "yo": "quiero",
+        "tú": "quieres",
+        "él/ella": "quiere",
+        "nosotros": "queremos",
+        "vosotros": "queréis",
+        "ellos/ellas": "quieren"
+      },
+      "preterito_perfecto_simple": {
+        "yo": "quise",
+        "tú": "quisiste",
+        "él/ella": "quiso",
+        "nosotros": "quisimos",
+        "vosotros": "quisisteis",
+        "ellos/ellas": "quisieron"
+      },
+      "preterito_imperfecto": {
+        "yo": "quería",
+        "tú": "querías",
+        "él/ella": "quería",
+        "nosotros": "queríamos",
+        "vosotros": "queríais",
+        "ellos/ellas": "querían"
+      },
+      "futuro_simple": {
+        "yo": "querré",
+        "tú": "querrás",
+        "él/ella": "querrá",
+        "nosotros": "querremos",
+        "vosotros": "querréis",
+        "ellos/ellas": "querrán"
+      },
+      "condicional_simple": {
+        "yo": "querría",
+        "tú": "querrías",
+        "él/ella": "querría",
+        "nosotros": "querríamos",
+        "vosotros": "querríais",
+        "ellos/ellas": "querrían"
+      }
+    },
+    "venir": {
+      "presente_de_indicativo": {
+        "yo": "vengo",
+        "tú": "vienes",
+        "él/ella": "viene",
+        "nosotros": "venimos",
+        "vosotros": "venís",
+        "ellos/ellas": "vienen"
+      },
+      "preterito_perfecto_simple": {
+        "yo": "vine",
+        "tú": "viniste",
+        "él/ella": "vino",
+        "nosotros": "vinimos",
+        "vosotros": "vinisteis",
+        "ellos/ellas": "vinieron"
+      },
+      "preterito_imperfecto": {
+        "yo": "venía",
+        "tú": "venías",
+        "él/ella": "venía",
+        "nosotros": "veníamos",
+        "vosotros": "veníais",
+        "ellos/ellas": "venían"
+      },
+      "futuro_simple": {
+        "yo": "vendré",
+        "tú": "vendrás",
+        "él/ella": "vendrá",
+        "nosotros": "vendremos",
+        "vosotros": "vendréis",
+        "ellos/ellas": "vendrán"
+      },
+      "condicional_simple": {
+        "yo": "vendría",
+        "tú": "vendrías",
+        "él/ella": "vendría",
+        "nosotros": "vendríamos",
+        "vosotros": "vendríais",
+        "ellos/ellas": "vendrían"
+      }
+    },
+    "poner": {
+      "presente_de_indicativo": {
+        "yo": "pongo",
+        "tú": "pones",
+        "él/ella": "pone",
+        "nosotros": "ponemos",
+        "vosotros": "ponéis",
+        "ellos/ellas": "ponen"
+      },
+      "preterito_perfecto_simple": {
+        "yo": "puse",
+        "tú": "pusiste",
+        "él/ella": "puso",
+        "nosotros": "pusimos",
+        "vosotros": "pusisteis",
+        "ellos/ellas": "pusieron"
+      },
+      "preterito_imperfecto": {
+        "yo": "ponía",
+        "tú": "ponías",
+        "él/ella": "ponía",
+        "nosotros": "poníamos",
+        "vosotros": "poníais",
+        "ellos/ellas": "ponían"
+      },
+      "futuro_simple": {
+        "yo": "pondré",
+        "tú": "pondrás",
+        "él/ella": "pondrá",
+        "nosotros": "pondremos",
+        "vosotros": "pondréis",
+        "ellos/ellas": "pondrán"
+      },
+      "condicional_simple": {
+        "yo": "pondría",
+        "tú": "pondrías",
+        "él/ella": "pondría",
+        "nosotros": "pondríamos",
+        "vosotros": "pondríais",
+        "ellos/ellas": "pondrían"
+      }
+    },
+    "salir": {
+      "presente_de_indicativo": {
+        "yo": "salgo",
+        "tú": "sales",
+        "él/ella": "sale",
+        "nosotros": "salimos",
+        "vosotros": "salís",
+        "ellos/ellas": "salen"
+      },
+      "preterito_perfecto_simple": {
+        "yo": "salí",
+        "tú": "saliste",
+        "él/ella": "salió",
+        "nosotros": "salimos",
+        "vosotros": "salisteis",
+        "ellos/ellas": "salieron"
+      },
+      "preterito_imperfecto": {
+        "yo": "salía",
+        "tú": "salías",
+        "él/ella": "salía",
+        "nosotros": "salíamos",
+        "vosotros": "salíais",
+        "ellos/ellas": "salían"
+      },
+      "futuro_simple": {
+        "yo": "saldré",
+        "tú": "saldrás",
+        "él/ella": "saldrá",
+        "nosotros": "saldremos",
+        "vosotros": "saldréis",
+        "ellos/ellas": "saldrán"
+      },
+      "condicional_simple": {
+        "yo": "saldría",
+        "tú": "saldrías",
+        "él/ella": "saldría",
+        "nosotros": "saldríamos",
+        "vosotros": "saldríais",
+        "ellos/ellas": "saldrían"
+      }
+    },
+    "oír": {
+      "presente_de_indicativo": {
+        "yo": "oigo",
+        "tú": "oyes",
+        "él/ella": "oye",
+        "nosotros": "oímos",
+        "vosotros": "oís",
+        "ellos/ellas": "oyen"
+      },
+      "preterito_perfecto_simple": {
+        "yo": "oí",
+        "tú": "oíste",
+        "él/ella": "oyó",
+        "nosotros": "oímos",
+        "vosotros": "oísteis",
+        "ellos/ellas": "oyeron"
+      },
+      "preterito_imperfecto": {
+        "yo": "oía",
+        "tú": "oías",
+        "él/ella": "oía",
+        "nosotros": "oíamos",
+        "vosotros": "oíais",
+        "ellos/ellas": "oían"
+      },
+      "futuro_simple": {
+        "yo": "oiré",
+        "tú": "oirás",
+        "él/ella": "oirá",
+        "nosotros": "oiremos",
+        "vosotros": "oiréis",
+        "ellos/ellas": "oirán"
+      },
+      "condicional_simple": {
+        "yo": "oiría",
+        "tú": "oirías",
+        "él/ella": "oiría",
+        "nosotros": "oiríamos",
+        "vosotros": "oiríais",
+        "ellos/ellas": "oirían"
+      }
+    },
+    "traer": {
+      "presente_de_indicativo": {
+        "yo": "traigo",
+        "tú": "traes",
+        "él/ella": "trae",
+        "nosotros": "traemos",
+        "vosotros": "traéis",
+        "ellos/ellas": "traen"
+      },
+      "preterito_perfecto_simple": {
+        "yo": "traje",
+        "tú": "trajiste",
+        "él/ella": "trajo",
+        "nosotros": "trajimos",
+        "vosotros": "trajisteis",
+        "ellos/ellas": "trajeron"
+      },
+      "preterito_imperfecto": {
+        "yo": "traía",
+        "tú": "traías",
+        "él/ella": "traía",
+        "nosotros": "traíamos",
+        "vosotros": "traíais",
+        "ellos/ellas": "traían"
+      },
+      "futuro_simple": {
+        "yo": "traeré",
+        "tú": "traerás",
+        "él/ella": "traerá",
+        "nosotros": "traeremos",
+        "vosotros": "traeréis",
+        "ellos/ellas": "traerán"
+      },
+      "condicional_simple": {
+        "yo": "traería",
+        "tú": "traerías",
+        "él/ella": "traería",
+        "nosotros": "traeríamos",
+        "vosotros": "traeríais",
+        "ellos/ellas": "traerían"
+      }
+    },
+    "caer": {
+      "presente_de_indicativo": {
+        "yo": "caigo",
+        "tú": "caes",
+        "él/ella": "cae",
+        "nosotros": "caemos",
+        "vosotros": "caéis",
+        "ellos/ellas": "caen"
+      },
+      "preterito_perfecto_simple": {
+        "yo": "caí",
+        "tú": "caíste",
+        "él/ella": "cayó",
+        "nosotros": "caímos",
+        "vosotros": "caísteis",
+        "ellos/ellas": "cayeron"
+      },
+      "preterito_imperfecto": {
+        "yo": "caía",
+        "tú": "caías",
+        "él/ella": "caía",
+        "nosotros": "caíamos",
+        "vosotros": "caíais",
+        "ellos/ellas": "caían"
+      },
+      "futuro_simple": {
+        "yo": "caeré",
+        "tú": "caerás",
+        "él/ella": "caerá",
+        "nosotros": "caeremos",
+        "vosotros": "caeréis",
+        "ellos/ellas": "caerán"
+      },
+      "condicional_simple": {
+        "yo": "caería",
+        "tú": "caerías",
+        "él/ella": "caería",
+        "nosotros": "caeríamos",
+        "vosotros": "caeríais",
+        "ellos/ellas": "caerían"
+      }
+    },
+    "andar": {
+      "presente_de_indicativo": {
+        "yo": "ando",
+        "tú": "andas",
+        "él/ella": "anda",
+        "nosotros": "andamos",
+        "vosotros": "andáis",
+        "ellos/ellas": "andan"
+      },
+      "preterito_perfecto_simple": {
+        "yo": "anduve",
+        "tú": "anduviste",
+        "él/ella": "anduvo",
+        "nosotros": "anduvimos",
+        "vosotros": "anduvisteis",
+        "ellos/ellas": "anduvieron"
+      },
+      "preterito_imperfecto": {
+        "yo": "andaba",
+        "tú": "andabas",
+        "él/ella": "andaba",
+        "nosotros": "andábamos",
+        "vosotros": "andabais",
+        "ellos/ellas": "andaban"
+      },
+      "futuro_simple": {
+        "yo": "andaré",
+        "tú": "andarás",
+        "él/ella": "andará",
+        "nosotros": "andaremos",
+        "vosotros": "andaréis",
+        "ellos/ellas": "andarán"
+      },
+      "condicional_simple": {
+        "yo": "andaría",
+        "tú": "andarías",
+        "él/ella": "andaría",
+        "nosotros": "andaríamos",
+        "vosotros": "andaríais",
+        "ellos/ellas": "andarían"
+      }
+    },
+    "conocer": {
+      "presente_de_indicativo": {
+        "yo": "conozco",
+        "tú": "conoces",
+        "él/ella": "conoce",
+        "nosotros": "conocemos",
+        "vosotros": "conocéis",
+        "ellos/ellas": "conocen"
+      },
+      "preterito_perfecto_simple": {
+        "yo": "conocí",
+        "tú": "conociste",
+        "él/ella": "conoció",
+        "nosotros": "conocimos",
+        "vosotros": "conocisteis",
+        "ellos/ellas": "conocieron"
+      },
+      "preterito_imperfecto": {
+        "yo": "conocía",
+        "tú": "conocías",
+        "él/ella": "conocía",
+        "nosotros": "conocíamos",
+        "vosotros": "conocíais",
+        "ellos/ellas": "conocían"
+      },
+      "futuro_simple": {
+        "yo": "conoceré",
+        "tú": "conocerás",
+        "él/ella": "conocerá",
+        "nosotros": "conoceremos",
+        "vosotros": "conoceréis",
+        "ellos/ellas": "conocerán"
+      },
+      "condicional_simple": {
+        "yo": "conocería",
+        "tú": "conocerías",
+        "él/ella": "conocería",
+        "nosotros": "conoceríamos",
+        "vosotros": "conoceríais",
+        "ellos/ellas": "conocerían"
+      }
+    },
+    "parecer": {
+      "presente_de_indicativo": {
+        "yo": "parezco",
+        "tú": "pareces",
+        "él/ella": "parece",
+        "nosotros": "parecemos",
+        "vosotros": "parecéis",
+        "ellos/ellas": "parecen"
+      },
+      "preterito_perfecto_simple": {
+        "yo": "parecí",
+        "tú": "pareciste",
+        "él/ella": "pareció",
+        "nosotros": "parecimos",
+        "vosotros": "parecisteis",
+        "ellos/ellas": "parecieron"
+      },
+      "preterito_imperfecto": {
+        "yo": "parecía",
+        "tú": "parecías",
+        "él/ella": "parecía",
+        "nosotros": "parecíamos",
+        "vosotros": "parecíais",
+        "ellos/ellas": "parecían"
+      },
+      "futuro_simple": {
+        "yo": "pareceré",
+        "tú": "parecerás",
+        "él/ella": "parecerá",
+        "nosotros": "pareceremos",
+        "vosotros": "pareceréis",
+        "ellos/ellas": "parecerán"
+      },
+      "condicional_simple": {
+        "yo": "parecería",
+        "tú": "parecerías",
+        "él/ella": "parecería",
+        "nosotros": "pareceríamos",
+        "vosotros": "pareceríais",
+        "ellos/ellas": "parecerían"
+      }
+    },
+    "pensar": {
+      "presente_de_indicativo": {
+        "yo": "pienso",
+        "tú": "piensas",
+        "él/ella": "piensa",
+        "nosotros": "pensamos",
+        "vosotros": "pensáis",
+        "ellos/ellas": "piensan"
+      },
+      "preterito_perfecto_simple": {
+        "yo": "pensé",
+        "tú": "pensaste",
+        "él/ella": "pensó",
+        "nosotros": "pensamos",
+        "vosotros": "pensasteis",
+        "ellos/ellas": "pensaron"
+      },
+      "preterito_imperfecto": {
+        "yo": "pensaba",
+        "tú": "pensabas",
+        "él/ella": "pensaba",
+        "nosotros": "pensábamos",
+        "vosotros": "pensabais",
+        "ellos/ellas": "pensaban"
+      },
+      "futuro_simple": {
+        "yo": "pensaré",
+        "tú": "pensarás",
+        "él/ella": "pensará",
+        "nosotros": "pensaremos",
+        "vosotros": "pensaréis",
+        "ellos/ellas": "pensarán"
+      },
+      "condicional_simple": {
+        "yo": "pensaría",
+        "tú": "pensarías",
+        "él/ella": "pensaría",
+        "nosotros": "pensaríamos",
+        "vosotros": "pensaríais",
+        "ellos/ellas": "pensarían"
+      }
+    },
+    "entender": {
+      "presente_de_indicativo": {
+        "yo": "entiendo",
+        "tú": "entiendes",
+        "él/ella": "entiende",
+        "nosotros": "entendemos",
+        "vosotros": "entendéis",
+        "ellos/ellas": "entienden"
+      },
+      "preterito_perfecto_simple": {
+        "yo": "entendí",
+        "tú": "entendiste",
+        "él/ella": "entendió",
+        "nosotros": "entendimos",
+        "vosotros": "entendisteis",
+        "ellos/ellas": "entendieron"
+      },
+      "preterito_imperfecto": {
+        "yo": "entendía",
+        "tú": "entendías",
+        "él/ella": "entendía",
+        "nosotros": "entendíamos",
+        "vosotros": "entendíais",
+        "ellos/ellas": "entendían"
+      },
+      "futuro_simple": {
+        "yo": "entenderé",
+        "tú": "entenderás",
+        "él/ella": "entenderá",
+        "nosotros": "entenderemos",
+        "vosotros": "entenderéis",
+        "ellos/ellas": "entenderán"
+      },
+      "condicional_simple": {
+        "yo": "entendería",
+        "tú": "entenderías",
+        "él/ella": "entendería",
+        "nosotros": "entenderíamos",
+        "vosotros": "entenderíais",
+        "ellos/ellas": "entenderían"
+      }
+    },
+    "preferir": {
+      "presente_de_indicativo": {
+        "yo": "prefiero",
+        "tú": "prefieres",
+        "él/ella": "prefiere",
+        "nosotros": "preferimos",
+        "vosotros": "preferís",
+        "ellos/ellas": "prefieren"
+      },
+      "preterito_perfecto_simple": {
+        "yo": "preferí",
+        "tú": "preferiste",
+        "él/ella": "prefirió",
+        "nosotros": "preferimos",
+        "vosotros": "preferisteis",
+        "ellos/ellas": "prefirieron"
+      },
+      "preterito_imperfecto": {
+        "yo": "prefería",
+        "tú": "preferías",
+        "él/ella": "prefería",
+        "nosotros": "preferíamos",
+        "vosotros": "preferíais",
+        "ellos/ellas": "preferían"
+      },
+      "futuro_simple": {
+        "yo": "preferiré",
+        "tú": "preferirás",
+        "él/ella": "preferirá",
+        "nosotros": "preferiremos",
+        "vosotros": "preferiréis",
+        "ellos/ellas": "preferirán"
+      },
+      "condicional_simple": {
+        "yo": "preferiría",
+        "tú": "preferirías",
+        "él/ella": "preferiría",
+        "nosotros": "preferiríamos",
+        "vosotros": "preferiríais",
+        "ellos/ellas": "preferirían"
+      }
+    },
+    "volver": {
+      "presente_de_indicativo": {
+        "yo": "vuelvo",
+        "tú": "vuelves",
+        "él/ella": "vuelve",
+        "nosotros": "volvemos",
+        "vosotros": "volvéis",
+        "ellos/ellas": "vuelven"
+      },
+      "preterito_perfecto_simple": {
+        "yo": "volví",
+        "tú": "volviste",
+        "él/ella": "volvió",
+        "nosotros": "volvimos",
+        "vosotros": "volvisteis",
+        "ellos/ellas": "volvieron"
+      },
+      "preterito_imperfecto": {
+        "yo": "volvía",
+        "tú": "volvías",
+        "él/ella": "volvía",
+        "nosotros": "volvíamos",
+        "vosotros": "volvíais",
+        "ellos/ellas": "volvían"
+      },
+      "futuro_simple": {
+        "yo": "volveré",
+        "tú": "volverás",
+        "él/ella": "volverá",
+        "nosotros": "volveremos",
+        "vosotros": "volveréis",
+        "ellos/ellas": "volverán"
+      },
+      "condicional_simple": {
+        "yo": "volvería",
+        "tú": "volverías",
+        "él/ella": "volvería",
+        "nosotros": "volveríamos",
+        "vosotros": "volveríais",
+        "ellos/ellas": "volverían"
+      }
+    },
+    "dormir": {
+      "presente_de_indicativo": {
+        "yo": "duermo",
+        "tú": "duermes",
+        "él/ella": "duerme",
+        "nosotros": "dormimos",
+        "vosotros": "dormís",
+        "ellos/ellas": "duermen"
+      },
+      "preterito_perfecto_simple": {
+        "yo": "dormí",
+        "tú": "dormiste",
+        "él/ella": "durmió",
+        "nosotros": "dormimos",
+        "vosotros": "dormisteis",
+        "ellos/ellas": "durmieron"
+      },
+      "preterito_imperfecto": {
+        "yo": "dormía",
+        "tú": "dormías",
+        "él/ella": "dormía",
+        "nosotros": "dormíamos",
+        "vosotros": "dormíais",
+        "ellos/ellas": "dormían"
+      },
+      "futuro_simple": {
+        "yo": "dormiré",
+        "tú": "dormirás",
+        "él/ella": "dormirá",
+        "nosotros": "dormiremos",
+        "vosotros": "dormiréis",
+        "ellos/ellas": "dormirán"
+      },
+      "condicional_simple": {
+        "yo": "dormiría",
+        "tú": "dormirías",
+        "él/ella": "dormiría",
+        "nosotros": "dormiríamos",
+        "vosotros": "dormiríais",
+        "ellos/ellas": "dormirían"
+      }
+    },
+    "pedir": {
+      "presente_de_indicativo": {
+        "yo": "pido",
+        "tú": "pides",
+        "él/ella": "pide",
+        "nosotros": "pedimos",
+        "vosotros": "pedís",
+        "ellos/ellas": "piden"
+      },
+      "preterito_perfecto_simple": {
+        "yo": "pedí",
+        "tú": "pediste",
+        "él/ella": "pidió",
+        "nosotros": "pedimos",
+        "vosotros": "pedisteis",
+        "ellos/ellas": "pidieron"
+      },
+      "preterito_imperfecto": {
+        "yo": "pedía",
+        "tú": "pedías",
+        "él/ella": "pedía",
+        "nosotros": "pedíamos",
+        "vosotros": "pedíais",
+        "ellos/ellas": "pedían"
+      },
+      "futuro_simple": {
+        "yo": "pediré",
+        "tú": "pedirás",
+        "él/ella": "pedirá",
+        "nosotros": "pediremos",
+        "vosotros": "pediréis",
+        "ellos/ellas": "pedirán"
+      },
+      "condicional_simple": {
+        "yo": "pediría",
+        "tú": "pedirías",
+        "él/ella": "pediría",
+        "nosotros": "pediríamos",
+        "vosotros": "pediríais",
+        "ellos/ellas": "pedirían"
+      }
+    },
+    "seguir": {
+      "presente_de_indicativo": {
+        "yo": "sigo",
+        "tú": "sigues",
+        "él/ella": "sigue",
+        "nosotros": "seguimos",
+        "vosotros": "seguís",
+        "ellos/ellas": "siguen"
+      },
+      "preterito_perfecto_simple": {
+        "yo": "seguí",
+        "tú": "seguiste",
+        "él/ella": "siguió",
+        "nosotros": "seguimos",
+        "vosotros": "seguisteis",
+        "ellos/ellas": "siguieron"
+      },
+      "preterito_imperfecto": {
+        "yo": "seguía",
+        "tú": "seguías",
+        "él/ella": "seguía",
+        "nosotros": "seguíamos",
+        "vosotros": "seguíais",
+        "ellos/ellas": "seguían"
+      },
+      "futuro_simple": {
+        "yo": "seguiré",
+        "tú": "seguirás",
+        "él/ella": "seguirá",
+        "nosotros": "seguiremos",
+        "vosotros": "seguiréis",
+        "ellos/ellas": "seguirán"
+      },
+      "condicional_simple": {
+        "yo": "seguiría",
+        "tú": "seguirías",
+        "él/ella": "seguiría",
+        "nosotros": "seguiríamos",
+        "vosotros": "seguiríais",
+        "ellos/ellas": "seguirían"
+      }
+    },
+    "jugar": {
+      "presente_de_indicativo": {
+        "yo": "juego",
+        "tú": "juegas",
+        "él/ella": "juega",
+        "nosotros": "jugamos",
+        "vosotros": "jugáis",
+        "ellos/ellas": "juegan"
+      },
+      "preterito_perfecto_simple": {
+        "yo": "jugué",
+        "tú": "jugaste",
+        "él/ella": "jugó",
+        "nosotros": "jugamos",
+        "vosotros": "jugasteis",
+        "ellos/ellas": "jugaron"
+      },
+      "preterito_imperfecto": {
+        "yo": "jugaba",
+        "tú": "jugabas",
+        "él/ella": "jugaba",
+        "nosotros": "jugábamos",
+        "vosotros": "jugabais",
+        "ellos/ellas": "jugaban"
+      },
+      "futuro_simple": {
+        "yo": "jugaré",
+        "tú": "jugarás",
+        "él/ella": "jugará",
+        "nosotros": "jugaremos",
+        "vosotros": "jugaréis",
+        "ellos/ellas": "jugarán"
+      },
+      "condicional_simple": {
+        "yo": "jugaría",
+        "tú": "jugarías",
+        "él/ella": "jugaría",
+        "nosotros": "jugaríamos",
+        "vosotros": "jugaríais",
+        "ellos/ellas": "jugarían"
+      }
+    },
+    "empezar": {
+      "presente_de_indicativo": {
+        "yo": "empiezo",
+        "tú": "empiezas",
+        "él/ella": "empieza",
+        "nosotros": "empezamos",
+        "vosotros": "empezáis",
+        "ellos/ellas": "empiezan"
+      },
+      "preterito_perfecto_simple": {
+        "yo": "empecé",
+        "tú": "empezaste",
+        "él/ella": "empezó",
+        "nosotros": "empezamos",
+        "vosotros": "empezasteis",
+        "ellos/ellas": "empezaron"
+      },
+      "preterito_imperfecto": {
+        "yo": "empezaba",
+        "tú": "empezabas",
+        "él/ella": "empezaba",
+        "nosotros": "empezábamos",
+        "vosotros": "empezabais",
+        "ellos/ellas": "empezaban"
+      },
+      "futuro_simple": {
+        "yo": "empezaré",
+        "tú": "empezarás",
+        "él/ella": "empezará",
+        "nosotros": "empezaremos",
+        "vosotros": "empezaréis",
+        "ellos/ellas": "empezarán"
+      },
+      "condicional_simple": {
+        "yo": "empezaría",
+        "tú": "empezarías",
+        "él/ella": "empezaría",
+        "nosotros": "empezaríamos",
+        "vosotros": "empezaríais",
+        "ellos/ellas": "empezarían"
+      }
+    },
+    "encontrar": {
+      "presente_de_indicativo": {
+        "yo": "encuentro",
+        "tú": "encuentras",
+        "él/ella": "encuentra",
+        "nosotros": "encontramos",
+        "vosotros": "encontráis",
+        "ellos/ellas": "encuentran"
+      },
+      "preterito_perfecto_simple": {
+        "yo": "encontré",
+        "tú": "encontraste",
+        "él/ella": "encontró",
+        "nosotros": "encontramos",
+        "vosotros": "encontrasteis",
+        "ellos/ellas": "encontraron"
+      },
+      "preterito_imperfecto": {
+        "yo": "encontraba",
+        "tú": "encontrabas",
+        "él/ella": "encontraba",
+        "nosotros": "encontrábamos",
+        "vosotros": "encontrabais",
+        "ellos/ellas": "encontraban"
+      },
+      "futuro_simple": {
+        "yo": "encontraré",
+        "tú": "encontrarás",
+        "él/ella": "encontrará",
+        "nosotros": "encontraremos",
+        "vosotros": "encontraréis",
+        "ellos/ellas": "encontrarán"
+      },
+      "condicional_simple": {
+        "yo": "encontraría",
+        "tú": "encontrarías",
+        "él/ella": "encontraría",
+        "nosotros": "encontraríamos",
+        "vosotros": "encontraríais",
+        "ellos/ellas": "encontrarían"
+      }
+    },
+    "sentir": {
+      "presente_de_indicativo": {
+        "yo": "siento",
+        "tú": "sientes",
+        "él/ella": "siente",
+        "nosotros": "sentimos",
+        "vosotros": "sentís",
+        "ellos/ellas": "sienten"
+      },
+      "preterito_perfecto_simple": {
+        "yo": "sentí",
+        "tú": "sentiste",
+        "él/ella": "sintió",
+        "nosotros": "sentimos",
+        "vosotros": "sentisteis",
+        "ellos/ellas": "sintieron"
+      },
+      "preterito_imperfecto": {
+        "yo": "sentía",
+        "tú": "sentías",
+        "él/ella": "sentía",
+        "nosotros": "sentíamos",
+        "vosotros": "sentíais",
+        "ellos/ellas": "sentían"
+      },
+      "futuro_simple": {
+        "yo": "sentiré",
+        "tú": "sentirás",
+        "él/ella": "sentirá",
+        "nosotros": "sentiremos",
+        "vosotros": "sentiréis",
+        "ellos/ellas": "sentirán"
+      },
+      "condicional_simple": {
+        "yo": "sentiría",
+        "tú": "sentirías",
+        "él/ella": "sentiría",
+        "nosotros": "sentiríamos",
+        "vosotros": "sentiríais",
+        "ellos/ellas": "sentirían"
+      }
+    }
+  },
+  "aliases": {
+    "hay": "haber"
+  }
+}

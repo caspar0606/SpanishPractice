@@ -38,6 +38,69 @@ def _read(name: str) -> dict:
 
 
 @lru_cache(maxsize=None)
+def _irregular_bank() -> dict:
+    path = CONTENT_DIR / "irregular_verbs.json"
+    if not path.exists():
+        return {"verbs": {}, "aliases": {}}
+    with path.open("r", encoding="utf-8") as f:
+        data = json.load(f)
+    if not isinstance(data, dict):
+        return {"verbs": {}, "aliases": {}}
+    return data
+
+
+@lru_cache(maxsize=None)
+def irregular_form_lemmas() -> dict[str, tuple[str, ...]]:
+    """Map conjugated forms (and aliases) to one or more infinitives."""
+    from src.domain.rules.dictionary import fold_accents, normalise_lookup
+
+    bank = _irregular_bank()
+    mapping: dict[str, list[str]] = {}
+
+    def add(form: str, lemma: str) -> None:
+        lemma_key = str(lemma or "").strip()
+        if not lemma_key:
+            return
+        keys = [normalise_lookup(form)]
+        folded = fold_accents(keys[0]) if keys[0] else ""
+        if folded and folded not in keys:
+            keys.append(folded)
+        for key in keys:
+            if not key:
+                continue
+            bucket = mapping.setdefault(key, [])
+            if lemma_key not in bucket:
+                bucket.append(lemma_key)
+
+    for infinitive, tenses in (bank.get("verbs") or {}).items():
+        add(str(infinitive), str(infinitive))
+        if not isinstance(tenses, dict):
+            continue
+        for forms in tenses.values():
+            if not isinstance(forms, dict):
+                continue
+            for cell in forms.values():
+                add(str(cell), str(infinitive))
+    for alias, lemma in (bank.get("aliases") or {}).items():
+        add(str(alias), str(lemma))
+    return {key: tuple(values) for key, values in mapping.items()}
+
+
+def _with_irregulars(lesson: Lesson) -> Lesson:
+    verbs = _irregular_bank().get("verbs") or {}
+    if lesson.axis != "tense" or not isinstance(verbs, dict):
+        return lesson
+    table = dict(lesson.table)
+    for infinitive, tenses in verbs.items():
+        if not isinstance(tenses, dict):
+            continue
+        forms = tenses.get(lesson.key)
+        if isinstance(forms, dict) and forms:
+            table[str(infinitive)] = {str(person): str(cell) for person, cell in forms.items()}
+    return lesson.model_copy(update={"table": table})
+
+
+@lru_cache(maxsize=None)
 def _load_lessons() -> tuple[Lesson, ...]:
     lessons: list[Lesson] = []
     for folder in ("tenses", "grammar"):
@@ -46,7 +109,7 @@ def _load_lessons() -> tuple[Lesson, ...]:
             continue
         for path in sorted(directory.glob("*.json")):
             with path.open("r", encoding="utf-8") as f:
-                lessons.append(Lesson.model_validate(json.load(f)))
+                lessons.append(_with_irregulars(Lesson.model_validate(json.load(f))))
     return tuple(lessons)
 
 

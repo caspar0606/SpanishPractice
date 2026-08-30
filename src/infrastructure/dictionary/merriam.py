@@ -5,9 +5,10 @@ from urllib.parse import quote
 import httpx
 
 from src.domain.models.dictionary import DictionaryLookup
-from src.domain.rules.dictionary import lookup_candidates
+from src.domain.rules.dictionary import fold_accents, lookup_candidates, normalise_lookup
 from src.infrastructure.config.config import MERRIAM_WEBSTER_API_KEY
 from src.infrastructure.dictionary.parse import parse_response
+from src.infrastructure.persistence.json_content import irregular_form_lemmas
 
 _ENDPOINT = "https://www.dictionaryapi.com/api/v3/references/spanish/json/{word}"
 
@@ -31,7 +32,7 @@ class MerriamWebsterGateway:
                 "Spanish-English Dictionary key from dictionaryapi.com.",
             )
         last = DictionaryLookup(query=key, found=False)
-        for candidate in lookup_candidates(key):
+        for candidate in _lookup_candidates(key):
             payload = self._fetch(candidate)
             result = parse_response(key, payload)
             last = result
@@ -60,3 +61,19 @@ class MerriamWebsterGateway:
             return response.json()
         except ValueError as exc:
             raise ValueError("The dictionary sent an unexpected response.") from exc
+
+
+def _lookup_candidates(word: str) -> list[str]:
+    ordered = lookup_candidates(word)
+    seen = set(ordered)
+    query = normalise_lookup(word)
+    keys = [query]
+    folded = fold_accents(query)
+    if folded and folded not in keys:
+        keys.append(folded)
+    for key in keys:
+        for lemma in irregular_form_lemmas().get(key, ()):
+            if lemma not in seen:
+                ordered.append(lemma)
+                seen.add(lemma)
+    return ordered

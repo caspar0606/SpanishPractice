@@ -11,6 +11,7 @@ from src.domain.rules.dictionary import (
     lemma_for,
     normalise_lookup,
 )
+from src.infrastructure.persistence.json_content import irregular_form_lemmas
 
 _MARKUP = re.compile(r"\{([^}]*)\}")
 _LETTER_GLOSS = re.compile(
@@ -192,7 +193,12 @@ def _relevance(item: dict, query: str) -> int:
         score = 93
     else:
         mapped = lemma_for(q)
-        if mapped and fold_accents(mapped) == hw_fold:
+        lemmas = []
+        if mapped:
+            lemmas.append(mapped)
+        lemmas.extend(irregular_form_lemmas().get(q, ()))
+        lemmas.extend(irregular_form_lemmas().get(fold_accents(q), ()))
+        if any(fold_accents(item) == hw_fold for item in lemmas if item):
             score = 92
         elif hw_fold == q_fold or any(fold_accents(alt) == q_fold for alt in alternates):
             score = 50

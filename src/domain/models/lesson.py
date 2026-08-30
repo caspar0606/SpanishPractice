@@ -39,4 +39,7 @@ class Lesson(BaseModel):
         ]
         for example in self.examples:
             chunks.extend([example.es, example.en, example.note])
+        for verb, persons in self.table.items():
+            chunks.append(verb)
+            chunks.extend(persons.values())
         return " ".join(chunks).lower()
