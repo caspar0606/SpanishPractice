@@ -19,8 +19,8 @@ class LessonResponse(BaseModel):
 
 
 class ChatAskRequest(BaseModel):
-    username: str
-    question: str
+    username: str = ""
+    question: str = Field(min_length=1, max_length=2000)
 
 
 class ChatAskResponse(BaseModel):

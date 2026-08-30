@@ -136,3 +136,36 @@ def test_double_submit_is_rejected(deps, fake_users, fake_llm):
         raise AssertionError("expected the second submit to be rejected")
 
     assert len(fake_users.saved["tester"].exercise_history) == 1
+
+
+def test_starting_another_exercise_while_one_is_open_is_blocked(deps, fake_users, fake_llm):
+    fake_users.seed("tester")
+    exercise_selection.generate_exercise(
+        "tester",
+        ExerciseTypes.WRITING,
+        ExerciseStyle.PREFERENCES,
+        AreasOfFocus(focus_topics=[Topics.TRAVEL]),
+    )
+    writing.generate_instructions("tester")
+
+    try:
+        exercise_selection.generate_exercise(
+            "tester",
+            ExerciseTypes.READING,
+            ExerciseStyle.PREFERENCES,
+            AreasOfFocus(focus_topics=[Topics.TRAVEL]),
+        )
+    except ValueError as exc:
+        assert "unfinished" in str(exc).lower()
+    else:
+        raise AssertionError("expected an unfinished exercise to block a new start")
+
+    replacement = exercise_selection.generate_exercise(
+        "tester",
+        ExerciseTypes.READING,
+        ExerciseStyle.PREFERENCES,
+        AreasOfFocus(focus_topics=[Topics.TRAVEL]),
+        replace=True,
+    )
+    assert replacement.exercise_type is ExerciseTypes.READING
+

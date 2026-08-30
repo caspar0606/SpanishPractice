@@ -5,7 +5,7 @@ from src.application.exercise_selection import create_exercise_context
 from src.application.services import vocab as vocab_file
 from src.application.services.exercise_common import user_exercise_cache
 from src.application.services.progress import item_metrics, save_user_progress
-from src.domain.enums import AgentNames
+from src.domain.enums import AgentNames, ExerciseTypes
 from src.domain.models.exercise import GenuineVerdict
 from src.domain.models.llm import agent_request
 from src.domain.models.progress import Progress
@@ -17,8 +17,8 @@ from src.infrastructure.llm.prompts.reading import r_answer_system_prompt, r_pro
 
 def generate_clip(username: str) -> dict:
     user, exercise = user_exercise_cache(username)
-    if user.current_exercise is None:
-        raise ValueError("User current storage not found")
+    if user.current_exercise is None or user.current_exercise.type is not ExerciseTypes.LISTENING:
+        raise ValueError("Start a listening exercise first")
 
     exercise_context = create_exercise_context(exercise)
     request = agent_request(

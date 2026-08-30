@@ -6,7 +6,7 @@ from src.application.services import vocab as vocab_file
 from src.application.services.exercise_common import user_exercise_cache
 from src.application.services.progress import save_user_progress
 from src.application.services.writing import correction_summary, progress_tagging
-from src.domain.enums import AgentNames
+from src.domain.enums import AgentNames, ExerciseTypes
 from src.domain.models.exercise import GenuineVerdict
 from src.domain.models.llm import agent_request
 from src.infrastructure.llm.contracts.text_correction import TextCorrection
@@ -16,8 +16,8 @@ from src.infrastructure.llm.prompts.speaking import SPEAKING_PROMPT_CONFIG
 
 def generate_prompt(username: str) -> str:
     user, exercise = user_exercise_cache(username)
-    if user.current_exercise is None:
-        raise ValueError("User current storage not found")
+    if user.current_exercise is None or user.current_exercise.type is not ExerciseTypes.SPEAKING:
+        raise ValueError("Start a speaking exercise first")
 
     exercise_context = create_exercise_context(exercise)
     prompt = container.llm().text(
@@ -36,7 +36,7 @@ def transcribe(username: str, audio_bytes: bytes, filename: str = "speech.webm")
     user = container.users().load(username)
     if user is None:
         raise ValueError(f"User '{username}' not found")
-    if user.current_exercise is None:
+    if user.current_exercise is None or user.current_exercise.type is not ExerciseTypes.SPEAKING:
         raise ValueError("Start a speaking exercise first")
     return container.stt().transcribe(audio_bytes, filename)
 

@@ -33,7 +33,7 @@ class VocabReviewResponse(BaseModel):
 
 class VocabReviewResult(BaseModel):
     lemma: str
-    correct: bool
+    guess: str = ""
 
 
 class VocabReviewSubmitRequest(BaseModel):

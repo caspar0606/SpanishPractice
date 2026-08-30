@@ -1,5 +1,7 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends
 
+from src.api.deps import current_username, limited
+from src.api.errors import http_from_value_error
 from src.api.schemas.learn import ChatAskRequest, ChatAskResponse, ChatHistoryRequest, LessonCard
 from src.application.services import chat as chat_file
 
@@ -7,19 +9,19 @@ router = APIRouter()
 
 
 @router.post("/ask", response_model=ChatAskResponse)
-def chat_ask(request: ChatAskRequest):
+def chat_ask(request: ChatAskRequest, username: str = Depends(limited("chat_ask", 20))):
     try:
-        result = chat_file.ask(request.username, request.question)
+        result = chat_file.ask(username, request.question)
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e)) from e
+        raise http_from_value_error(e) from e
     result["lessons"] = [LessonCard(**row) for row in result.get("lessons") or []]
     return ChatAskResponse(**result)
 
 
 @router.post("/history", response_model=ChatAskResponse)
-def chat_history(request: ChatHistoryRequest):
+def chat_history(request: ChatHistoryRequest, username: str = Depends(current_username)):
     try:
-        history = chat_file.history(request.username)
+        history = chat_file.history(username)
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e)) from e
+        raise http_from_value_error(e) from e
     return ChatAskResponse(answer_en="", history=history)

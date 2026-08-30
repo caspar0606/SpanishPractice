@@ -48,7 +48,8 @@ def record_review(username: str, results: list[dict]) -> list[VocabEntry]:
         entry = _find(user, key)
         if entry is None:
             continue
-        vocab_rules.schedule_after(entry, bool(row.get("correct")), now)
+        guess = str(row.get("guess") or "")
+        vocab_rules.schedule_after(entry, vocab_rules.gloss_matches(guess, entry.gloss_en), now)
         updated.append(entry)
     container.users().save(user)
     return updated

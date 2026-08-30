@@ -379,8 +379,19 @@ def client(deps, monkeypatch, tmp_path):
         yield c
 
 
-def test_translate_route(client):
+def test_translate_route_requires_a_session(client):
     res = client.get("/translate/word", params={"q": "casa"})
+    assert res.status_code == 401
+
+
+def test_translate_route(client):
+    login = client.post(
+        "/user/login",
+        json={"username": "apiuser", "key": "test-key", "new": True},
+    )
+    assert login.status_code == 200, login.text
+    headers = {"Authorization": f"Bearer {login.json()['token']}"}
+    res = client.get("/translate/word", params={"q": "casa"}, headers=headers)
     assert res.status_code == 200, res.text
     body = res.json()
     assert body["found"] is True

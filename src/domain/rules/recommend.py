@@ -3,7 +3,7 @@
 Kept in the domain so the application service is only orchestration.
 """
 
-from datetime import date
+from datetime import date, datetime, timedelta, timezone
 
 from src.domain.enums import (
     ConceptAxis,
@@ -166,13 +166,35 @@ def focus_for_topic(topic: Topics) -> AreasOfFocus:
     return AreasOfFocus(focus_topics=[topic])
 
 
-def completed_daily_types(history: list[ExerciseStorage], day: date) -> set[ExerciseTypes]:
+def local_calendar_date(when: datetime, tz_offset_minutes: int | None = None) -> date:
+    """Calendar date of `when` in the learner's timezone.
+
+    `tz_offset_minutes` is JavaScript's Date#getTimezoneOffset() (minutes to
+    add to local time to reach UTC). Naive datetimes are treated as UTC, which
+    matches Railway. If no offset is given, the timestamp's own date is used
+    so unit tests that pass naive local stamps keep working.
+    """
+    if tz_offset_minutes is None:
+        return when.date()
+    if when.tzinfo is None:
+        instant = when.replace(tzinfo=timezone.utc)
+    else:
+        instant = when.astimezone(timezone.utc)
+    local = instant - timedelta(minutes=tz_offset_minutes)
+    return local.date()
+
+
+def completed_daily_types(
+    history: list[ExerciseStorage],
+    day: date,
+    tz_offset_minutes: int | None = None,
+) -> set[ExerciseTypes]:
     """Skills already submitted on this calendar day."""
     done: set[ExerciseTypes] = set()
     for exercise in history:
         when = exercise.end_time
         if when is None or exercise.type not in DAILY_TYPES:
             continue
-        if when.date() == day:
+        if local_calendar_date(when, tz_offset_minutes) == day:
             done.add(exercise.type)
     return done

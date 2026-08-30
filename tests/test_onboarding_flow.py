@@ -104,6 +104,9 @@ def test_empty_placement_submission_places_at_the_floor(deps, fake_users, fake_l
     assert result["assigned_level"] == 2
     assert fake_llm.structured_calls == []
 
+    with pytest.raises(ValueError, match="already"):
+        placement.submit("newbie", PlacementSubmission())
+
 
 def test_band_drives_exercise_difficulty_not_the_client(deps, fake_users):
     fake_users.seed("beginner", band=Band.A1)

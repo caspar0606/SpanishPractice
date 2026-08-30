@@ -1,11 +1,14 @@
 """Light review scheduling for vocab. Not a full SRS."""
 
+import re
+import unicodedata
 from datetime import datetime, timedelta
 
 from src.domain.enums import VocabStatus
 from src.domain.models.vocab import VocabEntry
 
 REVIEW_BATCH = 5
+_GLOSS_KEEP = re.compile(r"[^a-z0-9\s]")
 
 
 def is_due(entry: VocabEntry, now: datetime | None = None) -> bool:
@@ -45,3 +48,15 @@ def schedule_after(entry: VocabEntry, correct: bool, now: datetime | None = None
 
 def normalise_lemma(raw: str) -> str:
     return " ".join((raw or "").strip().lower().split())
+
+
+def normalise_gloss(value: str) -> str:
+    text = unicodedata.normalize("NFD", (value or "").lower())
+    text = "".join(ch for ch in text if unicodedata.category(ch) != "Mn")
+    text = _GLOSS_KEEP.sub(" ", text)
+    return " ".join(text.split())
+
+
+def gloss_matches(guess: str, expected: str) -> bool:
+    cleaned = normalise_gloss(guess)
+    return bool(cleaned) and cleaned == normalise_gloss(expected)

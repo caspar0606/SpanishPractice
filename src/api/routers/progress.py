@@ -1,5 +1,7 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends
 
+from src.api.deps import current_username
+from src.api.errors import http_from_value_error
 from src.api.schemas.progress import (
     BandSummary,
     ConceptRow,
@@ -85,11 +87,11 @@ def build_overview(user: User, progress: Progress) -> ProgressOverview:
 
 
 @router.post("/generate", response_model=CurrentProgressResponse)
-def return_progress(request: CurrentProgressRequest):
+def return_progress(request: CurrentProgressRequest, username: str = Depends(current_username)):
     try:
-        user = progress_file.load_user(request.username)
+        user = progress_file.load_user(username)
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e)) from e
+        raise http_from_value_error(e) from e
 
     return CurrentProgressResponse(
         progress=user.progress,

@@ -93,6 +93,9 @@ def submit(username: str, submission: PlacementSubmission) -> dict:
     if user.goals is None:
         raise ValueError("Set your goals before taking the placement test")
 
+    if user.placement.completed:
+        raise ValueError("Placement has already been completed")
+
     mcq_correct, mcq_total = _score_mcq(submission.mcq_answers)
     assessment = _assess_samples(submission)
 

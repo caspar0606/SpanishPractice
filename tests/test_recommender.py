@@ -127,6 +127,17 @@ def test_finishing_writing_today_marks_that_slot_done(deps, fake_users):
     assert plan.complete is False
 
 
+def test_sydney_evening_counts_as_the_learners_next_calendar_day(deps, fake_users):
+    """Railway stores naive UTC. Sydney (UTC+10) offset is -600 in JS."""
+    user = fake_users.seed("learner", band=Band.A2)
+    finish(user, ExerciseTypes.WRITING, when=datetime(2026, 8, 30, 22, 0))
+    plan = service.plan_for(
+        user, steps(), today=date(2026, 8, 31), tz_offset_minutes=-600,
+    )
+    assert slot(plan, ExerciseTypes.WRITING).done is True
+    assert plan.remaining == 3
+
+
 def test_yesterdays_writing_does_not_count_as_today(deps, fake_users):
     user = fake_users.seed("learner", band=Band.A2)
     finish(user, ExerciseTypes.WRITING, when=datetime(2026, 8, 28, 21, 0))

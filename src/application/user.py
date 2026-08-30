@@ -17,14 +17,16 @@ def _configured_access_key() -> str | None:
     raw = os.getenv("ACCESS_KEY")
     if raw is None:
         return None
-    return raw.strip().strip("'").strip('"')
+    cleaned = raw.strip().strip("'").strip('"')
+    return cleaned or None
 
 
 def select_user(username: str, key: str, new: bool) -> User | None:
     username = validate_username(username)
 
     load_dotenv()
-    if _configured_access_key() != key.strip():
+    configured = _configured_access_key()
+    if not configured or configured != key.strip():
         return None
 
     users = container.users()
@@ -36,9 +38,4 @@ def select_user(username: str, key: str, new: bool) -> User | None:
         users.save(user)
         return user
 
-    user = users.load(username)
-
-    if user is None:
-        raise ValueError("User doesn't exist.")
-
-    return user
+    return users.load(username)

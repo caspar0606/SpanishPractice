@@ -4,7 +4,6 @@ from pydantic import BaseModel
 
 from src.domain.enums import OnboardingStep
 from src.domain.models.profile import PlacementForm, PlacementSubmission, UserGoals
-from src.domain.models.user import User
 
 
 class PlanSummary(BaseModel):
@@ -31,7 +30,6 @@ class GoalsRequest(BaseModel):
 
 
 class GoalsResponse(BaseModel):
-    user: User
     step: OnboardingStep
     plan: PlanSummary
 

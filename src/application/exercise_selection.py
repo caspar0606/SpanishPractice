@@ -25,6 +25,8 @@ from src.domain.rules.config import FOCUS_CONFIG
 from src.domain.rules.score import calculate_score
 from src.infrastructure.config.logging import generate_id
 
+UNFINISHED_EXERCISE = "You have an unfinished exercise"
+
 
 def _weakest_keys(progress_map: dict, count: int, allowed: list | None = None) -> list:
     """Weakest tracked keys, restricted to what the band has introduced."""
@@ -67,6 +69,7 @@ def generate_exercise(
     style: ExerciseStyle,
     preferences: AreasOfFocus | None,
     length: LengthPreference | None = None,
+    replace: bool = False,
 ) -> Exercise:
     user = container.users().load(username)
 
@@ -75,6 +78,11 @@ def generate_exercise(
 
     if not user.placement.completed:
         raise ValueError("Complete onboarding and the placement test first")
+
+    if _in_progress(user) and not replace:
+        raise ValueError(
+            f"{UNFINISHED_EXERCISE}. Finish it first, or confirm you want to replace it.",
+        )
 
     band = user_band(user)
     length = length or user_length(user)
@@ -106,6 +114,16 @@ def generate_exercise(
 
     container.users().save(user)
     return exercise
+
+
+def _in_progress(user: User) -> bool:
+    current = user.current_exercise
+    return (
+        current is not None
+        and current.prompt is not None
+        and current.end_time is None
+        and current.user_response is None
+    )
 
 
 def weak_areas(

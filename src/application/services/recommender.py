@@ -27,7 +27,11 @@ from src.domain.rules.labels import label_for
 from src.domain.rules.score import calculate_score
 
 
-def recommend(username: str, today: date | None = None) -> HomePlan:
+def recommend(
+    username: str,
+    today: date | None = None,
+    tz_offset_minutes: int | None = None,
+) -> HomePlan:
     user = container.users().load(username)
     if user is None:
         raise ValueError(f"User '{username}' not found")
@@ -35,10 +39,15 @@ def recommend(username: str, today: date | None = None) -> HomePlan:
         raise ValueError("Complete onboarding and the placement test first")
 
     steps = curriculum_rules.parse_steps(container.content().curriculum())
-    return plan_for(user, steps, today)
+    return plan_for(user, steps, today, tz_offset_minutes)
 
 
-def plan_for(user: User, steps: list[CurriculumStep], today: date | None = None) -> HomePlan:
+def plan_for(
+    user: User,
+    steps: list[CurriculumStep],
+    today: date | None = None,
+    tz_offset_minutes: int | None = None,
+) -> HomePlan:
     today = today or date.today()
     band = user.proficiency.current
     introduced_tenses, introduced_grammar = curriculum_rules.introduced(steps, band)
@@ -49,7 +58,7 @@ def plan_for(user: User, steps: list[CurriculumStep], today: date | None = None)
     length = user.goals.length_preference if user.goals else LengthPreference.STANDARD
     weekly = user.goals.weekly_time if user.goals else WeeklyTime.T_1_2H
     topic = rec_rules.topic_for_direction(user.goals.direction if user.goals else None)
-    done_types = rec_rules.completed_daily_types(user.exercise_history, today)
+    done_types = rec_rules.completed_daily_types(user.exercise_history, today, tz_offset_minutes)
 
     daily: list[DailySlot] = []
     for skill_type in rec_rules.DAILY_TYPES:

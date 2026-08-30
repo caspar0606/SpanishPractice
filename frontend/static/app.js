@@ -4,6 +4,7 @@
  */
 
 const STORAGE_USER = "sp_username";
+const STORAGE_TOKEN = "sp_token";
 
 /** Gloss for each internal band. Learners see a 0–8 number, not A1/B2. */
 const BAND_LABELS = {
@@ -162,12 +163,21 @@ function getUsername() {
   return sessionStorage.getItem(STORAGE_USER);
 }
 
+function getToken() {
+  return sessionStorage.getItem(STORAGE_TOKEN);
+}
+
 function setUsername(name) {
   sessionStorage.setItem(STORAGE_USER, name);
 }
 
+function setToken(token) {
+  if (token) sessionStorage.setItem(STORAGE_TOKEN, token);
+}
+
 function clearSession() {
   sessionStorage.removeItem(STORAGE_USER);
+  sessionStorage.removeItem(STORAGE_TOKEN);
 }
 
 function setStatus(message, isError) {
@@ -338,14 +348,19 @@ function apiBase() {
  */
 async function api(method, path, body) {
   /** @type {RequestInit} */
+  const headers = {};
+  const token = getToken();
+  if (token) headers.Authorization = `Bearer ${token}`;
+  /** @type {RequestInit} */
   const opts = {
     method,
     mode: "cors",
-    credentials: "omit",
+    credentials: "same-origin",
     cache: "no-store",
+    headers,
   };
   if (body !== undefined) {
-    opts.headers = { "Content-Type": "application/json" };
+    opts.headers = { ...headers, "Content-Type": "application/json" };
     opts.body = JSON.stringify(body);
   }
   const url = path.startsWith("http") ? path : `${apiBase()}${path}`;
@@ -367,13 +382,19 @@ async function api(method, path, body) {
     data = text;
   }
   if (!r.ok) {
+    if (r.status === 401 && path !== "/user/login") {
+      clearSession();
+      showPanel("login");
+    }
     let msg;
     if (data && typeof data.detail === "string") msg = data.detail;
     else if (Array.isArray(data?.detail))
       msg = data.detail.map((d) => d.msg || JSON.stringify(d)).join("; ");
     else if (typeof data === "string") msg = data;
     else msg = r.statusText || "Request failed";
-    throw new Error(msg);
+    const err = new Error(msg);
+    err.status = r.status;
+    throw err;
   }
   return data;
 }
@@ -386,13 +407,17 @@ async function api(method, path, body) {
  */
 async function apiForm(path, formData) {
   const url = path.startsWith("http") ? path : `${apiBase()}${path}`;
+  const headers = {};
+  const token = getToken();
+  if (token) headers.Authorization = `Bearer ${token}`;
   let r;
   try {
     r = await fetch(url, {
       method: "POST",
       mode: "cors",
-      credentials: "omit",
+      credentials: "same-origin",
       cache: "no-store",
+      headers,
       body: formData,
     });
   } catch (e) {
@@ -410,13 +435,19 @@ async function apiForm(path, formData) {
     data = text;
   }
   if (!r.ok) {
+    if (r.status === 401) {
+      clearSession();
+      showPanel("login");
+    }
     let msg;
     if (data && typeof data.detail === "string") msg = data.detail;
     else if (Array.isArray(data?.detail))
       msg = data.detail.map((d) => d.msg || JSON.stringify(d)).join("; ");
     else if (typeof data === "string") msg = data;
     else msg = r.statusText || "Request failed";
-    throw new Error(msg);
+    const err = new Error(msg);
+    err.status = r.status;
+    throw err;
   }
   return data;
 }
@@ -425,6 +456,31 @@ function mediaUrl(path) {
   if (!path) return "";
   if (/^https?:\/\//i.test(path)) return path;
   return `${apiBase()}${path.startsWith("/") ? path : `/${path}`}`;
+}
+
+async function loadAuthenticatedAudio(player, path) {
+  const url = mediaUrl(path);
+  if (!url) return;
+  const headers = {};
+  const token = getToken();
+  if (token) headers.Authorization = `Bearer ${token}`;
+  try {
+    const r = await fetch(url, {
+      method: "GET",
+      mode: "cors",
+      credentials: "same-origin",
+      cache: "no-store",
+      headers,
+    });
+    if (!r.ok) throw new Error("Audio clip not found");
+    const blob = await r.blob();
+    if (player.dataset.objectUrl) URL.revokeObjectURL(player.dataset.objectUrl);
+    const objectUrl = URL.createObjectURL(blob);
+    player.dataset.objectUrl = objectUrl;
+    player.src = objectUrl;
+  } catch (e) {
+    setStatus(e.message || "Could not load the audio clip.", true);
+  }
 }
 
 const WORD_TOKEN = /([A-Za-zÁÉÍÓÚÜÑáéíóúüñ]+)/;
@@ -852,6 +908,7 @@ async function onLogin(ev) {
       api("POST", "/user/login", { username, key, new: newUser }),
     );
     setUsername(username);
+    setToken(res.token);
     updateExerciseUserLabel();
     await routeToStep(res.step);
   } catch (e) {
@@ -889,7 +946,7 @@ async function refreshLevelSummary() {
   const u = getUsername();
   if (!u) return;
   try {
-    const res = await api("GET", `/onboarding/status?username=${encodeURIComponent(u)}`);
+    const res = await api("GET", "/onboarding/status");
     state.plan = res.plan;
     renderLevelSummary(res.plan);
     const length = res.goals?.length_preference;
@@ -906,7 +963,11 @@ async function loadRecommendations() {
   if (!root || !u) return;
   root.innerHTML = '<p class="hint">Setting up today…</p>';
   try {
-    const res = await api("POST", "/exercise/recommend", { username: u, day: localDate() });
+    const res = await api("POST", "/exercise/recommend", {
+      username: u,
+      day: localDate(),
+      tz_offset_minutes: tzOffsetMinutes(),
+    });
     state.recommendations = res;
     renderHomePlan(res);
   } catch (e) {
@@ -923,6 +984,33 @@ function localDate() {
   const month = String(now.getMonth() + 1).padStart(2, "0");
   const day = String(now.getDate()).padStart(2, "0");
   return `${now.getFullYear()}-${month}-${day}`;
+}
+
+function tzOffsetMinutes() {
+  return new Date().getTimezoneOffset();
+}
+
+function pickAudioMime() {
+  if (typeof MediaRecorder === "undefined") return null;
+  const candidates = [
+    "audio/webm;codecs=opus",
+    "audio/webm",
+    "audio/mp4",
+    "audio/mp4;codecs=mp4a.40.2",
+    "audio/aac",
+  ];
+  for (const type of candidates) {
+    if (MediaRecorder.isTypeSupported(type)) return type;
+  }
+  return "";
+}
+
+function filenameForMime(mime) {
+  const type = String(mime || "").toLowerCase();
+  if (type.includes("mp4") || type.includes("aac") || type.includes("m4a")) return "speech.m4a";
+  if (type.includes("ogg")) return "speech.ogg";
+  if (type.includes("mpeg") || type.includes("mp3")) return "speech.mp3";
+  return "speech.webm";
 }
 
 function renderHomePlan(plan) {
@@ -1048,10 +1136,10 @@ function currentLength() {
   return document.getElementById("ex-length")?.value || "standard";
 }
 
-async function startExercise(body, btn) {
+async function startExercise(body, btn, replacing) {
   try {
     await withBusy(btn || null, "Starting…", () =>
-      api("POST", "/exercise/generate", body).then((res) => {
+      api("POST", "/exercise/generate", { ...body, replace: !!replacing }).then((res) => {
         state.exercise = res.exercise;
         state.writingPrompt = null;
         state.readingPrompt = null;
@@ -1066,6 +1154,15 @@ async function startExercise(body, btn) {
     );
     setStatus("Ready — your exercise is below.", false);
   } catch (e) {
+    if (e.status === 409 && !replacing) {
+      const ok = window.confirm(
+        "You have an unfinished exercise. Start this one instead? The other one will be discarded.",
+      );
+      if (ok) {
+        await startExercise(body, btn, true);
+        return;
+      }
+    }
     setStatus(e.message, true);
   }
 }
@@ -2542,7 +2639,7 @@ function renderVocabReview(items) {
   const heading = document.getElementById("practice-heading");
   if (heading) heading.textContent = "Vocab review";
 
-  const results = items.map((item) => ({ lemma: item.lemma, correct: null, gloss_en: item.gloss_en }));
+  const results = items.map((item) => ({ lemma: item.lemma, guess: "", correct: false, gloss_en: item.gloss_en }));
   let idx = 0;
 
   const card = document.createElement("div");
@@ -2587,12 +2684,12 @@ function renderVocabReview(items) {
   }
 
   function finish() {
-    const payload = results.map(({ lemma, correct }) => ({ lemma, correct: !!correct }));
+    const payload = results.map(({ lemma, guess }) => ({ lemma, guess: guess || "" }));
     withBusy(submit, "Saving…", () =>
       api("POST", "/vocab/review/submit", { username: getUsername(), results: payload }),
     )
       .then(() => {
-        const right = payload.filter((r) => r.correct).length;
+        const right = results.filter((r) => r.correct).length;
         root.innerHTML = "";
         const done = document.createElement("div");
         done.className = "feedback-block";
@@ -2610,9 +2707,11 @@ function renderVocabReview(items) {
   form.addEventListener("submit", (ev) => {
     ev.preventDefault();
     const item = items[idx];
-    const guess = normaliseGloss(input.value);
+    const guessRaw = input.value;
+    const guess = normaliseGloss(guessRaw);
     const expected = normaliseGloss(item.gloss_en);
-    const correct = guess.length > 0 && (guess === expected || expected.includes(guess) || guess.includes(expected));
+    const correct = guess.length > 0 && guess === expected;
+    results[idx].guess = guessRaw;
     results[idx].correct = correct;
     input.disabled = true;
     submit.hidden = true;
@@ -2664,7 +2763,7 @@ function renderListeningPractice() {
   const player = document.createElement("audio");
   player.controls = true;
   player.className = "audio-player";
-  player.src = mediaUrl(prompt.audio_url || `/audio/${prompt.clip_id}`);
+  loadAuthenticatedAudio(player, prompt.audio_url || `/audio/${prompt.clip_id}`);
 
   const form = document.createElement("form");
   form.id = "form-listening";
@@ -2832,10 +2931,15 @@ function renderSpeakingPractice() {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       chunks = [];
-      const mime = MediaRecorder.isTypeSupported("audio/webm;codecs=opus")
-        ? "audio/webm;codecs=opus"
-        : "audio/webm";
-      recorder = new MediaRecorder(stream, { mimeType: mime });
+      const mime = pickAudioMime();
+      if (mime === null) {
+        stream.getTracks().forEach((t) => t.stop());
+        statusLine.textContent = "This browser cannot record audio. Type your answer in the box instead.";
+        ta.focus();
+        return;
+      }
+      const recorderOpts = mime ? { mimeType: mime } : {};
+      recorder = new MediaRecorder(stream, recorderOpts);
       recorder.addEventListener("dataavailable", (ev) => {
         if (ev.data && ev.data.size) chunks.push(ev.data);
       });
@@ -2852,7 +2956,7 @@ function renderSpeakingPractice() {
         try {
           const fd = new FormData();
           fd.append("username", getUsername());
-          fd.append("audio", blob, "speech.webm");
+          fd.append("audio", blob, filenameForMime(blob.type || mime));
           const res = await apiForm("/speaking/transcribe", fd);
           ta.value = res.transcript || "";
           statusLine.textContent = "Check the transcript, then submit.";
@@ -2867,7 +2971,10 @@ function renderSpeakingPractice() {
       recordBtn.querySelector(".btn-label").textContent = "Stop";
       statusLine.textContent = "Recording… tap Stop when you finish.";
     } catch (e) {
-      statusLine.textContent = "Microphone permission was declined. Type your answer instead.";
+      const denied = e && (e.name === "NotAllowedError" || e.name === "PermissionDeniedError");
+      statusLine.textContent = denied
+        ? "Microphone permission was declined. Type your answer instead."
+        : "This browser cannot record audio. Type your answer in the box instead.";
       ta.focus();
     }
   });
@@ -3157,6 +3264,10 @@ function onBackExercise() {
 }
 
 function onLogout() {
+  const token = getToken();
+  if (token) {
+    api("POST", "/user/logout", {}).catch(() => {});
+  }
   clearSession();
   state.exercise = null;
   state.writingPrompt = null;
@@ -3276,14 +3387,15 @@ function init() {
   });
 
   const resuming = getUsername();
-  if (resuming) {
+  const token = getToken();
+  if (resuming && token) {
     updateExerciseUserLabel();
     showPanel("exercise");
-    // A returning session may still owe us onboarding, so ask the server.
-    api("GET", `/onboarding/status?username=${encodeURIComponent(resuming)}`)
+    api("GET", "/onboarding/status")
       .then((res) => routeToStep(res.step))
       .catch(() => showPanel("login"));
   } else {
+    clearSession();
     showPanel("login");
   }
 
