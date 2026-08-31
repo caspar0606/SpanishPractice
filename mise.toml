@@ -1,0 +1,7 @@
+# Railpack/Railway installs Python with mise. 3.12.0 has no GitHub
+# artifact attestations, so that pin fails on current mise.
+[tools]
+python = "3.12.11"
+
+[settings]
+python.github_attestations = false
