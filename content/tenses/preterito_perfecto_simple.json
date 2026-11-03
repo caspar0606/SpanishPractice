@@ -1,0 +1,54 @@
+{
+  "key": "preterito_perfecto_simple",
+  "axis": "tense",
+  "title_en": "Past tense (finished actions)",
+  "when_to_use": [
+    "Use it for a completed action in the past with a clear end: 'Ayer hablé con Ana.'",
+    "Time markers like ayer, anoche, el lunes, en 2019 usually take this tense.",
+    "A sequence of finished events also uses it: 'Llegué, pedí café y me senté.'"
+  ],
+  "table": {
+    "hablar": {
+      "yo": "hablé",
+      "tú": "hablaste",
+      "él/ella": "habló",
+      "nosotros": "hablamos",
+      "vosotros": "hablasteis",
+      "ellos/ellas": "hablaron"
+    },
+    "comer": {
+      "yo": "comí",
+      "tú": "comiste",
+      "él/ella": "comió",
+      "nosotros": "comimos",
+      "vosotros": "comisteis",
+      "ellos/ellas": "comieron"
+    },
+    "vivir": {
+      "yo": "viví",
+      "tú": "viviste",
+      "él/ella": "vivió",
+      "nosotros": "vivimos",
+      "vosotros": "vivisteis",
+      "ellos/ellas": "vivieron"
+    }
+  },
+  "examples": [
+    {
+      "es": "Ayer comí con mis padres.",
+      "en": "Yesterday I ate with my parents.",
+      "note": "One finished event, bounded by 'ayer'."
+    },
+    {
+      "es": "El tren salió a las seis.",
+      "en": "The train left at six.",
+      "note": "A single completed action."
+    },
+    {
+      "es": "El año pasado viví en Sevilla tres meses.",
+      "en": "Last year I lived in Seville for three months.",
+      "note": "The stay is over, so this tense, not the imperfect."
+    }
+  ],
+  "common_mistake": "English speakers mix this with the imperfect. If you can count the event or pin it to a date, this is usually the right past."
+}

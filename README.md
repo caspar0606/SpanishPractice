@@ -29,6 +29,7 @@ FastAPI backend plus a small web UI for Spanish **writing**, **reading**, and **
    | Variable | Purpose |
    |----------|---------|
    | `OPENAI_API_KEY` | OpenAI API access for the LLM |
+   | `MERRIAM_WEBSTER_API_KEY` | Optional. Spanish-English Dictionary key from [dictionaryapi.com](https://dictionaryapi.com) for tap-to-translate |
    | `ACCESS_KEY` | Shared secret users enter at login (small group) |
    | `CORS_ORIGINS` | Optional, comma-separated origins (e.g. `https://your-app.vercel.app`) when the UI is hosted separately |
 

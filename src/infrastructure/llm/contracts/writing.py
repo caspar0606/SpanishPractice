@@ -1,6 +1,6 @@
 from typing import ClassVar
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel
 
 class WritingSummary(BaseModel):
     _EXAMPLE: ClassVar[dict] = {
@@ -9,7 +9,6 @@ class WritingSummary(BaseModel):
         "topic_edits": "Vocabulary stayed on topic; add one more topic-specific phrase next time.",
         "general_feedback": "Clear ideas and mostly correct sentences. Focus on agreement and a couple verb forms.",
     }
-    model_config = ConfigDict(json_schema_extra={"example": _EXAMPLE})
 
     tense_edits: str
     grammar_edits: str

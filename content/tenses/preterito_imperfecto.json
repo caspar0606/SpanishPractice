@@ -1,0 +1,54 @@
+{
+  "key": "preterito_imperfecto",
+  "axis": "tense",
+  "title_en": "Past tense (used to / was doing)",
+  "when_to_use": [
+    "Use it for background, habits, and ongoing past situations: 'Cuando era niño, jugaba aquí.'",
+    "It sets the scene: time, weather, how someone felt, what was in progress.",
+    "English 'used to' and 'was/were + -ing' often map here."
+  ],
+  "table": {
+    "hablar": {
+      "yo": "hablaba",
+      "tú": "hablabas",
+      "él/ella": "hablaba",
+      "nosotros": "hablábamos",
+      "vosotros": "hablabais",
+      "ellos/ellas": "hablaban"
+    },
+    "comer": {
+      "yo": "comía",
+      "tú": "comías",
+      "él/ella": "comía",
+      "nosotros": "comíamos",
+      "vosotros": "comíais",
+      "ellos/ellas": "comían"
+    },
+    "vivir": {
+      "yo": "vivía",
+      "tú": "vivías",
+      "él/ella": "vivía",
+      "nosotros": "vivíamos",
+      "vosotros": "vivíais",
+      "ellos/ellas": "vivían"
+    }
+  },
+  "examples": [
+    {
+      "es": "De pequeño vivía cerca del mar.",
+      "en": "As a child I lived near the sea.",
+      "note": "A past situation with no end in the sentence."
+    },
+    {
+      "es": "Mientras ella hablaba, yo escuchaba.",
+      "en": "While she was talking, I was listening.",
+      "note": "Two overlapping actions in progress."
+    },
+    {
+      "es": "Los lunes comíamos juntos.",
+      "en": "On Mondays we used to eat together.",
+      "note": "A past habit."
+    }
+  ],
+  "common_mistake": "Do not use this for a one-off finished event. 'Ayer comía pizza' sounds like background, not 'I ate pizza yesterday'."
+}

@@ -1,3 +1,4 @@
+from src.domain.enums import is_category_sentinel
 from src.domain.models.progress import ComputeStats, Progress
 
 
@@ -17,5 +18,9 @@ def combine_scores(progress: Progress, exercise: Progress):
         prog_dict = getattr(progress, category)
         ex_dict = getattr(exercise, category)
 
-        for key in prog_dict:
-            add_scores(prog_dict[key], ex_dict[key])
+        for key, incoming in ex_dict.items():
+            if is_category_sentinel(key):
+                continue
+            if key not in prog_dict:
+                prog_dict[key] = ComputeStats()
+            add_scores(prog_dict[key], incoming)

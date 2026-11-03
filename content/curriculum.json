@@ -1,0 +1,39 @@
+{
+  "steps": [
+    {
+      "band": "A1",
+      "tenses": ["presente_de_indicativo"],
+      "grammar": ["gender_agreement", "plurality_agreement"]
+    },
+    {
+      "band": "A1.5",
+      "tenses": [],
+      "grammar": []
+    },
+    {
+      "band": "A2",
+      "tenses": ["preterito_perfecto_simple", "preterito_imperfecto"],
+      "grammar": ["verb_subject_conjugation"]
+    },
+    {
+      "band": "A2.5",
+      "tenses": ["futuro_simple"],
+      "grammar": ["por_para_usage"]
+    },
+    {
+      "band": "B1",
+      "tenses": ["condicional_simple"],
+      "grammar": ["indirect_direct_pronoun_usage"]
+    },
+    {
+      "band": "B1.5",
+      "tenses": [],
+      "grammar": []
+    },
+    {
+      "band": "B2",
+      "tenses": [],
+      "grammar": []
+    }
+  ]
+}

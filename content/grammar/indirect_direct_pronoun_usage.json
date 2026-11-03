@@ -1,0 +1,24 @@
+{
+  "key": "indirect_direct_pronoun_usage",
+  "axis": "grammar",
+  "title_en": "Object pronouns (me, te, lo, le)",
+  "rule": "Direct objects (the thing acted on) use me, te, lo/la, nos, os, los/las. Indirect objects (to/for whom) use me, te, le, nos, os, les. They go before a conjugated verb: 'Lo vi.' 'Le di el libro.' With two pronouns, se replaces le/les before lo/la/los/las: 'Se lo di.'",
+  "examples": [
+    {
+      "es": "Vi la película. La vi ayer.",
+      "en": "I saw the film. I saw it yesterday.",
+      "note": "Direct object, feminine — la."
+    },
+    {
+      "es": "Le escribí a mi hermano.",
+      "en": "I wrote to my brother.",
+      "note": "Indirect object — le."
+    },
+    {
+      "es": "¿El libro? Se lo di a Marta.",
+      "en": "The book? I gave it to Marta.",
+      "note": "le + lo becomes se lo."
+    }
+  ],
+  "common_mistake": "Using lo for people you give something to (indirect). 'I gave him the book' is 'Le di el libro', not 'Lo di el libro'."
+}

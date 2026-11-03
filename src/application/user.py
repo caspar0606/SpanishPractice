@@ -1,37 +1,41 @@
-from src.domain.models.progress import ComputeStats, Progress
-from src.domain.enums import Grammar, Tenses, Topics
-from src.domain.enums import Tenses
-from src.domain.utils import initialise_progress
-from src.infrastructure.persistence.file_storage import create_new_user_file, save_user_state, load_user_state
-from src.domain.models.session import User
-from src.domain.enums import Grammar, Topics, Topics
-from src.domain.enums import Tenses
-from dotenv import load_dotenv
 import os
 
-# Creates a new user with initialised progress and name
+from dotenv import load_dotenv
+
+from src.application import container
+from src.domain.models.user import User
+from src.domain.utils import initialise_progress, validate_username
+
+
 def create_user(name: str) -> User:
     progress = initialise_progress()
     return User(name=name, progress=progress, first_time=True)
 
 
+def _configured_access_key() -> str | None:
+    """Read ACCESS_KEY, ignoring stray quotes or spaces from the env file."""
+    raw = os.getenv("ACCESS_KEY")
+    if raw is None:
+        return None
+    cleaned = raw.strip().strip("'").strip('"')
+    return cleaned or None
+
+
 def select_user(username: str, key: str, new: bool) -> User | None:
+    username = validate_username(username)
 
     load_dotenv()
-    access_key = os.getenv("ACCESS_KEY")
-    if not (access_key == key):
+    configured = _configured_access_key()
+    if not configured or configured != key.strip():
         return None
+
+    users = container.users()
 
     if new:
         user = create_user(username)
-        if create_new_user_file(username) == 1:
+        if not users.create(username):
             raise ValueError("User Already Exists. Pick a different username.")
-        save_user_state(user)
+        users.save(user)
         return user
-    
-    user = load_user_state(username)
 
-    if user is None:
-        raise ValueError("User doesn't exist.")
-
-    return user
+    return users.load(username)

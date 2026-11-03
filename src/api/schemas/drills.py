@@ -1,11 +1,12 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
-from src.domain.models.exercise import ExerciseContext
+from src.api.schemas.learn import LessonCard
 from src.infrastructure.llm.contracts.drills import MarkedDrills, Drills, UserDrillResponses
 
 class DrillGenerationRequest(BaseModel):
+    """The server rebuilds the exercise context from the stored exercise."""
+
     username: str
-    exercise_context: ExerciseContext
 
 class DrillGenerationResponse(BaseModel):
     prompt: Drills
@@ -16,4 +17,8 @@ class DrillUserRequest(BaseModel):
 
 class DrillSummaryResponse(BaseModel):
     marked_drills: MarkedDrills
+    # Whether this attempt counted towards the learner's level, and why not.
+    counted: bool = True
+    not_counted_reasons: list[str] = []
+    lessons: list[LessonCard] = Field(default_factory=list)
 

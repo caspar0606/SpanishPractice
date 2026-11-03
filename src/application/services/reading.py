@@ -1,17 +1,18 @@
 
 from typing import Tuple
 
+from src.application import container
 from src.application.exercise_selection import create_exercise_context
-from src.application.services.progress import save_user_progress
-from src.domain.models.exercise import ExerciseContext
+from src.application.services import vocab as vocab_file
+from src.application.services.exercise_common import user_exercise_cache
+from src.application.services.progress import item_metrics, save_user_progress
+from src.domain.enums import AgentNames
+from src.domain.models.exercise import ExerciseContext, GenuineVerdict
+from src.domain.models.llm import agent_request
 from src.domain.models.progress import Progress
 from src.infrastructure.llm.contracts.reading import ReadingGeneration, QuestionMarking, TextCorrections
-from src.infrastructure.llm.contracts.shared import AgentNames
 from src.infrastructure.llm.prompts.reading import r_answer_system_prompt, r_generation_system_prompt, \
                                                     r_text_correction_system_prompt, r_progress_tagging_system_prompt
-from src.infrastructure.llm.harness import agent_inputs, response_format
-from src.infrastructure.persistence.file_storage import save_user_state
-from src.infrastructure.persistence.user_storage import user_exercise_cache
 
 
 def generate_passage(username: str) -> ReadingGeneration:
@@ -25,11 +26,14 @@ def generate_passage(username: str) -> ReadingGeneration:
     prompt = create_text(exercise_context)
 
     user.current_exercise.prompt = prompt
-    save_user_state(user)
+    container.users().save(user)
 
     return prompt
 
-def submit_response(responses: list[str], username: str) -> Tuple[TextCorrections, QuestionMarking]:
+def submit_response(
+    responses: list[str],
+    username: str,
+) -> Tuple[TextCorrections, QuestionMarking, GenuineVerdict]:
     user, exercise = user_exercise_cache(username)
 
     if user.current_exercise is None or user.current_exercise.prompt is None:
@@ -50,39 +54,54 @@ def submit_response(responses: list[str], username: str) -> Tuple[TextCorrection
     corrections = text_correction(responses, exercise_context, user.current_exercise.prompt)
     feedback = question_marking(responses, reading_prompt, exercise_context)
 
-    save_user_progress(user, responses, [feedback, corrections], tags)
+    # Comprehension answers are short by nature, so effort is measured by how
+    # many questions were answered rather than against the passage length.
+    verdict = save_user_progress(
+        user,
+        responses,
+        [feedback, corrections],
+        tags,
+        metrics=item_metrics(
+            user.current_exercise,
+            answered=sum(1 for answer in responses if str(answer).strip()),
+            total=len(reading_prompt.questions),
+        ),
+    )
 
-    return corrections, feedback
+    if verdict.genuine and reading_prompt.passage:
+        vocab_file.harvest(username, reading_prompt.passage)
+
+    return corrections, feedback, verdict
 
 
 def create_text(exercise_context: ExerciseContext):
 
-    agent_input = agent_inputs(AgentNames.READING_GENERATOR, system_prompt=r_generation_system_prompt, 
-                               exercise_context=exercise_context, schema=ReadingGeneration)
+    request = agent_request(AgentNames.READING_GENERATOR, system_prompt=r_generation_system_prompt,
+                            exercise_context=exercise_context, schema=ReadingGeneration)
 
-    return response_format(agent_input, ReadingGeneration)
+    return container.llm().structured(request, ReadingGeneration)
 
 
 
 def response_tagging(user_responses: list[str], reading_prompt: ReadingGeneration, exercise_context: ExerciseContext):
 
-    agent_input = agent_inputs(AgentNames.READING_TAGGING, system_prompt=r_progress_tagging_system_prompt, exercise_context=exercise_context,
-                               input=user_responses, schema=Progress, stimulus=reading_prompt)
+    request = agent_request(AgentNames.READING_TAGGING, system_prompt=r_progress_tagging_system_prompt, exercise_context=exercise_context,
+                            input=user_responses, schema=Progress, stimulus=reading_prompt)
 
-    return response_format(agent_input, Progress)
+    return container.llm().structured(request, Progress)
 
 
 def text_correction(user_response: list[str], exercise_context: ExerciseContext, writing_instruction: str):
 
-    agent_input = agent_inputs(AgentNames.READING_CORRECTOR, system_prompt=r_text_correction_system_prompt, 
-                               exercise_context=exercise_context, schema=TextCorrections, stimulus=writing_instruction,input=user_response)
+    request = agent_request(AgentNames.READING_CORRECTOR, system_prompt=r_text_correction_system_prompt,
+                            exercise_context=exercise_context, schema=TextCorrections, stimulus=writing_instruction, input=user_response)
 
-    return response_format(agent_input, TextCorrections)
+    return container.llm().structured(request, TextCorrections)
 
 
 def question_marking(user_responses: list[str], reading_prompt: ReadingGeneration, exercise_context: ExerciseContext):
 
-    agent_input = agent_inputs(AgentNames.READING_SUMMARY, system_prompt=r_answer_system_prompt, schema=QuestionMarking,
-                               exercise_context=exercise_context, stimulus=reading_prompt, input=user_responses)
+    request = agent_request(AgentNames.READING_SUMMARY, system_prompt=r_answer_system_prompt, schema=QuestionMarking,
+                            exercise_context=exercise_context, stimulus=reading_prompt, input=user_responses)
 
-    return response_format(agent_input, QuestionMarking)
+    return container.llm().structured(request, QuestionMarking)

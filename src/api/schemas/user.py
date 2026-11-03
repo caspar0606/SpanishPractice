@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from src.domain.models.user import User
+from src.domain.enums import OnboardingStep
 
 class UserRequest(BaseModel):
     username: str
@@ -8,4 +8,6 @@ class UserRequest(BaseModel):
     new: bool
 
 class UserResponse(BaseModel):
-    user: User
+    username: str
+    token: str
+    step: OnboardingStep

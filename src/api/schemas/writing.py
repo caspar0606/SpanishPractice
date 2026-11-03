@@ -1,12 +1,13 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
-from src.domain.models.exercise import ExerciseContext
+from src.api.schemas.learn import LessonCard
 from src.infrastructure.llm.contracts.writing import WritingSummary
 from src.infrastructure.llm.contracts.text_correction import TextCorrection
 
 class WritingGenerationRequest(BaseModel):
+    """The server rebuilds the exercise context from the stored exercise."""
+
     username: str
-    exercise_context: ExerciseContext
 
 class WritingGenerationResponse(BaseModel):
     prompt: str
@@ -19,6 +20,10 @@ class WritingUserRequest(BaseModel):
 class WritingSummaryResponse(BaseModel):
     corrections: TextCorrection
     feedback: WritingSummary
+    # Whether this attempt counted towards the learner's level, and why not.
+    counted: bool = True
+    not_counted_reasons: list[str] = []
+    lessons: list[LessonCard] = Field(default_factory=list)
 
 
 

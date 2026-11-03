@@ -1,9 +1,9 @@
 from datetime import datetime
 from typing import Any, ClassVar, Optional
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, Field, field_validator, model_validator
 
-from src.domain.enums import DifficultyLevels, ExerciseTypes, Grammar, Tenses, Topics
+from src.domain.enums import Band, ExerciseTypes, Grammar, LengthPreference, Tenses, Topics
 from src.domain.models.progress import Progress
 
 
@@ -13,22 +13,55 @@ class AreasOfFocus(BaseModel):
         "focus_grammar": None,
         "focus_topics": ["travel"],
     }
-    model_config = ConfigDict(json_schema_extra={"example": _EXAMPLE})
 
     focus_tenses: Optional[list[Tenses]] = None
     focus_grammar: Optional[list[Grammar]] = None
     focus_topics: Optional[list[Topics]] = None
+
+    @field_validator("focus_tenses", "focus_grammar", "focus_topics", mode="before")
+    @classmethod
+    def _empty_list_to_none(cls, value: Any) -> Any:
+        if value == []:
+            return None
+        return value
 
     @classmethod
     def example_json(cls) -> dict:
         return cls._EXAMPLE.copy()
 
 class ExerciseConfig(BaseModel):
-    _EXAMPLE: ClassVar[dict] = {"difficulty": "beginner", "word_count": 160}
-    model_config = ConfigDict(json_schema_extra={"example": _EXAMPLE})
+    _EXAMPLE: ClassVar[dict] = {
+        "level": 4,
+        "length": "standard",
+        "word_count": 100,
+        "question_count": 0,
+        "level_hint": "Level 4 of 8: common vocabulary, simple past and present, mostly simple sentences.",
+    }
 
-    difficulty: DifficultyLevels
+    band: Band
+    level: int | None = None
+    length: LengthPreference = LengthPreference.STANDARD
     word_count: int
+    question_count: int = 0
+    cefr_hint: str = ""
+
+    @model_validator(mode="after")
+    def _fill_display_level(self):
+        if self.level is None:
+            from src.domain.rules.band import display_level
+
+            self.level = display_level(self.band)
+        return self
+
+    def dump_for_prompt(self) -> dict:
+        """JSON for the LLM: 0–8 level, no internal band names."""
+        return {
+            "level": self.level,
+            "length": self.length.value,
+            "word_count": self.word_count,
+            "question_count": self.question_count,
+            "level_hint": self.cefr_hint,
+        }
 
     @classmethod
     def example_json(cls) -> dict:
@@ -37,7 +70,8 @@ class ExerciseConfig(BaseModel):
 class Exercise(BaseModel):
     id: str
     exercise_type: ExerciseTypes
-    difficulty_level: DifficultyLevels
+    band: Band
+    length: LengthPreference = LengthPreference.STANDARD
     areas_of_focus: AreasOfFocus
     start_time: datetime
     end_time: Optional[datetime] = None
@@ -47,14 +81,39 @@ class ExerciseContext(BaseModel):
         "areas_of_focus": AreasOfFocus._EXAMPLE,
         "exercise_config": ExerciseConfig._EXAMPLE,
     }
-    model_config = ConfigDict(json_schema_extra={"example": _EXAMPLE})
 
     areas_of_focus: AreasOfFocus
-    exercise_config: ExerciseConfig 
+    exercise_config: ExerciseConfig
+
+    def dump_for_prompt(self) -> dict:
+        return {
+            "areas_of_focus": self.areas_of_focus.model_dump(mode="json"),
+            "exercise_config": self.exercise_config.dump_for_prompt(),
+        }
 
     @classmethod
     def example_json(cls) -> dict:
         return cls._EXAMPLE.copy()
+
+class AttemptMetrics(BaseModel):
+    """Observable facts about one submission, used to judge effort.
+
+    `items_total` is zero for prose exercises; it is only set for drills.
+    """
+
+    seconds_spent: float = 0.0
+    response_words: int = 0
+    target_words: int = 0
+    items_total: int = 0
+    items_answered: int = 0
+
+
+class GenuineVerdict(BaseModel):
+    """Whether an attempt counts as evidence of ability."""
+
+    genuine: bool
+    reasons: list[str] = Field(default_factory=list)
+
 
 class ExerciseStorage(BaseModel):
     id: str
@@ -67,5 +126,5 @@ class ExerciseStorage(BaseModel):
     user_response: Optional[Any] = None
     feedback: Optional[Any] = None
     score: Optional[Progress] = None
-
-
+    metrics: Optional[AttemptMetrics] = None
+    genuine: Optional[bool] = None

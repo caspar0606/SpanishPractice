@@ -1,16 +1,19 @@
+from src.application import container
 from src.application.exercise_selection import create_exercise_context
-from src.application.services.progress import build_drill_progress_update, save_user_progress
+from src.application.services.exercise_common import user_exercise_cache
+from src.application.services.progress import (
+    build_drill_progress_update,
+    item_metrics,
+    save_user_progress,
+)
 from src.domain.enums import DrillTypes
-from src.domain.models.exercise import ExerciseContext
+from src.domain.models.exercise import ExerciseContext, GenuineVerdict
+from src.domain.models.llm import agent_request
 from src.domain.rules.config import QUESTION_NUMBER_CONFIG
 from src.infrastructure.llm.contracts.drills import DrillMarkingSet, Drills, MarkedDrills, UserDrillResponses, DrillSet, \
                                                     DRILL_GENERATE_TYPE_CONFIG, DRILL_MARKING_TYPE_CONFIG
-from src.infrastructure.llm.contracts.shared import AgentNames
 from src.infrastructure.llm.prompts.drills import DRILLS_PROMPT_CONFIG
-from src.infrastructure.llm.harness import agent_inputs, response_format
 from src.domain.models.progress import ComputeStats
-from src.infrastructure.persistence.file_storage import save_user_state
-from src.infrastructure.persistence.user_storage import user_exercise_cache
 
 
 def generate_drills(username: str) -> Drills:
@@ -36,22 +39,26 @@ def generate_drills(username: str) -> Drills:
     drills = create_drills(exercise_context)
 
     user.current_exercise.prompt = drills
-    save_user_state(user)
+    container.users().save(user)
 
     return drills
 
 
 
-def submit_drills(username: str, responses: UserDrillResponses) -> MarkedDrills:
+def submit_drills(
+    username: str,
+    responses: UserDrillResponses,
+) -> tuple[MarkedDrills, GenuineVerdict]:
     """Marks user responses to drill exercises, updates user progress, and returns LLM feedback.
-    
-    Args: 
+
+    Args:
         username: Used to load user and current exercise objects.
         responses: Formatted user responses to drill exercises.
-        
-        
+
+
     Returns:
-        feedback including all marked drills, correct answers, user responses, and comments.
+        Feedback including all marked drills, correct answers, user responses, and
+        comments, plus whether the attempt counted towards the learner's level.
     """
     
     user, exercise = user_exercise_cache(username)
@@ -73,9 +80,33 @@ def submit_drills(username: str, responses: UserDrillResponses) -> MarkedDrills:
     feedback = mark_drill_sets(responses, drills_prompt, exercise_context)
     score = build_drill_progress_update(exercise_context, feedback)
 
-    save_user_progress(user, responses, feedback, score)
+    verdict = save_user_progress(
+        user,
+        responses,
+        feedback,
+        score,
+        metrics=item_metrics(
+            user.current_exercise,
+            answered=count_answered(responses),
+            total=count_questions(drills_prompt),
+        ),
+    )
 
-    return feedback
+    return feedback, verdict
+
+
+def count_questions(drills: Drills) -> int:
+    return sum(len(drill_set.drills or []) for drill_set in drills.drill_sets.values())
+
+
+def count_answered(responses: UserDrillResponses) -> int:
+    """Blank answers are skips, so they do not count as attempted."""
+    return sum(
+        1
+        for answers in responses.responses.values()
+        for answer in (answers or [])
+        if str(answer).strip()
+    )
 
 
 
@@ -90,7 +121,7 @@ def create_drills(exercise_context: ExerciseContext) -> Drills:
     """
     
     #Defines number of questions per drill type
-    question_set = QUESTION_NUMBER_CONFIG[exercise_context.exercise_config.difficulty]
+    question_set = QUESTION_NUMBER_CONFIG[exercise_context.exercise_config.band]
 
     if exercise_context.areas_of_focus.focus_grammar:
         types = [DrillTypes.OPTION_SELECTION, DrillTypes.TRANSLATION, DrillTypes.ERROR_CORRECTION]
@@ -181,13 +212,14 @@ def create_drill_set(exercise_context: ExerciseContext, question_set: dict, dril
         A DrillSet object including drill question, correct answer, and [options].
     """
     
-    agent_input = agent_inputs(name=DRILL_GENERATE_TYPE_CONFIG[drill_type], 
-                               system_prompt=DRILLS_PROMPT_CONFIG[drill_type]["generate"],
-                               exercise_context=exercise_context,
-                               schema=DrillSet,
-                               stimulus=f"number_of_questions: {question_set[drill_type]}")
-    
-    return response_format(agent_input, DrillSet)
+    request = agent_request(name=DRILL_GENERATE_TYPE_CONFIG[drill_type],
+                            system_prompt=DRILLS_PROMPT_CONFIG[drill_type]["generate"],
+                            exercise_context=exercise_context,
+                            schema=DrillSet,
+                            stimulus=f"number_of_questions: {question_set[drill_type]}")
+
+    result = container.llm().structured(request, DrillSet)
+    return result.model_copy(update={"drill_type": drill_type})
             
 
 
@@ -205,11 +237,12 @@ def mark_drill_set(user_response: list[str], drill_set: DrillSet,
         A marked drill including correct answers, user responses, and comments.
     """
     
-    agent_input = agent_inputs(name=DRILL_MARKING_TYPE_CONFIG[drill_type], 
-                               system_prompt=DRILLS_PROMPT_CONFIG[drill_type]["mark"],
-                               exercise_context=exercise_context,
-                               schema=DrillMarkingSet,
-                               input=user_response,
-                               stimulus=[drill_set.model_dump_json()])
-    
-    return response_format(agent_input, DrillMarkingSet)
+    request = agent_request(name=DRILL_MARKING_TYPE_CONFIG[drill_type],
+                            system_prompt=DRILLS_PROMPT_CONFIG[drill_type]["mark"],
+                            exercise_context=exercise_context,
+                            schema=DrillMarkingSet,
+                            input=user_response,
+                            stimulus=[drill_set.model_dump_json()])
+
+    result = container.llm().structured(request, DrillMarkingSet)
+    return result.model_copy(update={"drill_type": drill_type})

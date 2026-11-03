@@ -1,10 +1,9 @@
 from typing import ClassVar, Optional
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, Field, field_validator
 
-from src.domain.enums import DrillTypes
+from src.domain.enums import AgentNames, DrillTypes
 from src.domain.models.progress import ComputeStats
-from src.infrastructure.llm.contracts.shared import AgentNames
 
 
 class DrillItem(BaseModel):
@@ -13,7 +12,6 @@ class DrillItem(BaseModel):
         "answer": "fui",
         "options": None,
     }
-    model_config = ConfigDict(json_schema_extra={"example": _EXAMPLE})
 
     prompt: str
     answer: str
@@ -28,7 +26,6 @@ class DrillSet(BaseModel):
         "drill_type": DrillTypes.SENTENCE_COMPLETION.value,
         "drills": [DrillItem._EXAMPLE],
     }
-    model_config = ConfigDict(json_schema_extra={"example": _EXAMPLE})
 
     drill_type: DrillTypes
     drills: list[DrillItem]
@@ -48,12 +45,11 @@ class DrillMarking(BaseModel):
         "comment": None,
         "is_correct": True,
     }
-    model_config = ConfigDict(json_schema_extra={"example": _EXAMPLE})
 
     prompt: str
     answer: str
     user_response: str
-    comment: Optional[str] 
+    comment: Optional[str] = None 
     is_correct: bool
 
     @classmethod
@@ -66,7 +62,6 @@ class DrillMarkingSet(BaseModel):
         "marked_drills": [DrillMarking._EXAMPLE],
         "stats": ComputeStats._EXAMPLE,
     }
-    model_config = ConfigDict(json_schema_extra={"example": _EXAMPLE})
 
     drill_type: DrillTypes
     marked_drills: list[DrillMarking]

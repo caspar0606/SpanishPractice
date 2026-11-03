@@ -1,0 +1,24 @@
+{
+  "key": "gender_agreement",
+  "axis": "grammar",
+  "title_en": "Masculine and feminine agreement",
+  "rule": "Articles and adjectives must match the noun's gender: el libro rojo, la casa roja. Most nouns ending in -o are masculine; most ending in -a are feminine, with well-known exceptions (el día, la mano, el problema).",
+  "examples": [
+    {
+      "es": "La mesa blanca está en la cocina.",
+      "en": "The white table is in the kitchen.",
+      "note": "mesa is feminine, so la and blanca."
+    },
+    {
+      "es": "Tengo un problema serio.",
+      "en": "I have a serious problem.",
+      "note": "problema is masculine despite -a."
+    },
+    {
+      "es": "Mis amigos mexicanos llegan mañana.",
+      "en": "My Mexican friends arrive tomorrow.",
+      "note": "A mixed or all-male group takes masculine plural."
+    }
+  ],
+  "common_mistake": "English has no gender, so learners often freeze the adjective (rojo for everything) or guess from the English word instead of the Spanish noun."
+}

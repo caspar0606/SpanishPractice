@@ -1,0 +1,54 @@
+{
+  "key": "condicional_simple",
+  "axis": "tense",
+  "title_en": "Conditional (would)",
+  "when_to_use": [
+    "Use it for polite requests and hypotheticals: '¿Podrías ayudarme?' / 'Yo viajaría más.'",
+    "It often pairs with a past-subjunctive 'if' clause later; for now, treat it as English 'would'.",
+    "Softening advice: 'Yo hablaría con ella.'"
+  ],
+  "table": {
+    "hablar": {
+      "yo": "hablaría",
+      "tú": "hablarías",
+      "él/ella": "hablaría",
+      "nosotros": "hablaríamos",
+      "vosotros": "hablaríais",
+      "ellos/ellas": "hablarían"
+    },
+    "comer": {
+      "yo": "comería",
+      "tú": "comerías",
+      "él/ella": "comería",
+      "nosotros": "comeríamos",
+      "vosotros": "comeríais",
+      "ellos/ellas": "comerían"
+    },
+    "vivir": {
+      "yo": "viviría",
+      "tú": "vivirías",
+      "él/ella": "viviría",
+      "nosotros": "viviríamos",
+      "vosotros": "viviríais",
+      "ellos/ellas": "vivirían"
+    }
+  },
+  "examples": [
+    {
+      "es": "Me gustaría vivir cerca del mar.",
+      "en": "I would like to live near the sea.",
+      "note": "A wish, not a firm plan."
+    },
+    {
+      "es": "¿Podrías repetir eso, por favor?",
+      "en": "Could you repeat that, please?",
+      "note": "Polite request."
+    },
+    {
+      "es": "Con más tiempo, viajaríamos en tren.",
+      "en": "With more time, we would travel by train.",
+      "note": "A hypothetical."
+    }
+  ],
+  "common_mistake": "Don't use the future here. 'I would go' is 'iría', not 'iré'. 'Iré' is 'I will go'."
+}

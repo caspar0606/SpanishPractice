@@ -1,16 +1,15 @@
 
 from datetime import datetime
 
-from typing import ClassVar
+from typing import ClassVar, Optional
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, Field
 
-from src.domain.enums import Grammar, Tenses, Topics
+from src.domain.enums import Band, Grammar, RelativeLevel, Skill, Tenses, Topics
 
 
 class ComputeStats(BaseModel):
     _EXAMPLE: ClassVar[dict] = {"total_attempts": 3.0, "correct_attempts": 2.0}
-    model_config = ConfigDict(json_schema_extra={"example": _EXAMPLE})
 
     total_attempts: float = 0
     correct_attempts: float = 0
@@ -45,15 +44,31 @@ class Progress(BaseModel):
             "relationships": ComputeStats._EXAMPLE,
         },
     }
-    model_config = ConfigDict(json_schema_extra={"example": _EXAMPLE})
 
-    tenses: dict[Tenses, ComputeStats]
-    grammar: dict[Grammar, ComputeStats] 
-    topics: dict[Topics, ComputeStats]
+    tenses: dict[Tenses, ComputeStats] = Field(default_factory=dict)
+    grammar: dict[Grammar, ComputeStats] = Field(default_factory=dict)
+    topics: dict[Topics, ComputeStats] = Field(default_factory=dict)
 
     @classmethod
     def example_json(cls) -> dict:
         return cls._EXAMPLE.copy()
+
+
+class SkillProgress(BaseModel):
+    """Layer two: how the learner is doing at one skill.
+
+    `relative_level` says whether this skill lags, matches, or leads the
+    learner's top-level band, so reading can run ahead of speaking.
+    """
+
+    relative_level: RelativeLevel = RelativeLevel.AT
+    genuine_attempts: int = 0
+    total_attempts: int = 0
+    rolling_accuracy: float = 0.0
+    last_practised: Optional[datetime] = None
+    # Layer three, scoped to this skill.
+    concepts: Progress = Field(default_factory=Progress)
+
 
 class ProgressUpdates(BaseModel):
     id: str
@@ -61,5 +76,8 @@ class ProgressUpdates(BaseModel):
     time: datetime
     score: Progress
     new_progress: Progress
-
-
+    skill: Optional[Skill] = None
+    genuine: bool = True
+    accuracy: Optional[float] = None
+    band: Optional[Band] = None
+    band_change: Optional[str] = None

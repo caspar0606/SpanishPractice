@@ -1,6 +1,6 @@
 from typing import ClassVar
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel
 
 from src.domain.enums import Grammar, Tenses, Topics
 
@@ -11,7 +11,6 @@ class Edit(BaseModel):
         "corrected_text": "Yo fui al mercado.",
         "reason": "Incorrect verb conjugation for first person singular.",
     }
-    model_config = ConfigDict(json_schema_extra={"example": _EXAMPLE})
 
     original_text: str
     corrected_text: str
@@ -51,7 +50,6 @@ class TextCorrection(BaseModel):
         "typos": [Edit._EXAMPLE],
         "other_mistakes": [Edit._EXAMPLE],
     }
-    model_config = ConfigDict(json_schema_extra={"example": _EXAMPLE})
 
     corrected_version: str
     tense_errors: dict[Tenses, list[Edit]]
