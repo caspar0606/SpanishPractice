@@ -2877,7 +2877,8 @@ function renderSpeakingPractice() {
 
   const note = document.createElement("p");
   note.className = "hint";
-  note.textContent = "Record a short answer in Spanish. We mark grammar, not pronunciation.";
+  note.textContent =
+    "Record a short answer in Spanish. We mark grammar, not pronunciation. Nothing appears in the box while you talk — the full transcript shows up after you tap Stop.";
 
   const controls = document.createElement("div");
   controls.className = "speaking-controls";
@@ -2899,6 +2900,7 @@ function renderSpeakingPractice() {
   const ta = document.createElement("textarea");
   ta.id = "speaking-transcript";
   ta.required = true;
+  ta.placeholder = "Your speech will appear here after you stop recording.";
   const submit = document.createElement("button");
   submit.type = "submit";
   submit.className = "btn btn-primary";
@@ -2969,7 +2971,7 @@ function renderSpeakingPractice() {
       recorder.start();
       recording = true;
       recordBtn.querySelector(".btn-label").textContent = "Stop";
-      statusLine.textContent = "Recording… tap Stop when you finish.";
+      statusLine.textContent = "Recording… tap Stop when you finish. The transcript appears then, not live.";
     } catch (e) {
       const denied = e && (e.name === "NotAllowedError" || e.name === "PermissionDeniedError");
       statusLine.textContent = denied

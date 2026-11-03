@@ -38,6 +38,16 @@ def test_writing_prompt_uses_level_not_cefr():
     assert "level_hint" in text
 
 
+def test_writing_prompt_calibrates_the_instructions_as_well_as_the_task():
+    text = writing_prompts.w_instruction_system_prompt.lower()
+    assert "all learner-facing spanish" in text
+    assert "actual writing instructions" in text
+    assert "levels 0–2" in text or "levels 0-2" in text
+    assert "levels 7–8" in text or "levels 7-8" in text
+    assert "target word_count" in text
+    assert "not how difficult the instructions are" in text
+
+
 def test_reading_prompt_keeps_grammar_implicit():
     text = reading_prompts.r_generation_system_prompt
     assert "Never name them" in text or "do not name them" in text.lower()
